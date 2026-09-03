@@ -3,3 +3,4 @@ print("Hello World2..!")
 a = "Vishal"
 reverse = a[::-1]
 print(reverse)
+print("pull")
