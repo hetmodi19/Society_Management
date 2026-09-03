@@ -1,0 +1,296 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Flat {{ unit.unit_number }} - SmartSociety 360{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <a href="{% url 'properties:units' %}" style="font-size: 0.85rem; color: var(--primary); font-weight: 600;">← Back to Flats Directory</a>
+    <h1 class="page-title" style="margin-top: 0.35rem;">
+      Flat {{ unit.unit_number }} Profile
+    </h1>
+    <p class="page-subtitle">{{ unit.wing.name }} • Floor {{ unit.floor }} • {{ unit.get_unit_type_display }} ({{ unit.square_feet }} Sq. Ft.)</p>
+  </div>
+  <div>
+    <span class="badge {% if unit.occupancy_status == 'OWNER' %}badge-owner{% elif unit.occupancy_status == 'TENANT' %}badge-tenant{% else %}badge-vacant{% endif %}" style="font-size: 0.95rem; padding: 0.5rem 1rem;">
+      ● {{ unit.get_occupancy_status_display }}
+    </span>
+  </div>
+</div>
+
+<!-- Grid for Owner, Tenant & Specifications -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+  
+  <!-- Registered Owner Card -->
+  <div class="glass-card" style="border-top: 4px solid var(--primary);">
+    <div class="card-header">
+      <h2 class="card-title"><span>👑</span> Registered Property Owner</h2>
+      <span class="badge badge-primary">Owner of Record</span>
+    </div>
+
+    {% if unit.owner %}
+      <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem;">
+        <div class="user-avatar" style="width: 52px; height: 52px; font-size: 1.2rem;">{{ unit.owner.initials }}</div>
+        <div>
+          <h3 style="font-size: 1.2rem; margin-bottom: 0.2rem;">{{ unit.owner.full_name }}</h3>
+          <span style="font-size: 0.82rem; color: var(--text-muted);">{{ unit.owner.get_role_display }}</span>
+        </div>
+      </div>
+
+      <div style="background: var(--bg-surface-elevated); padding: 1rem; border-radius: var(--radius-sm); font-size: 0.88rem; display: flex; flex-direction: column; gap: 0.5rem;">
+        <div style="display: flex; justify-content: space-between;">
+          <span style="color: var(--text-muted);">Contact Phone:</span>
+          <strong>{{ unit.owner.phone_number|default:"Not Provided" }}</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between;">
+          <span style="color: var(--text-muted);">Official Email:</span>
+          <strong>{{ unit.owner.email }}</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between;">
+          <span style="color: var(--text-muted);">Intercom Extension:</span>
+          <strong style="font-family: monospace; color: var(--primary);">Ext #{{ unit.intercom_extension|default:unit.unit_number }}</strong>
+        </div>
+      </div>
+    {% else %}
+      <p style="color: var(--text-muted); padding: 1rem; text-align: center;">No registered owner assigned yet.</p>
+    {% endif %}
+  </div>
+
+  <!-- Current Resident / Tenant Card -->
+  <div class="glass-card" style="border-top: 4px solid {% if unit.occupancy_status == 'TENANT' %}var(--accent-amber){% else %}var(--accent-emerald){% endif %};">
+    <div class="card-header">
+      <h2 class="card-title">
+        <span>{% if unit.occupancy_status == 'TENANT' %}🏡{% else %}🏠{% endif %}</span>
+        {% if unit.occupancy_status == 'TENANT' %}Current Tenant / Occupant{% else %}Primary Resident (Self){% endif %}
+      </h2>
+      <span class="badge {% if unit.occupancy_status == 'TENANT' %}badge-pending{% else %}badge-paid{% endif %}">
+        {{ unit.get_occupancy_status_display }}
+      </span>
+    </div>
+
+    {% if unit.occupancy_status == 'TENANT' and unit.primary_resident %}
+      <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem;">
+        <div class="user-avatar" style="width: 52px; height: 52px; font-size: 1.2rem; background: linear-gradient(135deg, var(--accent-amber), #f59e0b);">
+          {{ unit.primary_resident.initials }}
+        </div>
+        <div>
+          <h3 style="font-size: 1.2rem; margin-bottom: 0.2rem;">{{ unit.primary_resident.full_name }}</h3>
+          <span style="font-size: 0.82rem; color: var(--accent-amber); font-weight: 700;">Active Lease Holder</span>
+        </div>
+      </div>
+
+      <div style="background: var(--bg-surface-elevated); padding: 1rem; border-radius: var(--radius-sm); font-size: 0.88rem; display: flex; flex-direction: column; gap: 0.5rem;">
+        <div style="display: flex; justify-content: space-between;">
+          <span style="color: var(--text-muted);">Tenant Phone:</span>
+          <strong>{{ unit.primary_resident.phone_number|default:"Not Provided" }}</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between;">
+          <span style="color: var(--text-muted);">Tenant Email:</span>
+          <strong>{{ unit.primary_resident.email }}</strong>
+        </div>
+        {% if unit.primary_resident.resident_profile.occupation %}
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: var(--text-muted);">Occupation:</span>
+            <strong>{{ unit.primary_resident.resident_profile.occupation }}</strong>
+          </div>
+        {% endif %}
+      </div>
+    {% elif unit.occupancy_status == 'OWNER' %}
+      <div style="background: var(--accent-emerald-light); color: var(--accent-emerald); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: var(--radius-sm); padding: 1.5rem; text-align: center;">
+        <span style="font-size: 2rem;">🏡</span>
+        <h4 style="margin-top: 0.5rem; color: inherit;">Owner-Occupied Residence</h4>
+        <p style="font-size: 0.85rem; color: inherit; margin: 0;">This apartment is occupied directly by registered property owner {{ unit.owner.full_name }}.</p>
+      </div>
+    {% else %}
+      <div style="background: var(--bg-surface-elevated); border-radius: var(--radius-sm); padding: 1.5rem; text-align: center;">
+        <span style="font-size: 2rem;">📭</span>
+        <h4 style="margin-top: 0.5rem;">Vacant Apartment</h4>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">No active tenant registered.</p>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Flat Specifications & Parking Allocation -->
+  <div class="glass-card" style="border-top: 4px solid var(--accent-cyan);">
+    <div class="card-header">
+      <h2 class="card-title"><span>🚗</span> Flat Amenities & Parking</h2>
+      <span class="badge badge-info">{{ unit.wing.code }} Block</span>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.88rem;">
+      <div style="background: var(--bg-surface-elevated); padding: 0.75rem 1rem; border-radius: var(--radius-sm); display:flex; justify-content:space-between;">
+        <span style="color: var(--text-muted);">Assigned Parking Slot:</span>
+        <strong style="color: var(--accent-cyan); font-family: 'JetBrains Mono', monospace;">{{ unit.parking_slot_number|default:"None Allocated" }}</strong>
+      </div>
+
+      <div style="background: var(--bg-surface-elevated); padding: 0.75rem 1rem; border-radius: var(--radius-sm); display:flex; justify-content:space-between;">
+        <span style="color: var(--text-muted);">Carpet Area (Sq Ft):</span>
+        <strong>{{ unit.square_feet }} sq. ft.</strong>
+      </div>
+
+      <div style="background: var(--bg-surface-elevated); padding: 0.75rem 1rem; border-radius: var(--radius-sm); display:flex; justify-content:space-between;">
+        <span style="color: var(--text-muted);">Floor Elevation:</span>
+        <strong>Floor {{ unit.floor }}</strong>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Tabs for Vehicles, Domestic Helpers, Invoices & Service Tickets -->
+<div class="tabs-container">
+  <div class="tabs-nav">
+    <button class="tab-btn active" data-tab="tabVehicles">Registered Vehicles ({{ vehicles.count }})</button>
+    <button class="tab-btn" data-tab="tabStaff">Domestic Helpers ({{ staff.count }})</button>
+    <button class="tab-btn" data-tab="tabBills">Maintenance Invoices ({{ recent_bills.count }})</button>
+    <button class="tab-btn" data-tab="tabTickets">Service Tickets ({{ recent_tickets.count }})</button>
+  </div>
+
+  <!-- Vehicles Tab -->
+  <div class="tab-pane" id="tabVehicles">
+    <div class="glass-card">
+      <div class="table-responsive">
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>License Plate</th>
+              <th>Make & Model</th>
+              <th>Vehicle Type</th>
+              <th>Assigned Parking</th>
+              <th>RFID Tag</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for v in vehicles %}
+              <tr>
+                <td><strong style="font-family: 'JetBrains Mono', monospace;">{{ v.license_plate }}</strong></td>
+                <td>{{ v.make_model }}</td>
+                <td><span class="badge badge-info">{{ v.get_vehicle_type_display }}</span></td>
+                <td>{{ v.parking_slot|default:"Standard" }}</td>
+                <td><code>{{ v.rfid_tag|default:"N/A" }}</code></td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 2rem;">No vehicles registered for Flat {{ unit.unit_number }}.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Domestic Helpers Tab -->
+  <div class="tab-pane" id="tabStaff" style="display: none;">
+    <div class="glass-card">
+      <div class="table-responsive">
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>Helper Name</th>
+              <th>Role</th>
+              <th>Contact Phone</th>
+              <th>Gate Passcode</th>
+              <th>Working Hours</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for s in staff %}
+              <tr>
+                <td><strong>{{ s.name }}</strong></td>
+                <td><span class="badge badge-purple">{{ s.get_role_type_display }}</span></td>
+                <td>{{ s.phone_number }}</td>
+                <td><strong style="color: var(--primary); font-family: 'JetBrains Mono', monospace;">{{ s.passcode }}</strong></td>
+                <td>{{ s.working_hours }}</td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 2rem;">No domestic helpers assigned to this flat.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Maintenance Invoices Tab -->
+  <div class="tab-pane" id="tabBills" style="display: none;">
+    <div class="glass-card">
+      <div class="table-responsive">
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>Invoice #</th>
+              <th>Billing Month</th>
+              <th>Total Amount</th>
+              <th>Paid Amount</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for bill in recent_bills %}
+              <tr>
+                <td><strong>{{ bill.bill_number }}</strong></td>
+                <td>{{ bill.billing_month|date:"F Y" }}</td>
+                <td><strong>₹{{ bill.total_amount|intcomma }}</strong></td>
+                <td>₹{{ bill.paid_amount|intcomma }}</td>
+                <td>
+                  <span class="badge {% if bill.status == 'PAID' %}badge-paid{% elif bill.status == 'PARTIAL' %}badge-pending{% else %}badge-unpaid{% endif %}">
+                    {{ bill.get_status_display }}
+                  </span>
+                </td>
+                <td>
+                  <a href="{% url 'billing:detail' pk=bill.pk %}" class="btn btn-outline btn-sm">View Statement</a>
+                </td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 2rem;">No invoices generated for Flat {{ unit.unit_number }}.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Service Tickets Tab -->
+  <div class="tab-pane" id="tabTickets" style="display: none;">
+    <div class="glass-card">
+      <div class="table-responsive">
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>Ticket #</th>
+              <th>Issue Title</th>
+              <th>Category</th>
+              <th>Priority</th>
+              <th>Status</th>
+              <th>Logged On</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for tck in recent_tickets %}
+              <tr>
+                <td><a href="{% url 'helpdesk:detail' pk=tck.pk %}"><strong>{{ tck.ticket_number }}</strong></a></td>
+                <td>{{ tck.title|truncatechars:45 }}</td>
+                <td><span class="badge badge-info">{{ tck.get_category_display }}</span></td>
+                <td><span class="badge badge-warning">{{ tck.get_priority_display }}</span></td>
+                <td><span class="badge badge-paid">{{ tck.get_status_display }}</span></td>
+                <td>{{ tck.created_at|date:"d M Y" }}</td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 2rem;">No service complaints logged for Flat {{ unit.unit_number }}.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

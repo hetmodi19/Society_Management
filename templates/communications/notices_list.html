@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Notice Board & Circulars - SmartSociety 360{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Society Notice Board & Circulars 📢</h1>
+    <p class="page-subtitle">Official announcements, maintenance schedules, AGM agendas, and society circulars.</p>
+  </div>
+  {% if user.is_society_admin or user.is_committee_member %}
+    <a href="{% url 'communications:create_notice' %}" class="btn btn-primary btn-sm">+ Publish Official Notice</a>
+  {% endif %}
+</div>
+
+<!-- Notice Type Filter -->
+<div class="glass-card" style="margin-bottom: 1.5rem; padding: 0.75rem 1.25rem;">
+  <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+    <a href="{% url 'communications:notices' %}" class="btn {% if not selected_type %}btn-primary{% else %}btn-outline{% endif %} btn-sm">All Circulars</a>
+    <a href="{% url 'communications:notices' %}?type=AGM" class="btn {% if selected_type == 'AGM' %}btn-primary{% else %}btn-outline{% endif %} btn-sm">AGM / Meetings</a>
+    <a href="{% url 'communications:notices' %}?type=MAINTENANCE" class="btn {% if selected_type == 'MAINTENANCE' %}btn-primary{% else %}btn-outline{% endif %} btn-sm">Maintenance / Shutdown</a>
+    <a href="{% url 'communications:notices' %}?type=URGENT" class="btn {% if selected_type == 'URGENT' %}btn-primary{% else %}btn-outline{% endif %} btn-sm">Urgent Alerts</a>
+    <a href="{% url 'communications:notices' %}?type=EVENT" class="btn {% if selected_type == 'EVENT' %}btn-primary{% else %}btn-outline{% endif %} btn-sm">Festivals & Events</a>
+  </div>
+</div>
+
+<!-- Notices Grid -->
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1.25rem;">
+  {% for n in notices %}
+    <div class="glass-card interactive" style="display: flex; flex-direction: column; justify-content: space-between; {% if n.is_pinned %}border-left: 4px solid var(--primary);{% endif %}">
+      <div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+          <span class="badge {% if n.notice_type == 'URGENT' %}badge-danger{% elif n.notice_type == 'AGM' %}badge-primary{% else %}badge-info{% endif %}">
+            {{ n.get_notice_type_display }}
+          </span>
+          <small style="color: var(--text-muted);">{{ n.created_at|date:"d M Y" }}</small>
+        </div>
+
+        <h3 style="font-size: 1.15rem; margin-bottom: 0.5rem; line-height: 1.35;">
+          {% if n.is_pinned %}📌 {% endif %}{{ n.title }}
+        </h3>
+
+        <p style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 1.25rem;">
+          {{ n.content|truncatechars:140 }}
+        </p>
+      </div>
+
+      <div style="border-top: 1px solid var(--border-subtle); padding-top: 0.75rem; display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 0.75rem; color: var(--text-muted);">Issued by: {{ n.author.full_name }}</span>
+        <a href="{% url 'communications:notice_detail' pk=n.pk %}" class="btn btn-outline btn-sm">Read Full Notice →</a>
+      </div>
+    </div>
+  {% empty %}
+    <div class="glass-card" style="grid-column: 1 / -1; text-align: center; padding: 3rem;">
+      <p style="color: var(--text-muted);">No notices published in this category.</p>
+    </div>
+  {% endfor %}
+</div>
+{% endblock %}

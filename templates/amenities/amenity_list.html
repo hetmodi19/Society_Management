@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Clubhouse & Society Amenities - SmartSociety 360{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Clubhouse Facilities & Amenities 🏊</h1>
+    <p class="page-subtitle">Reserve sports courts, banquet halls, swimming pool slots, and leisure decks.</p>
+  </div>
+  <div style="display: flex; gap: 0.75rem;">
+    <a href="{% url 'amenities:my_bookings' %}" class="btn btn-secondary btn-sm">🎟️ My Bookings</a>
+    {% if user.is_society_admin or user.is_committee_member %}
+      <a href="{% url 'amenities:manage' %}" class="btn btn-primary btn-sm">⭐ Manage Approvals</a>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Category Tabs -->
+<div class="glass-card" style="margin-bottom: 1.5rem; padding: 0.75rem 1.25rem;">
+  <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+    <a href="{% url 'amenities:list' %}" class="btn {% if not selected_category %}btn-primary{% else %}btn-outline{% endif %} btn-sm">All Facilities</a>
+    <a href="{% url 'amenities:list' %}?category=Sports" class="btn {% if selected_category == 'Sports' %}btn-primary{% else %}btn-outline{% endif %} btn-sm">Sports & Courts</a>
+    <a href="{% url 'amenities:list' %}?category=Fitness" class="btn {% if selected_category == 'Fitness' %}btn-primary{% else %}btn-outline{% endif %} btn-sm">Gym & Wellness</a>
+    <a href="{% url 'amenities:list' %}?category=Event" class="btn {% if selected_category == 'Event' %}btn-primary{% else %}btn-outline{% endif %} btn-sm">Banquet & Parties</a>
+  </div>
+</div>
+
+<!-- Amenities Grid -->
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem;">
+  {% for a in amenities %}
+    <div class="glass-card interactive" style="display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; padding: 0;">
+      <!-- Amenity Banner Visual / Placeholder -->
+      <div style="height: 140px; background: linear-gradient(135deg, rgba(99, 102, 241, 0.4), rgba(6, 182, 212, 0.4)), var(--bg-surface-elevated); display: flex; align-items: center; justify-content: center; font-size: 3.5rem; position: relative;">
+        {% if 'Pool' in a.name %}🏊{% elif 'Hall' in a.name %}🎉{% elif 'Gym' in a.name %}💪{% elif 'Tennis' in a.name %}🎾{% else %}🏛️{% endif %}
+        <div style="position: absolute; bottom: 0.75rem; right: 0.75rem; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); padding: 0.25rem 0.65rem; border-radius: var(--radius-full); font-size: 0.78rem; font-weight: 700; color: #fff;">
+          {% if a.hourly_rate > 0 %}₹{{ a.hourly_rate }}/hr{% else %}Free for Residents{% endif %}
+        </div>
+      </div>
+
+      <div style="padding: 1.25rem; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+            <h3 style="font-size: 1.2rem;">{{ a.name }}</h3>
+          </div>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1rem; line-height: 1.5;">
+            {{ a.description|truncatechars:110 }}
+          </p>
+        </div>
+
+        <div style="font-size: 0.82rem; color: var(--text-secondary); display: flex; flex-direction: column; gap: 0.35rem; background: var(--bg-surface-elevated); padding: 0.75rem; border-radius: var(--radius-sm); margin-bottom: 1rem;">
+          <div>📍 <strong>Location:</strong> {{ a.location }}</div>
+          <div>⏰ <strong>Hours:</strong> {{ a.open_time|time:"H:i" }} - {{ a.close_time|time:"H:i" }}</div>
+          <div>👥 <strong>Capacity:</strong> Max {{ a.capacity }} persons</div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          {% if a.requires_approval %}
+            <span class="badge badge-warning" style="font-size: 0.72rem;">Approval Needed</span>
+          {% else %}
+            <span class="badge badge-paid" style="font-size: 0.72rem;">Instant Slot</span>
+          {% endif %}
+          <a href="{% url 'amenities:detail' slug=a.slug %}" class="btn btn-primary btn-sm">Reserve Slot →</a>
+        </div>
+      </div>
+    </div>
+  {% empty %}
+    <div class="glass-card" style="grid-column: 1 / -1; text-align: center; padding: 3rem;">
+      <p style="color: var(--text-muted);">No amenities configured in this category.</p>
+    </div>
+  {% endfor %}
+</div>
+{% endblock %}

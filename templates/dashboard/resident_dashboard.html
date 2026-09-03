@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Resident Dashboard - SmartSociety 360{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Welcome Home, {{ user.first_name|default:user.username }}! 🌿</h1>
+    <p class="page-subtitle">
+      {% if primary_unit %}
+        Resident of Flat <strong>{{ primary_unit.unit_number }}</strong> ({{ primary_unit.wing.name }})
+      {% else %}
+        Emerald Greens Residential Enclave
+      {% endif %}
+    </p>
+  </div>
+  <div style="display: flex; gap: 0.75rem;">
+    <a href="{% url 'gatekeeper:create_pass' %}" class="btn btn-primary btn-sm">+ Issue Visitor Pass</a>
+    <a href="{% url 'helpdesk:create' %}" class="btn btn-secondary btn-sm">+ Raise Complaint</a>
+  </div>
+</div>
+
+<!-- Primary Resident Metric Cards -->
+<div class="stats-grid">
+  <!-- Dues Card -->
+  <div class="stat-card {% if total_unpaid_amount > 0 %}rose{% else %}emerald{% endif %}">
+    <div class="stat-info">
+      <span class="stat-label">Maintenance Dues</span>
+      <span class="stat-value">₹{{ total_unpaid_amount|intcomma }}</span>
+      <span class="stat-subtext">{% if total_unpaid_amount > 0 %}Due by 15th of Month{% else %}All Dues Clear ✓{% endif %}</span>
+    </div>
+    <div class="stat-icon">💳</div>
+  </div>
+
+  <!-- Active Passes -->
+  <div class="stat-card cyan">
+    <div class="stat-info">
+      <span class="stat-label">Active Guest Passes</span>
+      <span class="stat-value">{{ active_passes.count }}</span>
+      <span class="stat-subtext">Pre-approved PIN Clearance</span>
+    </div>
+    <div class="stat-icon">🎟️</div>
+  </div>
+
+  <!-- Deliveries / Parcels -->
+  <div class="stat-card amber">
+    <div class="stat-info">
+      <span class="stat-label">Parcels at Gate</span>
+      <span class="stat-value">{{ uncollected_parcels.count }}</span>
+      <span class="stat-subtext">Awaiting Pickup from Locker</span>
+    </div>
+    <div class="stat-icon">📦</div>
+  </div>
+
+  <!-- Open Tickets -->
+  <div class="stat-card purple">
+    <div class="stat-info">
+      <span class="stat-label">Service Requests</span>
+      <span class="stat-value">{{ open_tickets.count }}</span>
+      <span class="stat-subtext">Active Maintenance Issues</span>
+    </div>
+    <div class="stat-icon">🔧</div>
+  </div>
+</div>
+
+<!-- Quick Living Innovations Bar -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+  <a href="{% url 'amenities:ev_charging' %}" class="glass-card interactive" style="padding: 1rem; display: flex; align-items: center; gap: 0.75rem;">
+    <span style="font-size: 1.6rem;">⚡</span>
+    <div>
+      <strong style="font-size: 0.9rem;">EV Charging</strong>
+      <div style="font-size: 0.72rem; color: var(--text-muted);">Reserve Fast Bay</div>
+    </div>
+  </a>
+
+  <a href="{% url 'amenities:list' %}" class="glass-card interactive" style="padding: 1rem; display: flex; align-items: center; gap: 0.75rem;">
+    <span style="font-size: 1.6rem;">🏊</span>
+    <div>
+      <strong style="font-size: 0.9rem;">Clubhouse</strong>
+      <div style="font-size: 0.72rem; color: var(--text-muted);">Pool, Gym & Courts</div>
+    </div>
+  </a>
+
+  <a href="{% url 'communications:lost_found' %}" class="glass-card interactive" style="padding: 1rem; display: flex; align-items: center; gap: 0.75rem;">
+    <span style="font-size: 1.6rem;">🔍</span>
+    <div>
+      <strong style="font-size: 0.9rem;">Lost & Found</strong>
+      <div style="font-size: 0.72rem; color: var(--text-muted);">Community Vault</div>
+    </div>
+  </a>
+
+  <a href="{% url 'properties:move_requests' %}" class="glass-card interactive" style="padding: 1rem; display: flex; align-items: center; gap: 0.75rem;">
+    <span style="font-size: 1.6rem;">🚚</span>
+    <div>
+      <strong style="font-size: 0.9rem;">Service Lift</strong>
+      <div style="font-size: 0.72rem; color: var(--text-muted);">Shifting Scheduler</div>
+    </div>
+  </a>
+
+  <a href="{% url 'communications:documents' %}" class="glass-card interactive" style="padding: 1rem; display: flex; align-items: center; gap: 0.75rem;">
+    <span style="font-size: 1.6rem;">📂</span>
+    <div>
+      <strong style="font-size: 0.9rem;">Society Docs</strong>
+      <div style="font-size: 0.72rem; color: var(--text-muted);">Bye-laws & Minutes</div>
+    </div>
+  </a>
+</div>
+
+<!-- Bills & Notices Grid -->
+<div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+  <!-- Maintenance Invoices Card -->
+  <div class="glass-card">
+    <div class="card-header">
+      <h2 class="card-title"><span>💳</span> Monthly Maintenance Invoices</h2>
+      <a href="{% url 'billing:bills' %}" class="btn btn-outline btn-sm">All Bills →</a>
+    </div>
+
+    {% if my_unpaid_bills %}
+      {% for b in my_unpaid_bills %}
+        <div style="background: var(--bg-surface-elevated); border: 1px solid var(--accent-rose); border-radius: var(--radius-sm); padding: 1.25rem; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <div style="font-weight: 700; font-size: 1.1rem; color: var(--accent-rose);">
+              {{ b.billing_month|date:"F Y" }} Maintenance Due
+            </div>
+            <div style="font-size: 0.85rem; color: var(--text-muted);">
+              Invoice #{{ b.bill_number }} • Due by {{ b.due_date|date:"d M Y" }}
+            </div>
+            <div style="font-size: 1.4rem; font-weight: 800; font-family: 'Outfit', sans-serif; color: var(--text-primary); margin-top: 0.35rem;">
+              ₹{{ b.remaining_due|intcomma }}
+            </div>
+          </div>
+          <div>
+            <a href="{% url 'billing:pay' pk=b.pk %}" class="btn btn-success">
+              ⚡ Pay Now with UPI / Card
+            </a>
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div style="background: var(--accent-emerald-light); color: var(--accent-emerald); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: var(--radius-sm); padding: 1.25rem; text-align: center; margin-bottom: 1rem;">
+        <span style="font-size: 1.5rem;">🎉</span>
+        <strong style="display: block; margin-top: 0.35rem;">All Maintenance Accounts Up-to-Date!</strong>
+        <p style="font-size: 0.85rem; margin: 0; color: inherit;">No pending outstanding balances.</p>
+      </div>
+    {% endif %}
+
+    <div class="table-responsive">
+      <table class="custom-table">
+        <thead>
+          <tr>
+            <th>Month</th>
+            <th>Amount</th>
+            <th>Status</th>
+            <th>Receipt</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for bill in my_bills|slice:":4" %}
+            <tr>
+              <td>{{ bill.billing_month|date:"M Y" }}</td>
+              <td><strong>₹{{ bill.total_amount|intcomma }}</strong></td>
+              <td>
+                <span class="badge {% if bill.status == 'PAID' %}badge-paid{% elif bill.status == 'PARTIAL' %}badge-pending{% else %}badge-unpaid{% endif %}">
+                  {{ bill.get_status_display }}
+                </span>
+              </td>
+              <td>
+                <a href="{% url 'billing:detail' pk=bill.pk %}" class="btn btn-outline btn-sm">View</a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Pinned Notice Board -->
+  <div class="glass-card">
+    <div class="card-header">
+      <h2 class="card-title"><span>📢</span> Notice Board Circulars</h2>
+      <a href="{% url 'communications:notices' %}" class="btn btn-outline btn-sm">View All →</a>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 1rem;">
+      {% for n in pinned_notices %}
+        <div style="background: var(--bg-surface-elevated); padding: 1rem; border-radius: var(--radius-sm); border-left: 3.5px solid var(--primary);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+            <span class="badge {% if n.notice_type == 'URGENT' %}badge-danger{% else %}badge-info{% endif %}" style="font-size: 0.72rem;">
+              {{ n.get_notice_type_display }}
+            </span>
+            <small style="color: var(--text-muted);">{{ n.created_at|date:"d M Y" }}</small>
+          </div>
+          <h4 style="font-size: 0.98rem; margin-bottom: 0.35rem;">
+            <a href="{% url 'communications:notice_detail' pk=n.pk %}" style="color: var(--text-primary);">
+              {{ n.title }}
+            </a>
+          </h4>
+          <p style="font-size: 0.82rem; color: var(--text-secondary); margin: 0; line-height: 1.4;">
+            {{ n.content|truncatechars:100 }}
+          </p>
+        </div>
+      {% empty %}
+        <p style="color: var(--text-muted); text-align: center; padding: 2rem;">No notices currently published.</p>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

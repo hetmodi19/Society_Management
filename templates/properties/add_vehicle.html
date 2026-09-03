@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Register New Vehicle - SmartSociety 360{% endblock %}
+
+{% block content %}
+<div style="max-width: 540px; margin: 2rem auto;">
+  <div class="glass-card">
+    <div class="card-header">
+      <h2 class="card-title"><span>🚗</span> Register New Vehicle</h2>
+    </div>
+
+    <form method="post" action="{% url 'properties:add_vehicle' %}">
+      {% csrf_token %}
+      
+      <div class="form-group">
+        <label class="form-label">Select Registered Flat *</label>
+        {{ form.unit }}
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Vehicle Type *</label>
+        {{ form.vehicle_type }}
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">License Plate / Registration # *</label>
+        {{ form.license_plate }}
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Make & Model *</label>
+        {{ form.make_model }}
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Designated Parking Slot</label>
+        {{ form.parking_slot }}
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">RFID Tag Sticker (Optional)</label>
+        {{ form.rfid_tag }}
+      </div>
+
+      <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+        <button type="submit" class="btn btn-primary" style="flex: 1;">Save Vehicle</button>
+        <a href="{% url 'properties:vehicles' %}" class="btn btn-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

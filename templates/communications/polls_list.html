@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Democratic Society Polls & Voting - SmartSociety 360{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Society Polls & Democratic Referendums 🗳️</h1>
+    <p class="page-subtitle">Cast your 1-member-1-vote on capital projects, budget allocations, and society policies.</p>
+  </div>
+  {% if user.is_society_admin or user.is_committee_member %}
+    <a href="{% url 'communications:create_poll' %}" class="btn btn-primary btn-sm">+ Create New Poll</a>
+  {% endif %}
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 1.5rem;">
+  {% for poll in polls %}
+    <div class="glass-card interactive" style="border-top: 4px solid var(--primary); display: flex; flex-direction: column; justify-content: space-between;">
+      <div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+          <span class="badge {% if poll.is_closed %}badge-neutral{% else %}badge-primary{% endif %}">
+            {% if poll.is_closed %}Closed{% else %}Active Voting{% endif %}
+          </span>
+          <small style="color: var(--text-muted);">{{ poll.total_votes }} total votes</small>
+        </div>
+
+        <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem; line-height: 1.35;">{{ poll.question }}</h3>
+        {% if poll.description %}
+          <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1.25rem;">{{ poll.description }}</p>
+        {% endif %}
+
+        <!-- Options / Vote Results -->
+        <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.5rem;">
+          {% for opt in poll.options.all %}
+            <div style="background: var(--bg-surface-elevated); padding: 0.75rem 1rem; border-radius: var(--radius-sm);">
+              <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.35rem;">
+                <span style="font-weight: 600;">{{ opt.option_text }}</span>
+                <strong>{{ opt.percentage }}% ({{ opt.votes_count }})</strong>
+              </div>
+              <div class="progress-bar-container">
+                <div class="progress-bar-fill" style="width: {{ opt.percentage }}%;"></div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div style="border-top: 1px solid var(--border-subtle); padding-top: 1rem;">
+        {% if poll.is_closed %}
+          <span style="font-size: 0.82rem; color: var(--text-muted);">Voting concluded on {{ poll.end_date }}</span>
+        {% elif user.id and poll.id in user_voted_map %}
+          <div class="badge badge-paid" style="width: 100%; justify-content: center; padding: 0.5rem;">
+            ✓ Your Vote Has Been Recorded
+          </div>
+        {% else %}
+          <form method="post" action="{% url 'communications:vote_poll' pk=poll.pk %}">
+            {% csrf_token %}
+            <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 0.75rem;">
+              {% for opt in poll.options.all %}
+                <label class="form-check" style="font-size: 0.85rem;">
+                  <input type="radio" name="option_id" value="{{ opt.id }}" class="form-check-input" required>
+                  <span>{{ opt.option_text }}</span>
+                </label>
+              {% endfor %}
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm" style="width: 100%;">Submit Vote</button>
+          </form>
+        {% endif %}
+      </div>
+    </div>
+  {% empty %}
+    <div class="glass-card" style="grid-column: 1 / -1; text-align: center; padding: 3rem;">
+      <p style="color: var(--text-muted);">No polls currently open.</p>
+    </div>
+  {% endfor %}
+</div>
+{% endblock %}

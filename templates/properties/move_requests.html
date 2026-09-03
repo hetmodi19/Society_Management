@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Move-In / Move-Out & Service Lift Scheduler - SmartSociety 360{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Service Lift & Move-In / Move-Out Scheduler 🚚</h1>
+    <p class="page-subtitle">Schedule shifting trucks, reserve designated service elevators, and obtain security clearance.</p>
+  </div>
+  <button class="btn btn-primary btn-sm" data-modal-target="createMoveRequestModal">+ Schedule Shifting / Fit-Out Slot</button>
+</div>
+
+<!-- Active Move Requests -->
+<div class="glass-card" style="margin-bottom: 2rem;">
+  <div class="card-header">
+    <h2 class="card-title"><span>📋</span> Scheduled Move-Ins & Heavy Fit-Out Slots</h2>
+  </div>
+
+  <div class="table-responsive">
+    <table class="custom-table">
+      <thead>
+        <tr>
+          <th>Flat #</th>
+          <th>Request Type</th>
+          <th>Move Date & Slot</th>
+          <th>Service Lift</th>
+          <th>Movers & Packers</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for req in requests_list %}
+          <tr>
+            <td><strong>{{ req.unit.unit_number }}</strong> ({{ req.unit.wing.code }})</td>
+            <td>
+              <span class="badge {% if req.move_type == 'MOVE_IN' %}badge-success{% elif req.move_type == 'MOVE_OUT' %}badge-warning{% else %}badge-info{% endif %}">
+                {{ req.get_move_type_display }}
+              </span>
+            </td>
+            <td>
+              <strong>{{ req.move_date|date:"d F Y" }}</strong>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">{{ req.time_slot }}</div>
+            </td>
+            <td>
+              {% if req.service_lift_required %}
+                <span style="color: var(--accent-emerald); font-weight: 700;">✓ Lift Reserved</span>
+              {% else %}
+                <span style="color: var(--text-muted);">Not Required</span>
+              {% endif %}
+            </td>
+            <td>{{ req.moving_company_name|default:"Self / Local" }} ({{ req.vehicle_count }} Truck)</td>
+            <td>
+              <span class="badge {% if req.status == 'APPROVED' %}badge-paid{% elif req.status == 'PENDING' %}badge-pending{% else %}badge-neutral{% endif %}">
+                {{ req.get_status_display }}
+              </span>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 2.5rem;">No shifting requests scheduled.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Guidelines Glass Card -->
+<div class="glass-card" style="border-left: 4px solid var(--accent-amber);">
+  <h3 style="font-size: 1.1rem; margin-bottom: 0.5rem;">⚠️ Society Shifting & Service Elevator Rules</h3>
+  <ul style="color: var(--text-secondary); font-size: 0.88rem; line-height: 1.7; padding-left: 1.25rem;">
+    <li>Heavy shifting is only allowed between <strong>08:00 AM and 08:00 PM</strong> to maintain quiet hours for residents.</li>
+    <li>Passenger elevators must NEVER be used for heavy furniture, ply boards, or appliances. Use the designated padded service lift.</li>
+    <li>A refundable security deposit of ₹10,000 may be held against common area corridor/lift damage during full fit-outs.</li>
+  </ul>
+</div>
+
+<!-- Move Request Modal -->
+<div class="modal-backdrop" id="createMoveRequestModal">
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <h3 style="font-size: 1.2rem;">🚚 Schedule Shifting / Move-In</h3>
+      <button type="button" data-modal-close style="background:none; border:none; color:var(--text-muted); font-size:1.5rem; cursor:pointer;">×</button>
+    </div>
+    <form method="post" action="{% url 'properties:move_requests' %}">
+      {% csrf_token %}
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Flat / Unit *</label>
+          {{ form.unit }}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Activity Type *</label>
+          {{ form.move_type }}
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label class="form-label">Move Date *</label>
+            {{ form.move_date }}
+          </div>
+          <div class="form-group">
+            <label class="form-label">Time Slot *</label>
+            {{ form.time_slot }}
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Movers & Packers Name</label>
+          {{ form.moving_company_name }}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Number of Transport Vehicles</label>
+          {{ form.vehicle_count }}
+        </div>
+        <div class="form-group" style="margin: 0.75rem 0;">
+          <label class="form-check">
+            {{ form.service_lift_required }}
+            <span class="form-label" style="margin: 0;">Reserve Padded Service Elevator</span>
+          </label>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Notes & Special Heavy Items</label>
+          {{ form.notes }}
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-modal-close>Cancel</button>
+        <button type="submit" class="btn btn-primary">Submit for Clearance</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Sign In - SmartSociety 360 Enterprise ERP{% endblock %}
+
+{% block content %}
+<div style="max-width: 440px; margin: 2rem auto;">
+  <div class="glass-card" style="border-top: 4px solid var(--primary); padding: 2.25rem;">
+    <div style="text-align: center; margin-bottom: 2rem;">
+      <div class="brand-logo" style="margin: 0 auto 1rem; width: 56px; height: 56px; font-size: 1.6rem;">EG</div>
+      <h1 style="font-size: 1.6rem; margin-bottom: 0.35rem;">Resident Portal</h1>
+      <p style="font-size: 0.88rem; color: var(--text-secondary);">Emerald Greens Residential Enclave</p>
+    </div>
+
+    <form method="post" action="{% url 'accounts:login' %}{% if request.GET.next %}?next={{ request.GET.next|urlencode }}{% endif %}">
+      {% csrf_token %}
+      
+      <div class="form-group">
+        <label class="form-label">Username / Registered Email *</label>
+        <input type="text" name="username" id="loginUsernameInput" class="form-control" placeholder="e.g. john_doe" required autofocus>
+      </div>
+
+      <div class="form-group">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <label class="form-label">Password *</label>
+          <a href="{% url 'accounts:security' %}" style="font-size: 0.78rem; color: var(--primary);">Forgot?</a>
+        </div>
+        <div class="password-field-wrapper">
+          <input type="password" name="password" id="loginPasswordInput" class="form-control" placeholder="••••••••" required>
+          <button type="button" class="password-toggle-btn" title="Toggle visibility">🔒</button>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem; padding: 0.8rem;">
+        Secure Sign In →
+      </button>
+    </form>
+
+    <!-- Sample Credentials Reference (Fills form inputs on click) -->
+    <div style="margin-top: 2rem; border-top: 1px solid var(--border-subtle); padding-top: 1.25rem;">
+      <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; margin-bottom: 0.75rem; text-align: center;">
+        🔑 Quick Fill Sample Credentials
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+        <button type="button" class="btn btn-secondary btn-sm" style="font-size: 0.78rem;" onclick="fillCredentials('admin', 'admin123')">
+          👑 Admin / President
+        </button>
+        <button type="button" class="btn btn-secondary btn-sm" style="font-size: 0.78rem;" onclick="fillCredentials('secretary', 'committee123')">
+          📜 Secretary
+        </button>
+        <button type="button" class="btn btn-secondary btn-sm" style="font-size: 0.78rem;" onclick="fillCredentials('john_doe', 'resident123')">
+          🏠 Flat Owner (A-402)
+        </button>
+        <button type="button" class="btn btn-secondary btn-sm" style="font-size: 0.78rem;" onclick="fillCredentials('sarah_smith', 'resident123')">
+          🏡 Tenant (B-201)
+        </button>
+        <button type="button" class="btn btn-secondary btn-sm" style="font-size: 0.78rem;" onclick="fillCredentials('guard_raj', 'guard123')">
+          🛡️ Gate Guard
+        </button>
+        <button type="button" class="btn btn-secondary btn-sm" style="font-size: 0.78rem;" onclick="fillCredentials('mike_electrician', 'staff123')">
+          🔧 Technician
+        </button>
+      </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 1.5rem; font-size: 0.85rem; color: var(--text-muted);">
+      New resident moving in? <a href="{% url 'accounts:register' %}" style="color: var(--primary); font-weight: 700;">Register Account</a>
+    </div>
+  </div>
+</div>
+
+<script>
+function fillCredentials(user, pwd) {
+  document.getElementById('loginUsernameInput').value = user;
+  document.getElementById('loginPasswordInput').value = pwd;
+  showToast('Credentials filled. Click "Secure Sign In" to authenticate.');
+}
+</script>
+{% endblock %}

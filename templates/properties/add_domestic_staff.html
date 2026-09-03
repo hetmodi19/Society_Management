@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Register Helper / Staff - SmartSociety 360{% endblock %}
+
+{% block content %}
+<div style="max-width: 540px; margin: 2rem auto;">
+  <div class="glass-card">
+    <div class="card-header">
+      <h2 class="card-title"><span>🧹</span> Register Helper / Staff Pass</h2>
+    </div>
+
+    <form method="post" action="{% url 'properties:add_staff' %}">
+      {% csrf_token %}
+      
+      <div class="form-group">
+        <label class="form-label">Full Name *</label>
+        {{ form.name }}
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Helper Category / Role *</label>
+        {{ form.role_type }}
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Phone Number *</label>
+        {{ form.phone_number }}
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">4-Digit Gate Passcode (Unique) *</label>
+        {{ form.passcode }}
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Daily Shift / Working Hours</label>
+        {{ form.working_hours }}
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Assigned Flats (Hold Ctrl/Cmd to select multiple)</label>
+        {{ form.assigned_units }}
+      </div>
+
+      <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+        <button type="submit" class="btn btn-primary" style="flex: 1;">Register Helper</button>
+        <a href="{% url 'properties:staff' %}" class="btn btn-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

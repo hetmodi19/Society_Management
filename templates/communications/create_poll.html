@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Create Society Referendum Poll - SmartSociety 360{% endblock %}
+
+{% block content %}
+<div style="max-width: 580px; margin: 2rem auto;">
+  <div class="glass-card">
+    <div class="card-header">
+      <h2 class="card-title"><span>🗳️</span> Create Society Referendum Poll</h2>
+    </div>
+
+    <form method="post" action="{% url 'communications:create_poll' %}">
+      {% csrf_token %}
+      
+      <div class="form-group">
+        <label class="form-label">Poll Question *</label>
+        <input type="text" name="question" class="form-control" placeholder="e.g. Should we approve 50kW Solar installation?" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Description / Background Context</label>
+        <textarea name="description" class="form-control" rows="3" placeholder="Explain the proposal, budget, or policy details..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Voting Duration (Days) *</label>
+        <input type="number" name="duration_days" class="form-control" value="7" min="1" max="30" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Voting Options (Minimum 2) *</label>
+        <div style="display: flex; flex-direction: column; gap: 0.5rem;" id="pollOptionsContainer">
+          <input type="text" name="options" class="form-control" placeholder="Option 1 (e.g. Yes, approve immediately)" required>
+          <input type="text" name="options" class="form-control" placeholder="Option 2 (e.g. No, reject proposal)" required>
+          <input type="text" name="options" class="form-control" placeholder="Option 3 (Optional)">
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+        <button type="submit" class="btn btn-primary" style="flex: 1;">Publish Society Poll</button>
+        <a href="{% url 'communications:polls' %}" class="btn btn-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Society Document & Bye-Laws Vault - SmartSociety 360{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Society Document & Bye-Laws Vault 📂</h1>
+    <p class="page-subtitle">Access registered society bye-laws, AGM minutes, fire safety certificates, and financial audit balance sheets.</p>
+  </div>
+  {% if user.is_society_admin or user.is_committee_member %}
+    <button class="btn btn-primary btn-sm" data-modal-target="uploadDocModal">+ Upload Official Document</button>
+  {% endif %}
+</div>
+
+<!-- Category Filters -->
+<div class="glass-card" style="margin-bottom: 1.5rem; padding: 0.75rem 1.25rem;">
+  <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+    <a href="{% url 'communications:documents' %}" class="btn {% if not selected_category %}btn-primary{% else %}btn-outline{% endif %} btn-sm">All Documents</a>
+    <a href="{% url 'communications:documents' %}?category=BYELAWS" class="btn {% if selected_category == 'BYELAWS' %}btn-primary{% else %}btn-outline{% endif %} btn-sm">Bye-Laws & Rules</a>
+    <a href="{% url 'communications:documents' %}?category=AGM_MINUTES" class="btn {% if selected_category == 'AGM_MINUTES' %}btn-primary{% else %}btn-outline{% endif %} btn-sm">AGM Meeting Minutes</a>
+    <a href="{% url 'communications:documents' %}?category=FINANCIAL" class="btn {% if selected_category == 'FINANCIAL' %}btn-primary{% else %}btn-outline{% endif %} btn-sm">Financial Audits</a>
+    <a href="{% url 'communications:documents' %}?category=FIRE_NOC" class="btn {% if selected_category == 'FIRE_NOC' %}btn-primary{% else %}btn-outline{% endif %} btn-sm">Fire Safety NOC</a>
+    <a href="{% url 'communications:documents' %}?category=FITOUT" class="btn {% if selected_category == 'FITOUT' %}btn-primary{% else %}btn-outline{% endif %} btn-sm">Renovation Guidelines</a>
+  </div>
+</div>
+
+<!-- Documents Grid -->
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1.5rem;">
+  {% for doc in docs %}
+    <div class="glass-card interactive" style="display: flex; flex-direction: column; justify-content: space-between;">
+      <div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+          <span class="badge badge-info">{{ doc.get_category_display }}</span>
+          <small style="color: var(--text-muted); font-family: monospace;">{{ doc.file_size_text }}</small>
+        </div>
+
+        <h3 style="font-size: 1.15rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.4rem;">
+          <span>📄</span> {{ doc.title }}
+        </h3>
+
+        {% if doc.description %}
+          <p style="color: var(--text-secondary); font-size: 0.88rem; line-height: 1.5; margin-bottom: 1.25rem;">
+            {{ doc.description }}
+          </p>
+        {% endif %}
+      </div>
+
+      <div style="border-top: 1px solid var(--border-subtle); padding-top: 0.85rem; display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 0.78rem; color: var(--text-muted);">Uploaded {{ doc.uploaded_at|date:"d M Y" }}</span>
+        <a href="#" class="btn btn-primary btn-sm" onclick="showToast('Downloading verified document certificate...'); return false;">
+          ⬇️ View Document
+        </a>
+      </div>
+    </div>
+  {% empty %}
+    <div class="glass-card" style="grid-column: 1 / -1; text-align: center; padding: 3rem;">
+      <p style="color: var(--text-muted);">No documents available in this category.</p>
+    </div>
+  {% endfor %}
+</div>
+
+<!-- Upload Doc Modal -->
+<div class="modal-backdrop" id="uploadDocModal">
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <h3 style="font-size: 1.2rem;">📂 Upload Official Society Document</h3>
+      <button type="button" data-modal-close style="background:none; border:none; color:var(--text-muted); font-size:1.5rem; cursor:pointer;">×</button>
+    </div>
+    <form method="post" action="{% url 'communications:documents' %}" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Document Title *</label>
+          {{ form.title }}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Category *</label>
+          {{ form.category }}
+        </div>
+        <div class="form-group">
+          <label class="form-label">PDF File Attachment *</label>
+          {{ form.document_file }}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Description / Summary</label>
+          {{ form.description }}
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-modal-close>Cancel</button>
+        <button type="submit" class="btn btn-primary">Publish to Vault</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

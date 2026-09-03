@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Visitor Pre-Approved Passes - SmartSociety 360{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Visitor Passes & QR Badges 🎟️</h1>
+    <p class="page-subtitle">Generate pre-approved digital passes for friends, delivery couriers, and maintenance technicians.</p>
+  </div>
+  <a href="{% url 'gatekeeper:create_pass' %}" class="btn btn-primary btn-sm">+ Generate New Guest Pass</a>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.5rem;">
+  {% for pass in passes %}
+    <div class="glass-card interactive {% if pass.is_valid_pass %}glow-emerald{% endif %}" style="border-top: 4px solid {% if pass.is_valid_pass %}var(--accent-emerald){% else %}var(--border-subtle){% endif %};">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+        <div>
+          <span class="badge {% if pass.is_valid_pass %}badge-paid{% else %}badge-neutral{% endif %}">
+            {% if pass.is_valid_pass %}● Valid Pass{% else %}Expired / Used{% endif %}
+          </span>
+          <h3 style="font-size: 1.25rem; margin-top: 0.45rem;">{{ pass.visitor_name }}</h3>
+          <span style="font-size: 0.85rem; color: var(--text-muted);">Flat {{ pass.unit.unit_number }} (Host: {{ pass.host_resident.full_name }})</span>
+        </div>
+        <div style="width: 48px; height: 48px; background: var(--bg-surface-elevated); border-radius: var(--radius-sm); display:flex; align-items:center; justify-content:center; font-size:1.5rem;">
+          🎟️
+        </div>
+      </div>
+
+      <!-- 6-digit PIN Box -->
+      <div style="background: var(--bg-surface-elevated); border: 2px dashed var(--primary); border-radius: var(--radius-md); padding: 1rem; text-align: center; margin: 1rem 0;">
+        <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; margin-bottom: 0.25rem;">
+          Security Verification Code
+        </div>
+        <div style="font-size: 2.2rem; font-family: 'JetBrains Mono', monospace; font-weight: 800; color: var(--primary); letter-spacing: 0.18em;">
+          {{ pass.pass_code }}
+        </div>
+        <button type="button" class="btn btn-outline btn-sm" style="margin-top: 0.5rem;" onclick="copyToClipboard('{{ pass.pass_code }}', 'Passcode {{ pass.pass_code }} copied!')">
+          📋 Copy Code
+        </button>
+      </div>
+
+      <div style="font-size: 0.85rem; color: var(--text-secondary); display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: 1.25rem;">
+        <div><strong>Purpose:</strong> {{ pass.purpose|default:"Personal Visit" }}</div>
+        <div><strong>Valid Until:</strong> {{ pass.valid_until|date:"d M Y, H:i" }} ({{ pass.valid_until|timeuntil }} remaining)</div>
+      </div>
+
+      <!-- Actions including WhatsApp Share -->
+      <div style="display: flex; gap: 0.5rem;">
+        <a href="https://api.whatsapp.com/send?text=Hello%20{{ pass.visitor_name|urlencode }}!%20Here%20is%20your%20entry%20pass%20for%20Emerald%20Greens%20Society,%20Flat%20{{ pass.unit.unit_number }}.%0A%0A*Security%20Gate%20Passcode:*%20{{ pass.pass_code }}%0A*Valid%20Until:*%20{{ pass.valid_until|date:'d M Y, H:i'|urlencode }}%0A%0APlease%20show%20this%20code%20at%20the%20Main%20Security%20Gate." target="_blank" class="btn btn-whatsapp btn-sm" style="flex: 1;">
+          <span>📲 WhatsApp Pass</span>
+        </a>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="showToast('QR Pass Badge saved as image')">
+          🖨️ Print Badge
+        </button>
+      </div>
+    </div>
+  {% empty %}
+    <div class="glass-card" style="grid-column: 1 / -1; text-align: center; padding: 3rem;">
+      <p style="color: var(--text-muted);">No visitor passes generated yet.</p>
+      <a href="{% url 'gatekeeper:create_pass' %}" class="btn btn-primary btn-sm" style="margin-top: 1rem;">Generate Your First Guest Pass</a>
+    </div>
+  {% endfor %}
+</div>
+{% endblock %}

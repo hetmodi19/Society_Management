@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Helpdesk & Service Tickets - SmartSociety 360{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Helpdesk & Maintenance Service Tickets 🔧</h1>
+    <p class="page-subtitle">{{ open_count }} Open • {{ in_progress_count }} In Progress • {{ resolved_count }} Resolved</p>
+  </div>
+  <a href="{% url 'helpdesk:create' %}" class="btn btn-primary btn-sm">+ Log New Complaint</a>
+</div>
+
+<!-- Stats Grid -->
+<div class="stats-grid">
+  <div class="stat-card rose">
+    <div class="stat-info">
+      <span class="stat-label">Open Complaints</span>
+      <span class="stat-value">{{ open_count }}</span>
+      <span class="stat-subtext">Awaiting technician assignment</span>
+    </div>
+    <div class="stat-icon">⏳</div>
+  </div>
+
+  <div class="stat-card amber">
+    <div class="stat-info">
+      <span class="stat-label">In Progress</span>
+      <span class="stat-value">{{ in_progress_count }}</span>
+      <span class="stat-subtext">Under repair by technician</span>
+    </div>
+    <div class="stat-icon">🛠️</div>
+  </div>
+
+  <div class="stat-card emerald">
+    <div class="stat-info">
+      <span class="stat-label">Resolved & Closed</span>
+      <span class="stat-value">{{ resolved_count }}</span>
+      <span class="stat-subtext">Successfully completed</span>
+    </div>
+    <div class="stat-icon">✓</div>
+  </div>
+</div>
+
+<!-- Filter Bar -->
+<div class="glass-card" style="margin-bottom: 1.5rem; padding: 1rem;">
+  <form method="get" style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+    <input type="text" name="q" value="{{ search_query }}" placeholder="Search by ticket #, title, flat..." class="form-control" style="flex: 1; min-width: 220px;">
+    <select name="status" class="form-control form-select" style="max-width: 160px;">
+      <option value="">All Statuses</option>
+      <option value="OPEN" {% if selected_status == 'OPEN' %}selected{% endif %}>Open</option>
+      <option value="IN_PROGRESS" {% if selected_status == 'IN_PROGRESS' %}selected{% endif %}>In Progress</option>
+      <option value="RESOLVED" {% if selected_status == 'RESOLVED' %}selected{% endif %}>Resolved</option>
+    </select>
+    <select name="category" class="form-control form-select" style="max-width: 170px;">
+      <option value="">All Categories</option>
+      <option value="PLUMBING" {% if selected_category == 'PLUMBING' %}selected{% endif %}>Plumbing</option>
+      <option value="ELECTRICAL" {% if selected_category == 'ELECTRICAL' %}selected{% endif %}>Electrical</option>
+      <option value="ELEVATOR" {% if selected_category == 'ELEVATOR' %}selected{% endif %}>Elevator</option>
+      <option value="SECURITY" {% if selected_category == 'SECURITY' %}selected{% endif %}>Security</option>
+    </select>
+    <button type="submit" class="btn btn-primary">Filter</button>
+  </form>
+</div>
+
+<!-- Tickets Table -->
+<div class="glass-card">
+  <div class="table-responsive">
+    <table class="custom-table">
+      <thead>
+        <tr>
+          <th>Ticket #</th>
+          <th>Issue Title & Details</th>
+          <th>Category</th>
+          <th>Priority</th>
+          <th>Raised By</th>
+          <th>Assigned Staff</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for tck in tickets %}
+          <tr>
+            <td><strong style="font-family: 'JetBrains Mono', monospace; color: var(--primary);">{{ tck.ticket_number }}</strong></td>
+            <td>
+              <a href="{% url 'helpdesk:detail' pk=tck.pk %}" style="font-weight: 700; color: var(--text-primary);">
+                {{ tck.title }}
+              </a>
+              <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;">
+                {{ tck.created_at|naturaltime }} • Flat {{ tck.unit.unit_number }}
+              </div>
+            </td>
+            <td><span class="badge badge-info">{{ tck.get_category_display }}</span></td>
+            <td>
+              {% if tck.priority == 'URGENT' %}
+                <span class="badge badge-danger">Urgent</span>
+              {% elif tck.priority == 'HIGH' %}
+                <span class="badge badge-warning">High</span>
+              {% else %}
+                <span class="badge badge-neutral">{{ tck.get_priority_display }}</span>
+              {% endif %}
+            </td>
+            <td>{{ tck.resident.full_name }}</td>
+            <td>
+              {% if tck.assigned_staff %}
+                <strong>{{ tck.assigned_staff.full_name }}</strong>
+              {% else %}
+                <span style="color: var(--text-muted);">Unassigned</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if tck.status == 'OPEN' %}
+                <span class="badge badge-unpaid">Open</span>
+              {% elif tck.status == 'IN_PROGRESS' %}
+                <span class="badge badge-pending">In Progress</span>
+              {% else %}
+                <span class="badge badge-paid">Resolved</span>
+              {% endif %}
+            </td>
+            <td>
+              <a href="{% url 'helpdesk:detail' pk=tck.pk %}" class="btn btn-outline btn-sm">View Details →</a>
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 2rem;">No maintenance tickets found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

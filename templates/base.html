@@ -1,0 +1,459 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}SmartSociety 360 - Next-Gen Residential ERP{% endblock %}</title>
+  
+  <!-- CSS Stylesheets -->
+  <link rel="stylesheet" href="{% static 'css/base.css' %}">
+  <link rel="stylesheet" href="{% static 'css/components.css' %}">
+  <link rel="stylesheet" href="{% static 'css/layout.css' %}">
+  
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar Overlay for Mobile -->
+    <div class="modal-backdrop" id="sidebarOverlay"></div>
+
+    <!-- App Sidebar -->
+    <aside class="app-sidebar" id="appSidebar">
+      <div class="sidebar-header">
+        <div class="brand-logo">EG</div>
+        <div class="brand-info">
+          <span class="brand-title">SmartSociety</span>
+          <span class="brand-badge">360 Enterprise</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a href="{% url 'dashboard' %}" class="nav-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+          <span class="nav-item-icon">📊</span>
+          <span>Dashboard</span>
+        </a>
+
+        {% if user.is_authenticated %}
+          {% if user.is_society_admin or user.is_committee_member %}
+            <div class="nav-section-title">Administration</div>
+            <a href="{% url 'properties:units' %}" class="nav-item {% if 'properties' in request.path and 'units' in request.path %}active{% endif %}">
+              <span class="nav-item-icon">🏢</span>
+              <span>Flats & Units</span>
+            </a>
+            <a href="{% url 'properties:directory' %}" class="nav-item {% if 'directory' in request.path %}active{% endif %}">
+              <span class="nav-item-icon">👥</span>
+              <span>Resident Directory</span>
+            </a>
+            <a href="{% url 'billing:ledger' %}" class="nav-item {% if 'ledger' in request.path %}active{% endif %}">
+              <span class="nav-item-icon">📑</span>
+              <span>Financial Ledger</span>
+            </a>
+            <a href="{% url 'amenities:manage' %}" class="nav-item {% if 'manage' in request.path %}active{% endif %}">
+              <span class="nav-item-icon">⭐</span>
+              <span>Amenity Approvals</span>
+            </a>
+          {% endif %}
+
+          <div class="nav-section-title">Finance & Billing</div>
+          <a href="{% url 'billing:bills' %}" class="nav-item {% if 'billing' in request.path and 'bills' in request.path %}active{% endif %}">
+            <span class="nav-item-icon">💳</span>
+            <span>Maintenance Bills</span>
+            {% if unpaid_bills_count > 0 %}
+              <span class="nav-badge">{{ unpaid_bills_count }}</span>
+            {% endif %}
+          </a>
+
+          <div class="nav-section-title">Security & Gate</div>
+          <a href="{% url 'gatekeeper:terminal' %}" class="nav-item {% if 'terminal' in request.path %}active{% endif %}">
+            <span class="nav-item-icon">🛡️</span>
+            <span>Gate Security Desk</span>
+          </a>
+          <a href="{% url 'gatekeeper:passes' %}" class="nav-item {% if 'passes' in request.path %}active{% endif %}">
+            <span class="nav-item-icon">🎟️</span>
+            <span>Visitor Passes (QR)</span>
+          </a>
+          <a href="{% url 'gatekeeper:parcels' %}" class="nav-item {% if 'parcels' in request.path %}active{% endif %}">
+            <span class="nav-item-icon">📦</span>
+            <span>Parcel Locker</span>
+          </a>
+
+          <div class="nav-section-title">Facilities & Eco-Living</div>
+          <a href="{% url 'amenities:list' %}" class="nav-item {% if 'amenities' in request.path and not 'manage' in request.path and not 'ev' in request.path %}active{% endif %}">
+            <span class="nav-item-icon">🏊</span>
+            <span>Clubhouse & Sports</span>
+          </a>
+          <a href="{% url 'amenities:ev_charging' %}" class="nav-item {% if 'ev-charging' in request.path %}active{% endif %}">
+            <span class="nav-item-icon">⚡</span>
+            <span>EV Charging Stations</span>
+          </a>
+          <a href="{% url 'properties:move_requests' %}" class="nav-item {% if 'move-requests' in request.path %}active{% endif %}">
+            <span class="nav-item-icon">🚚</span>
+            <span>Service Lift & Move-In</span>
+          </a>
+          <a href="{% url 'helpdesk:tickets' %}" class="nav-item {% if 'helpdesk' in request.path %}active{% endif %}">
+            <span class="nav-item-icon">🔧</span>
+            <span>Helpdesk Tickets</span>
+            {% if pending_tickets_count > 0 %}
+              <span class="nav-badge">{{ pending_tickets_count }}</span>
+            {% endif %}
+          </a>
+
+          <div class="nav-section-title">Community & Vault</div>
+          <a href="{% url 'communications:notices' %}" class="nav-item {% if 'notices' in request.path %}active{% endif %}">
+            <span class="nav-item-icon">📢</span>
+            <span>Notices & Circulars</span>
+          </a>
+          <a href="{% url 'communications:polls' %}" class="nav-item {% if 'polls' in request.path %}active{% endif %}">
+            <span class="nav-item-icon">🗳️</span>
+            <span>Democratic Polls</span>
+          </a>
+          <a href="{% url 'communications:forum' %}" class="nav-item {% if 'forum' in request.path %}active{% endif %}">
+            <span class="nav-item-icon">💬</span>
+            <span>Community Forum</span>
+          </a>
+          <a href="{% url 'communications:lost_found' %}" class="nav-item {% if 'lost-found' in request.path %}active{% endif %}">
+            <span class="nav-item-icon">🔍</span>
+            <span>Lost & Found Hub</span>
+          </a>
+          <a href="{% url 'communications:documents' %}" class="nav-item {% if 'documents' in request.path %}active{% endif %}">
+            <span class="nav-item-icon">📂</span>
+            <span>Document Vault</span>
+          </a>
+          <a href="{% url 'properties:violations' %}" class="nav-item {% if 'violations' in request.path %}active{% endif %}">
+            <span class="nav-item-icon">⚠️</span>
+            <span>Parking & Disputes</span>
+          </a>
+          <a href="{% url 'properties:vehicles' %}" class="nav-item {% if 'vehicles' in request.path %}active{% endif %}">
+            <span class="nav-item-icon">🚗</span>
+            <span>Vehicles & RFID</span>
+          </a>
+          <a href="{% url 'properties:staff' %}" class="nav-item {% if 'properties/staff' in request.path %}active{% endif %}">
+            <span class="nav-item-icon">🧹</span>
+            <span>Daily Helpers</span>
+          </a>
+        {% endif %}
+      </nav>
+
+      {% if user.is_authenticated %}
+        <div class="sidebar-footer">
+          <a href="{% url 'accounts:profile' %}" class="user-snippet">
+            <div class="user-avatar">{{ user.initials }}</div>
+            <div class="user-meta">
+              <div class="user-meta-name">{{ user.full_name }}</div>
+              <div class="user-meta-role">{{ user.get_role_display }}</div>
+            </div>
+          </a>
+        </div>
+      {% endif %}
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="app-main">
+      <!-- Top Sticky Header -->
+      <header class="app-header">
+        <div class="header-left">
+          <button class="sidebar-toggle-btn" id="sidebarToggleBtn" aria-label="Toggle Sidebar">☰</button>
+          <div class="society-tag">
+            <span style="font-size: 1.25rem;">🌿</span>
+            <strong>{{ SOCIETY_NAME }}</strong>
+          </div>
+
+          <!-- Quick Command Search Trigger -->
+          <button class="global-search-btn" data-modal-target="commandPaletteModal" title="Press Ctrl + K to search">
+            <span>🔍 Search flats, bills, residents...</span>
+            <span class="shortcut-badge">Ctrl K</span>
+          </button>
+        </div>
+
+        <div class="header-right">
+          <!-- Intercom Hotline Quick Dial -->
+          <button class="btn btn-secondary btn-sm" data-modal-target="intercomModal" title="Emergency Speed-Dial & Hotlines">
+            <span>📞 Hotlines</span>
+          </button>
+
+          <!-- 1-Click Role Switcher for Authenticated Users -->
+          {% if user.is_authenticated %}
+            <div class="demo-switcher">
+              <button class="demo-btn" id="demoSwitcherBtn" title="Instant Role Switcher for Evaluation">
+                <span>⚡ Switch Role</span>
+                <small>▼</small>
+              </button>
+              <div class="demo-menu" id="demoSwitcherMenu">
+                <div style="padding: 0.35rem 0.65rem; font-size: 0.72rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase;">Active Session Switcher</div>
+                <a href="{% url 'accounts:demo_switch' role='ADMIN' %}" class="demo-menu-item">
+                  <span>👑</span>
+                  <div>
+                    <strong>Admin / President</strong>
+                    <div style="font-size: 0.72rem; color: var(--text-muted);">Executive KPIs, batch billing, ledger</div>
+                  </div>
+                </a>
+                <a href="{% url 'accounts:demo_switch' role='COMMITTEE' %}" class="demo-menu-item">
+                  <span>📜</span>
+                  <div>
+                    <strong>Secretary / Committee</strong>
+                    <div style="font-size: 0.72rem; color: var(--text-muted);">Approvals, notices, expenses</div>
+                  </div>
+                </a>
+                <a href="{% url 'accounts:demo_switch' role='RESIDENT' %}" class="demo-menu-item">
+                  <span>🏠</span>
+                  <div>
+                    <strong>Resident (Owner)</strong>
+                    <div style="font-size: 0.72rem; color: var(--text-muted);">Pay bills, visitor pass, EV charging</div>
+                  </div>
+                </a>
+                <a href="{% url 'accounts:demo_switch' role='GUARD' %}" class="demo-menu-item">
+                  <span>🛡️</span>
+                  <div>
+                    <strong>Security Guard Desk</strong>
+                    <div style="font-size: 0.72rem; color: var(--text-muted);">Gate terminal, visitor log, OTP PIN</div>
+                  </div>
+                </a>
+                <a href="{% url 'accounts:demo_switch' role='STAFF' %}" class="demo-menu-item">
+                  <span>🔧</span>
+                  <div>
+                    <strong>Facility Staff (Electrician)</strong>
+                    <div style="font-size: 0.72rem; color: var(--text-muted);">Assigned maintenance tasks</div>
+                  </div>
+                </a>
+              </div>
+            </div>
+          {% endif %}
+
+          <!-- Emergency SOS Button -->
+          <a href="{% url 'gatekeeper:trigger_sos' %}" class="btn btn-danger btn-sm" title="Broadcast Emergency Alarm">
+            <span>🚨 SOS</span>
+          </a>
+
+          <!-- Dark / Light Theme Toggle -->
+          <button class="theme-toggle-btn" id="themeToggleBtn" aria-label="Toggle Dark/Light Mode">
+            <span id="themeToggleIcon">☀️</span>
+          </button>
+
+          <!-- User Menu / Logout -->
+          {% if user.is_authenticated %}
+            <a href="{% url 'accounts:security' %}" class="btn btn-outline btn-sm" title="Security Settings">⚙️</a>
+            <a href="{% url 'accounts:logout' %}" class="btn btn-secondary btn-sm" title="Sign Out">Sign Out</a>
+          {% else %}
+            <a href="{% url 'accounts:login' %}" class="btn btn-primary btn-sm">Sign In</a>
+          {% endif %}
+        </div>
+      </header>
+
+      <!-- Page Content Container -->
+      <main class="page-content">
+        <!-- Active Emergency SOS Broadcast Banner -->
+        {% if active_sos_alerts %}
+          {% for alert in active_sos_alerts %}
+            <div class="sos-banner">
+              <div class="sos-content">
+                <span class="sos-icon">🚨</span>
+                <div>
+                  <strong>EMERGENCY ALERT: {{ alert.get_alert_type_display }}</strong>
+                  <p style="color: #ffffff; margin-top: 0.15rem; font-size: 0.88rem;">
+                    Triggered by {{ alert.triggered_by.full_name }} {% if alert.unit %}(Flat {{ alert.unit.unit_number }}){% endif %} - {{ alert.location_details }} | {{ alert.message }}
+                  </p>
+                </div>
+              </div>
+              <div>
+                {% if user.is_society_admin or user.is_security_guard or user.is_committee_member %}
+                  <form action="{% url 'gatekeeper:resolve_sos' pk=alert.pk %}" method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm" style="background:#ffffff; color:#e11d48; font-weight:800;">Mark Resolved</button>
+                  </form>
+                {% endif %}
+              </div>
+            </div>
+          {% endfor %}
+        {% endif %}
+
+        <!-- Django Flash Messages -->
+        {% if messages %}
+          {% for message in messages %}
+            <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible">
+              <span>{{ message }}</span>
+              <button type="button" style="background:none; border:none; color:inherit; font-size:1.1rem; cursor:pointer;" onclick="this.parentElement.remove()">×</button>
+            </div>
+          {% endfor %}
+        {% endif %}
+
+        {% block content %}{% endblock %}
+      </main>
+    </div>
+
+    <!-- Mobile Bottom Navigation Dock -->
+    <nav class="mobile-bottom-nav">
+      <a href="{% url 'dashboard' %}" class="mobile-nav-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+        <span class="mobile-nav-icon">📊</span>
+        <span>Home</span>
+      </a>
+      <a href="{% url 'billing:bills' %}" class="mobile-nav-item {% if 'billing' in request.path %}active{% endif %}">
+        <span class="mobile-nav-icon">💳</span>
+        <span>Bills</span>
+      </a>
+      <a href="{% url 'gatekeeper:passes' %}" class="mobile-nav-item {% if 'gatekeeper' in request.path %}active{% endif %}">
+        <span class="mobile-nav-icon">🛡️</span>
+        <span>Passes</span>
+      </a>
+      <a href="{% url 'helpdesk:tickets' %}" class="mobile-nav-item {% if 'helpdesk' in request.path %}active{% endif %}">
+        <span class="mobile-nav-icon">🔧</span>
+        <span>Helpdesk</span>
+      </a>
+      <a href="{% url 'accounts:profile' %}" class="mobile-nav-item {% if 'accounts' in request.path %}active{% endif %}">
+        <span class="mobile-nav-icon">👤</span>
+        <span>Profile</span>
+      </a>
+    </nav>
+  </div>
+
+  <!-- Global Command Palette Modal (Ctrl + K) -->
+  <div class="modal-backdrop" id="commandPaletteModal">
+    <div class="command-palette">
+      <div class="command-input-wrapper">
+        <span style="font-size: 1.25rem;">🔍</span>
+        <input type="text" id="commandSearchInput" class="command-input" placeholder="Search navigation, flats, bills, services (or Esc to close)...">
+        <span class="shortcut-badge">Esc</span>
+      </div>
+      <div class="command-results">
+        <a href="{% url 'dashboard' %}" class="command-item">
+          <span class="command-item-icon">📊</span>
+          <div>
+            <strong>Society Dashboard</strong>
+            <div class="command-item-desc">High-level KPIs, notifications & recent activity</div>
+          </div>
+        </a>
+        <a href="{% url 'billing:bills' %}" class="command-item">
+          <span class="command-item-icon">💳</span>
+          <div>
+            <strong>Maintenance Invoices & Billing</strong>
+            <div class="command-item-desc">Pay dues, view statements, download tax receipts</div>
+          </div>
+        </a>
+        <a href="{% url 'gatekeeper:create_pass' %}" class="command-item">
+          <span class="command-item-icon">🎟️</span>
+          <div>
+            <strong>Issue Visitor Pass (QR & PIN)</strong>
+            <div class="command-item-desc">Pre-approve guests & delivery partners</div>
+          </div>
+        </a>
+        <a href="{% url 'amenities:ev_charging' %}" class="command-item">
+          <span class="command-item-icon">⚡</span>
+          <div>
+            <strong>EV Fast Charging Stations</strong>
+            <div class="command-item-desc">Reserve charging port bays and track energy consumption</div>
+          </div>
+        </a>
+        <a href="{% url 'helpdesk:create' %}" class="command-item">
+          <span class="command-item-icon">🔧</span>
+          <div>
+            <strong>Log Maintenance Service Complaint</strong>
+            <div class="command-item-desc">Plumbing, electrical, elevator, carpentry</div>
+          </div>
+        </a>
+        <a href="{% url 'amenities:list' %}" class="command-item">
+          <span class="command-item-icon">🏊</span>
+          <div>
+            <strong>Clubhouse & Sports Courts</strong>
+            <div class="command-item-desc">Banquet Hall, Infinity Pool, Gym, Tennis booking</div>
+          </div>
+        </a>
+        <a href="{% url 'communications:lost_found' %}" class="command-item">
+          <span class="command-item-icon">🔍</span>
+          <div>
+            <strong>Lost & Found Community Hub</strong>
+            <div class="command-item-desc">Report lost keys, belongings, and claim found items</div>
+          </div>
+        </a>
+        <a href="{% url 'communications:documents' %}" class="command-item">
+          <span class="command-item-icon">📂</span>
+          <div>
+            <strong>Society Document & Bye-Laws Vault</strong>
+            <div class="command-item-desc">AGM minutes, fire NOC, renovation guidelines</div>
+          </div>
+        </a>
+        <a href="{% url 'properties:directory' %}" class="command-item">
+          <span class="command-item-icon">👥</span>
+          <div>
+            <strong>Resident Phonebook & Directory</strong>
+            <div class="command-item-desc">Search neighbor contacts and intercom extensions</div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Emergency Intercom & Hotlines Modal -->
+  <div class="modal-backdrop" id="intercomModal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 style="font-size: 1.25rem;">📞 Society Emergency Hotlines & Intercom</h3>
+        <button type="button" data-modal-close style="background:none; border:none; color:var(--text-muted); font-size:1.5rem; cursor:pointer;">×</button>
+      </div>
+      <div class="modal-body" style="display: flex; flex-direction: column; gap: 0.75rem;">
+        <div class="hotline-card">
+          <div>
+            <strong>🛡️ Main Gate Security Desk (24/7)</strong>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">Guard supervisor on duty</div>
+          </div>
+          <div style="text-align: right;">
+            <strong style="color: var(--primary); font-family: monospace; font-size: 1.1rem;">Ext #1000</strong>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">+1 555-GATE-01</div>
+          </div>
+        </div>
+
+        <div class="hotline-card">
+          <div>
+            <strong>🛗 Otis Elevator / Lift Breakdown Emergency</strong>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">24/7 Rapid response hotline</div>
+          </div>
+          <div style="text-align: right;">
+            <strong style="color: var(--accent-rose); font-family: monospace; font-size: 1.1rem;">Ext #1999</strong>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">+1 800-OTIS-EMERG</div>
+          </div>
+        </div>
+
+        <div class="hotline-card">
+          <div>
+            <strong>🚑 Apollo Hospital Ambulance Station</strong>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">Nearest emergency trauma care (1.2 km)</div>
+          </div>
+          <div style="text-align: right;">
+            <strong style="color: var(--accent-emerald); font-family: monospace; font-size: 1.1rem;">108 / 911</strong>
+          </div>
+        </div>
+
+        <div class="hotline-card">
+          <div>
+            <strong>🚒 Metro Fire & Rescue Station</strong>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">Skyline District HQ</div>
+          </div>
+          <div style="text-align: right;">
+            <strong style="color: var(--accent-rose); font-family: monospace; font-size: 1.1rem;">101 / 911</strong>
+          </div>
+        </div>
+
+        <div class="hotline-card">
+          <div>
+            <strong>⚡ Common Power Substation & Diesel Gen</strong>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">Chief Electrical Engineer</div>
+          </div>
+          <div style="text-align: right;">
+            <strong style="color: var(--accent-amber); font-family: monospace; font-size: 1.1rem;">Ext #1040</strong>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-modal-close>Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript Core -->
+  <script src="{% static 'js/main.js' %}"></script>
+  <script src="{% static 'js/charts.js' %}"></script>
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>

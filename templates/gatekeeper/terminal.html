@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Gatekeeper Security Terminal - SmartSociety 360{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Digital Gatekeeper & Security Terminal 🛡️</h1>
+    <p class="page-subtitle">Main Gate 1 • Live Visitor Logs, OTP PIN Passcode Verification & Parcel Desk</p>
+  </div>
+  <div style="display: flex; gap: 0.75rem;">
+    <button class="btn btn-primary btn-sm" data-modal-target="visitorEntryModal">+ Log Visitor Entry</button>
+    <a href="{% url 'gatekeeper:trigger_sos' %}" class="btn btn-danger btn-sm">🚨 Broadcast SOS Alarm</a>
+  </div>
+</div>
+
+<!-- Instant Passcode / PIN Verification Box -->
+<div class="glass-card" style="margin-bottom: 2rem; border-left: 4px solid var(--primary); background: radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.1), transparent 50%), var(--bg-surface);">
+  <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h3 style="font-size: 1.25rem; margin-bottom: 0.25rem;">⚡ Instant Gate Passcode / PIN Verifier</h3>
+      <p style="font-size: 0.85rem; margin: 0; color: var(--text-secondary);">
+        Enter 6-digit Guest OTP Pass or 4-digit Daily Helper Passcode for automatic instant clearance.
+      </p>
+    </div>
+    <form action="{% url 'gatekeeper:verify_pass' %}" method="post" style="display: flex; gap: 0.5rem; flex: 1; max-width: 380px;">
+      {% csrf_token %}
+      <input type="text" name="passcode" class="form-control" placeholder="Enter PIN (e.g. 841920 or 4412)" style="font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; font-weight: 700; text-align: center;" required autofocus>
+      <button type="submit" class="btn btn-success" style="white-space: nowrap;">Verify & Admit</button>
+    </form>
+  </div>
+</div>
+
+<!-- Gate Quick Stats -->
+<div class="stats-grid">
+  <div class="stat-card amber">
+    <div class="stat-info">
+      <span class="stat-label">Currently Inside</span>
+      <span class="stat-value">{{ active_visitors.count }}</span>
+      <span class="stat-subtext">Active visitors in premises</span>
+    </div>
+    <div class="stat-icon">🚶</div>
+  </div>
+
+  <div class="stat-card cyan">
+    <div class="stat-info">
+      <span class="stat-label">Parcels at Gate</span>
+      <span class="stat-value">{{ pending_parcels.count }}</span>
+      <span class="stat-subtext">Uncollected deliveries</span>
+    </div>
+    <div class="stat-icon">📦</div>
+  </div>
+
+  <div class="stat-card rose">
+    <div class="stat-info">
+      <span class="stat-label">Emergency Alerts</span>
+      <span class="stat-value">{{ active_alerts.count }}</span>
+      <span class="stat-subtext">Active SOS alerts</span>
+    </div>
+    <div class="stat-icon">🚨</div>
+  </div>
+</div>
+
+<!-- Active Visitors Currently Inside Table -->
+<div class="glass-card" style="margin-bottom: 2rem;">
+  <div class="card-header">
+    <h3 class="card-title"><span>🚶</span> Visitors Currently Inside Society ({{ active_visitors.count }})</h3>
+  </div>
+
+  <div class="table-responsive">
+    <table class="custom-table">
+      <thead>
+        <tr>
+          <th>Visitor Name</th>
+          <th>Type</th>
+          <th>Visiting Flat</th>
+          <th>Host Resident</th>
+          <th>Vehicle #</th>
+          <th>Entry Time</th>
+          <th>Pass Type</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for v in active_visitors %}
+          <tr>
+            <td>
+              <strong>{{ v.visitor_name }}</strong>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">{{ v.phone_number }}</div>
+            </td>
+            <td><span class="badge badge-info">{{ v.get_visitor_type_display }}</span></td>
+            <td><strong>Flat {{ v.unit.unit_number }}</strong> ({{ v.unit.wing.code }})</td>
+            <td>{{ v.host_resident.full_name|default:'Resident' }}</td>
+            <td><code>{{ v.vehicle_number|default:'Walk-in' }}</code></td>
+            <td>{{ v.entry_time|naturaltime }}</td>
+            <td>
+              {% if v.is_pre_approved %}
+                <span class="badge badge-paid">Pre-Approved PIN</span>
+              {% else %}
+                <span class="badge badge-neutral">Gate Entry</span>
+              {% endif %}
+            </td>
+            <td>
+              <a href="{% url 'gatekeeper:checkout' pk=v.pk %}" class="btn btn-secondary btn-sm" onclick="return confirm('Confirm departure of {{ v.visitor_name }}?')">
+                <span>Check Out →</span>
+              </a>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+              No external visitors currently inside premises.
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Visitor Entry Modal -->
+<div class="modal-backdrop" id="visitorEntryModal">
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <h3 style="font-size: 1.2rem;">Quick Gate Visitor Check-In</h3>
+      <button type="button" data-modal-close style="background:none; border:none; color:var(--text-muted); font-size:1.5rem; cursor:pointer;">×</button>
+    </div>
+    <form method="post" action="{% url 'gatekeeper:entry' %}">
+      {% csrf_token %}
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Visitor Full Name *</label>
+          {{ entry_form.visitor_name }}
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label class="form-label">Mobile Number *</label>
+            {{ entry_form.phone_number }}
+          </div>
+          <div class="form-group">
+            <label class="form-label">Visitor Category *</label>
+            {{ entry_form.visitor_type }}
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label class="form-label">Visiting Flat *</label>
+            {{ entry_form.unit }}
+          </div>
+          <div class="form-group">
+            <label class="form-label">Vehicle # (If any)</label>
+            {{ entry_form.vehicle_number }}
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Purpose of Visit</label>
+          {{ entry_form.purpose }}
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-modal-close>Cancel</button>
+        <button type="submit" class="btn btn-primary">Admit Visitor & Log Entry</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Generate Batch Maintenance Bills - SmartSociety 360{% endblock %}
+
+{% block content %}
+<div style="max-width: 540px; margin: 2rem auto;">
+  <div class="glass-card">
+    <div class="card-header">
+      <h2 class="card-title"><span>⚡</span> Generate Batch Maintenance Invoices</h2>
+    </div>
+
+    <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 1.5rem;">
+      Automatically calculates itemized bills for all occupied flats based on square-foot rate, sinking fund, water charges, and parking slots.
+    </p>
+
+    <form method="post" action="{% url 'billing:generate_batch' %}">
+      {% csrf_token %}
+      
+      <div class="form-group">
+        <label class="form-label">Billing Cycle Month (1st day of month) *</label>
+        {{ form.billing_month }}
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Payment Grace Period (Days) *</label>
+        {{ form.due_days }}
+      </div>
+
+      <div style="background: var(--bg-surface-elevated); padding: 1rem; border-radius: var(--radius-sm); margin-bottom: 1.5rem; font-size: 0.82rem; color: var(--text-secondary);">
+        <strong>Current Formula Applied:</strong>
+        <ul style="margin-left: 1.25rem; margin-top: 0.35rem;">
+          <li>Base Charge: ₹3.50 × Carpet Area Sq.Ft.</li>
+          <li>Sinking Reserve: ₹0.50 × Sq.Ft.</li>
+          <li>Fixed Utility & Security: ₹900.00</li>
+          <li>Parking Charge: ₹300.00 / slot</li>
+        </ul>
+      </div>
+
+      <div style="display: flex; gap: 1rem;">
+        <button type="submit" class="btn btn-primary" style="flex: 1;">⚡ Generate All Invoices</button>
+        <a href="{% url 'billing:bills' %}" class="btn btn-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

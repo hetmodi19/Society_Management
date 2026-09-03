@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Log Maintenance Service Ticket - SmartSociety 360{% endblock %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 2rem auto;">
+  <div class="glass-card">
+    <div class="card-header">
+      <h2 class="card-title"><span>🔧</span> Log Maintenance Complaint</h2>
+    </div>
+
+    <form method="post" action="{% url 'helpdesk:create' %}" enctype="multipart/form-data">
+      {% csrf_token %}
+      
+      <div class="form-group">
+        <label class="form-label">Issue Summary / Title *</label>
+        {{ form.title }}
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div class="form-group">
+          <label class="form-label">Category *</label>
+          {{ form.category }}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Urgency / Priority *</label>
+          {{ form.priority }}
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Affected Flat / Unit *</label>
+        {{ form.unit }}
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Detailed Description of Problem *</label>
+        {{ form.description }}
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Attach Photo (Optional)</label>
+        {{ form.photo }}
+      </div>
+
+      <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+        <button type="submit" class="btn btn-primary" style="flex: 1;">Submit Service Ticket</button>
+        <a href="{% url 'helpdesk:tickets' %}" class="btn btn-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

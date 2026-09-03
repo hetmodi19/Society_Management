@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ notice.title }} - SmartSociety 360{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <a href="{% url 'communications:notices' %}" style="font-size: 0.85rem; color: var(--primary); font-weight: 600;">← Back to Notice Board</a>
+    <h1 class="page-title" style="margin-top: 0.35rem;">{{ notice.title }}</h1>
+    <p class="page-subtitle">Issued by {{ notice.author.full_name }} ({{ notice.author.get_role_display }}) on {{ notice.created_at|date:"d F Y, H:i" }}</p>
+  </div>
+  <div>
+    <span class="badge {% if notice.notice_type == 'URGENT' %}badge-danger{% else %}badge-info{% endif %}" style="font-size: 0.9rem; padding: 0.4rem 0.85rem;">
+      {{ notice.get_notice_type_display }}
+    </span>
+  </div>
+</div>
+
+<div style="max-width: 800px; margin: 0 auto;">
+  <div class="glass-card" style="padding: 2.25rem;">
+    {% if notice.is_pinned %}
+      <div style="background: var(--primary-light); color: var(--primary); padding: 0.4rem 0.85rem; border-radius: var(--radius-sm); font-size: 0.82rem; font-weight: 700; margin-bottom: 1.5rem; display: inline-flex; align-items: center; gap: 0.4rem;">
+        📌 Pinned High-Priority Circular
+      </div>
+    {% endif %}
+
+    <div style="color: var(--text-primary); font-size: 1rem; line-height: 1.75; white-space: pre-line; margin-bottom: 2rem;">
+      {{ notice.content }}
+    </div>
+
+    {% if notice.target_wings.all %}
+      <div style="border-top: 1px solid var(--border-subtle); padding-top: 1rem; font-size: 0.85rem; color: var(--text-muted);">
+        Applicable to:
+        {% for wing in notice.target_wings.all %}
+          <span class="badge badge-neutral">{{ wing.name }}</span>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

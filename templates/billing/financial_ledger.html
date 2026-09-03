@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Society Financial Ledger & Audits - SmartSociety 360{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Society Financial Ledger & Balance Sheet 📑</h1>
+    <p class="page-subtitle">Audited cash reserves, maintenance income, and categorized operational expenses.</p>
+  </div>
+  <button class="btn btn-primary btn-sm" data-modal-target="addExpenseModal">+ Record Society Expense</button>
+</div>
+
+<!-- Ledger Summary Cards -->
+<div class="stats-grid">
+  <div class="stat-card emerald">
+    <div class="stat-info">
+      <span class="stat-label">Total Revenue Collected</span>
+      <span class="stat-value">₹{{ total_income|intcomma }}</span>
+      <span class="stat-subtext">Maintenance collections & fees</span>
+    </div>
+    <div class="stat-icon">💰</div>
+  </div>
+
+  <div class="stat-card rose">
+    <div class="stat-info">
+      <span class="stat-label">Total Society Expenses</span>
+      <span class="stat-value">₹{{ total_expense|intcomma }}</span>
+      <span class="stat-subtext">Vendor payouts & operations</span>
+    </div>
+    <div class="stat-icon">📉</div>
+  </div>
+
+  <div class="stat-card cyan">
+    <div class="stat-info">
+      <span class="stat-label">Net Bank Reserve Fund</span>
+      <span class="stat-value">₹{{ net_reserve|intcomma }}</span>
+      <span class="stat-subtext">Liquid surplus in bank</span>
+    </div>
+    <div class="stat-icon">🏦</div>
+  </div>
+</div>
+
+<!-- Expenses Table -->
+<div class="glass-card">
+  <div class="card-header">
+    <h3 class="card-title"><span>📋</span> Society Operating Expenses Ledger</h3>
+    <form method="get" style="display: flex; gap: 0.5rem;">
+      <select name="category" class="form-control form-select" onchange="this.form.submit()" style="font-size: 0.82rem; padding: 0.35rem 0.75rem;">
+        <option value="">All Expense Categories</option>
+        <option value="ELECTRICITY" {% if selected_category == 'ELECTRICITY' %}selected{% endif %}>Electricity & Fuel</option>
+        <option value="SECURITY" {% if selected_category == 'SECURITY' %}selected{% endif %}>Security Agency</option>
+        <option value="REPAIRS" {% if selected_category == 'REPAIRS' %}selected{% endif %}>Civil & Equipment Repairs</option>
+        <option value="HOUSEKEEPING" {% if selected_category == 'HOUSEKEEPING' %}selected{% endif %}>Housekeeping & Cleaning</option>
+        <option value="LIFT_AMC" {% if selected_category == 'LIFT_AMC' %}selected{% endif %}>Elevator Lift AMC</option>
+      </select>
+    </form>
+  </div>
+
+  <div class="table-responsive">
+    <table class="custom-table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Expense Item / Title</th>
+          <th>Category</th>
+          <th>Vendor Name</th>
+          <th>Invoice #</th>
+          <th>Amount</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for exp in expenses %}
+          <tr>
+            <td>{{ exp.expense_date|date:"d M Y" }}</td>
+            <td>
+              <strong>{{ exp.title }}</strong>
+              {% if exp.description %}
+                <div style="font-size: 0.75rem; color: var(--text-muted);">{{ exp.description|truncatechars:50 }}</div>
+              {% endif %}
+            </td>
+            <td><span class="badge badge-info">{{ exp.get_category_display }}</span></td>
+            <td>{{ exp.vendor_name|default:'Direct' }}</td>
+            <td><code>{{ exp.invoice_number|default:'-' }}</code></td>
+            <td><strong style="color: var(--accent-rose);">₹{{ exp.amount|intcomma }}</strong></td>
+            <td>
+              {% if exp.is_approved %}
+                <span class="badge badge-paid">Approved</span>
+              {% else %}
+                <span class="badge badge-warning">Pending</span>
+              {% endif %}
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2rem;">No expenses recorded.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Add Expense Modal -->
+<div class="modal-backdrop" id="addExpenseModal">
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <h3 style="font-size: 1.2rem;">Record Society Expense</h3>
+      <button type="button" data-modal-close style="background:none; border:none; color:var(--text-muted); font-size:1.5rem; cursor:pointer;">×</button>
+    </div>
+    <form method="post" action="{% url 'billing:ledger' %}">
+      {% csrf_token %}
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Expense Title *</label>
+          {{ expense_form.title }}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Category *</label>
+          {{ expense_form.category }}
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label class="form-label">Amount (₹) *</label>
+            {{ expense_form.amount }}
+          </div>
+          <div class="form-group">
+            <label class="form-label">Date Incurred *</label>
+            {{ expense_form.expense_date }}
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label class="form-label">Vendor / Contractor</label>
+            {{ expense_form.vendor_name }}
+          </div>
+          <div class="form-group">
+            <label class="form-label">Bill / Invoice #</label>
+            {{ expense_form.invoice_number }}
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Description / Remarks</label>
+          {{ expense_form.description }}
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-modal-close>Cancel</button>
+        <button type="submit" class="btn btn-primary">Save Expense Record</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

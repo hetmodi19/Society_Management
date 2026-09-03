@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}My Amenity Bookings - SmartSociety 360{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">My Facility Reservations 🏊</h1>
+    <p class="page-subtitle">Track your upcoming and past bookings for clubhouse and sports courts.</p>
+  </div>
+  <a href="{% url 'amenities:list' %}" class="btn btn-primary btn-sm">+ Book Another Facility</a>
+</div>
+
+<div class="glass-card">
+  <div class="table-responsive">
+    <table class="custom-table">
+      <thead>
+        <tr>
+          <th>Facility / Amenity</th>
+          <th>Booking Date</th>
+          <th>Time Slot</th>
+          <th>Flat</th>
+          <th>Guest Count</th>
+          <th>Fee</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for b in bookings %}
+          <tr>
+            <td><strong>{{ b.amenity.name }}</strong></td>
+            <td>{{ b.booking_date|date:"d M Y (D)" }}</td>
+            <td>{{ b.start_time|time:"H:i" }} - {{ b.end_time|time:"H:i" }}</td>
+            <td>Flat {{ b.unit.unit_number }}</td>
+            <td>{{ b.guest_count }} persons</td>
+            <td><strong>₹{{ b.total_fee|intcomma }}</strong></td>
+            <td>
+              {% if b.status == 'CONFIRMED' %}
+                <span class="badge badge-paid">Confirmed</span>
+              {% elif b.status == 'PENDING' %}
+                <span class="badge badge-warning">Pending Approval</span>
+              {% elif b.status == 'CANCELLED' %}
+                <span class="badge badge-neutral">Cancelled</span>
+              {% else %}
+                <span class="badge badge-unpaid">Rejected</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if b.status == 'CONFIRMED' or b.status == 'PENDING' %}
+                <a href="{% url 'amenities:cancel' pk=b.pk %}" class="btn btn-danger btn-sm" onclick="return confirm('Cancel this reservation?')">
+                  Cancel
+                </a>
+              {% else %}
+                <span style="color: var(--text-muted);">-</span>
+              {% endif %}
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 2.5rem;">You have not booked any amenities yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

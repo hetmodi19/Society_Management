@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Resident Phonebook & Directory - SmartSociety 360{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Society Resident Directory 👥</h1>
+    <p class="page-subtitle">Search and connect with fellow residents across all wings.</p>
+  </div>
+</div>
+
+<!-- Search Bar -->
+<div class="glass-card" style="margin-bottom: 1.5rem; padding: 1rem 1.25rem;">
+  <form method="get" style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+    <input type="text" name="q" value="{{ search_query }}" placeholder="Search by name, flat #, phone number..." class="form-control" style="flex: 1; min-width: 250px;">
+    <select name="wing" class="form-control form-select" style="max-width: 200px;">
+      <option value="">All Wings</option>
+      {% for w in wings %}
+        <option value="{{ w.code }}" {% if selected_wing == w.code %}selected{% endif %}>{{ w.name }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="btn btn-primary">Search</button>
+  </form>
+</div>
+
+<!-- Resident Cards Grid -->
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.25rem;">
+  {% for unit in units %}
+    {% if unit.primary_resident %}
+      <div class="glass-card interactive">
+        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+          <div class="user-avatar" style="width: 50px; height: 50px; font-size: 1.25rem;">
+            {{ unit.primary_resident.initials }}
+          </div>
+          <div>
+            <h3 style="font-size: 1.15rem; margin-bottom: 0.15rem;">{{ unit.primary_resident.full_name }}</h3>
+            <span class="badge {% if unit.occupancy_status == 'OWNER' %}badge-owner{% else %}badge-tenant{% endif %}">
+              Flat {{ unit.unit_number }} ({{ unit.get_occupancy_status_display }})
+            </span>
+          </div>
+        </div>
+
+        <div style="font-size: 0.85rem; color: var(--text-secondary); display: flex; flex-direction: column; gap: 0.4rem; background: var(--bg-surface-elevated); padding: 0.85rem; border-radius: var(--radius-sm);">
+          <div>📞 <strong>Phone:</strong> {{ unit.primary_resident.phone_number|default:'Protected' }}</div>
+          <div>✉️ <strong>Email:</strong> {{ unit.primary_resident.email|default:'Protected' }}</div>
+          <div>🏢 <strong>Tower:</strong> {{ unit.wing.name }} (Floor {{ unit.floor }})</div>
+          <div>📟 <strong>Intercom:</strong> Ext {{ unit.intercom_extension|default:'-' }}</div>
+        </div>
+      </div>
+    {% endif %}
+  {% empty %}
+    <div class="glass-card" style="grid-column: 1 / -1; text-align: center; padding: 3rem;">
+      <p style="color: var(--text-muted);">No residents found matching search query.</p>
+    </div>
+  {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Manage Facility Bookings - SmartSociety 360{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Amenity Booking Approvals Panel ⭐</h1>
+    <p class="page-subtitle">Review and approve resident reservation requests for banquet halls and club facilities.</p>
+  </div>
+</div>
+
+<!-- Pending Approvals Section -->
+<div class="glass-card" style="margin-bottom: 2rem; border-top: 4px solid var(--accent-amber);">
+  <div class="card-header">
+    <h3 class="card-title"><span>⏳</span> Requests Awaiting Approval ({{ pending_bookings.count }})</h3>
+  </div>
+
+  <div class="table-responsive">
+    <table class="custom-table">
+      <thead>
+        <tr>
+          <th>Facility</th>
+          <th>Resident & Flat</th>
+          <th>Date</th>
+          <th>Time Slot</th>
+          <th>Purpose & Guests</th>
+          <th>Total Fee</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for b in pending_bookings %}
+          <tr>
+            <td><strong>{{ b.amenity.name }}</strong></td>
+            <td>
+              <strong>{{ b.resident.full_name }}</strong>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">Flat {{ b.unit.unit_number }} • {{ b.resident.phone_number }}</div>
+            </td>
+            <td>{{ b.booking_date|date:"d M Y (D)" }}</td>
+            <td>{{ b.start_time|time:"H:i" }} - {{ b.end_time|time:"H:i" }}</td>
+            <td>
+              <strong>{{ b.purpose|default:'Event' }}</strong>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">{{ b.guest_count }} guests</div>
+            </td>
+            <td><strong>₹{{ b.total_fee|intcomma }}</strong></td>
+            <td>
+              <form method="post" action="{% url 'amenities:manage' %}" style="display: flex; gap: 0.4rem;">
+                {% csrf_token %}
+                <input type="hidden" name="booking_id" value="{{ b.id }}">
+                <button type="submit" name="action" value="approve" class="btn btn-success btn-sm">Approve</button>
+                <button type="submit" name="action" value="reject" class="btn btn-danger btn-sm">Reject</button>
+              </form>
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2rem;">No pending booking approvals.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

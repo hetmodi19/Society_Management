@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Broadcast Emergency SOS - SmartSociety 360{% endblock %}
+
+{% block content %}
+<div style="max-width: 540px; margin: 2rem auto;">
+  <div class="glass-card" style="border: 2px solid var(--accent-rose); box-shadow: 0 0 25px rgba(244, 63, 94, 0.3);">
+    <div class="card-header" style="border-bottom-color: rgba(244, 63, 94, 0.3);">
+      <h2 class="card-title" style="color: var(--accent-rose);"><span>🚨</span> Emergency SOS Broadcast</h2>
+    </div>
+
+    <div class="alert alert-danger" style="margin-bottom: 1.5rem;">
+      <strong>⚠️ Warning:</strong> Triggering an SOS will immediately sound alarms on all security guard terminals and management phones.
+    </div>
+
+    <form method="post" action="{% url 'gatekeeper:trigger_sos' %}">
+      {% csrf_token %}
+      
+      <div class="form-group">
+        <label class="form-label">Type of Emergency *</label>
+        {{ form.alert_type }}
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Exact Location / Flat Details *</label>
+        {{ form.location_details }}
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Brief Description of Situation</label>
+        {{ form.message }}
+      </div>
+
+      <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+        <button type="submit" class="btn btn-danger btn-lg" style="flex: 1; font-weight: 800;">
+          🚨 ACTIVATE EMERGENCY ALARM
+        </button>
+        <a href="{% url 'dashboard' %}" class="btn btn-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

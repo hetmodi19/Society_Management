@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Rule Violations & Parking Redressal - SmartSociety 360{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Rule Infractions & Dispute Redressal ⚠️</h1>
+    <p class="page-subtitle">Report unauthorized parking, corridor blockages, noise infractions, and resolve neighborhood disputes.</p>
+  </div>
+  <button class="btn btn-primary btn-sm" data-modal-target="reportViolationModal">+ Report Rule Infraction</button>
+</div>
+
+<!-- Reported Violations Feed -->
+<div class="glass-card">
+  <div class="card-header">
+    <h2 class="card-title"><span>📋</span> Infraction Reports Log</h2>
+  </div>
+
+  <div class="table-responsive">
+    <table class="custom-table">
+      <thead>
+        <tr>
+          <th>Date & Time</th>
+          <th>Subject Flat</th>
+          <th>Category</th>
+          <th>Description</th>
+          <th>Status</th>
+          <th>Resolution Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for v in violations_list %}
+          <tr>
+            <td>{{ v.created_at|naturaltime }}</td>
+            <td><strong>Flat {{ v.unit.unit_number }}</strong></td>
+            <td><span class="badge badge-warning">{{ v.get_violation_type_display }}</span></td>
+            <td>
+              <p style="margin: 0; color: var(--text-primary); font-size: 0.88rem;">{{ v.description|truncatechars:80 }}</p>
+              {% if v.evidence_photo %}
+                <small style="color: var(--primary);">📷 Photo Evidence Attached</small>
+              {% endif %}
+            </td>
+            <td>
+              <span class="badge {% if v.status == 'RESOLVED' %}badge-paid{% elif v.status == 'NOTICE_ISSUED' %}badge-danger{% else %}badge-pending{% endif %}">
+                {{ v.get_status_display }}
+              </span>
+            </td>
+            <td><small style="color: var(--text-muted);">{{ v.action_taken|default:"Under review by Secretary" }}</small></td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 2.5rem;">No active rule infractions or disputes logged.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Report Infraction Modal -->
+<div class="modal-backdrop" id="reportViolationModal">
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <h3 style="font-size: 1.2rem;">⚠️ Report Society Rule Infraction</h3>
+      <button type="button" data-modal-close style="background:none; border:none; color:var(--text-muted); font-size:1.5rem; cursor:pointer;">×</button>
+    </div>
+    <form method="post" action="{% url 'properties:violations' %}" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Subject Flat Involved *</label>
+          {{ form.unit }}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Infraction Category *</label>
+          {{ form.violation_type }}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Description of Dispute / Infraction *</label>
+          {{ form.description }}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Attach Photo Evidence (Optional)</label>
+          {{ form.evidence_photo }}
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-modal-close>Cancel</button>
+        <button type="submit" class="btn btn-danger">Submit Grievance</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Community Discussion Forum - SmartSociety 360{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Community Feed & Classifieds 💬</h1>
+    <p class="page-subtitle">Social chitchat, neighborhood buy & sell, events, and recommendations.</p>
+  </div>
+  <button class="btn btn-primary btn-sm" data-modal-target="createPostModal">+ Start Discussion Topic</button>
+</div>
+
+<!-- Category Filters -->
+<div class="glass-card" style="margin-bottom: 1.5rem; padding: 0.75rem 1.25rem;">
+  <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+    <a href="{% url 'communications:forum' %}" class="btn {% if not selected_category %}btn-primary{% else %}btn-outline{% endif %} btn-sm">All Topics</a>
+    <a href="{% url 'communications:forum' %}?category=GENERAL" class="btn {% if selected_category == 'GENERAL' %}btn-primary{% else %}btn-outline{% endif %} btn-sm">General Chat</a>
+    <a href="{% url 'communications:forum' %}?category=BUY_SELL" class="btn {% if selected_category == 'BUY_SELL' %}btn-primary{% else %}btn-outline{% endif %} btn-sm">Marketplace (Buy/Sell)</a>
+    <a href="{% url 'communications:forum' %}?category=EVENT" class="btn {% if selected_category == 'EVENT' %}btn-primary{% else %}btn-outline{% endif %} btn-sm">Events & Meetups</a>
+    <a href="{% url 'communications:forum' %}?category=RECOMMEND" class="btn {% if selected_category == 'RECOMMEND' %}btn-primary{% else %}btn-outline{% endif %} btn-sm">Recommendations</a>
+  </div>
+</div>
+
+<!-- Forum Posts Feed -->
+<div style="display: flex; flex-direction: column; gap: 1.25rem;">
+  {% for post in posts %}
+    <div class="glass-card interactive">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <div class="user-avatar">{{ post.author.initials }}</div>
+          <div>
+            <strong>{{ post.author.full_name }}</strong>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">{{ post.author.get_role_display }} • {{ post.created_at|naturaltime }}</div>
+          </div>
+        </div>
+        <span class="badge badge-info">{{ post.get_category_display }}</span>
+      </div>
+
+      <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem;">
+        <a href="{% url 'communications:post_detail' pk=post.pk %}" style="color: var(--text-primary);">
+          {{ post.title }}
+        </a>
+      </h3>
+
+      <p style="color: var(--text-secondary); font-size: 0.92rem; line-height: 1.5; margin-bottom: 1rem;">
+        {{ post.content|truncatechars:180 }}
+      </p>
+
+      <div style="border-top: 1px solid var(--border-subtle); padding-top: 0.75rem; display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 0.85rem; color: var(--text-muted);">💬 {{ post.replies_count }} Replies</span>
+        <a href="{% url 'communications:post_detail' pk=post.pk %}" class="btn btn-outline btn-sm">Join Conversation →</a>
+      </div>
+    </div>
+  {% empty %}
+    <div class="glass-card" style="text-align: center; padding: 3rem;">
+      <p style="color: var(--text-muted);">No forum posts yet. Be the first to start a conversation!</p>
+    </div>
+  {% endfor %}
+</div>
+
+<!-- Create Post Modal -->
+<div class="modal-backdrop" id="createPostModal">
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <h3 style="font-size: 1.2rem;">Create Discussion Topic</h3>
+      <button type="button" data-modal-close style="background:none; border:none; color:var(--text-muted); font-size:1.5rem; cursor:pointer;">×</button>
+    </div>
+    <form method="post" action="{% url 'communications:create_post' %}" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Topic Title *</label>
+          {{ form.title }}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Category *</label>
+          {{ form.category }}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Content *</label>
+          {{ form.content }}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Image Attachment (Optional)</label>
+          {{ form.image }}
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-modal-close>Cancel</button>
+        <button type="submit" class="btn btn-primary">Publish Topic</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

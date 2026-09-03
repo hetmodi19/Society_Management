@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Daily Helpers & Domestic Staff - SmartSociety 360{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Daily Helpers & Domestic Staff 🧹</h1>
+    <p class="page-subtitle">Maids, cooks, drivers, and caregivers with instant gate passcode access.</p>
+  </div>
+  <a href="{% url 'properties:add_staff' %}" class="btn btn-primary btn-sm">+ Register Helper</a>
+</div>
+
+<div class="glass-card" style="margin-bottom: 1.5rem; padding: 1rem;">
+  <form method="get" style="display: flex; gap: 0.75rem;">
+    <input type="text" name="q" value="{{ search_query }}" placeholder="Search by name, passcode, role..." class="form-control" style="flex: 1;">
+    <button type="submit" class="btn btn-primary">Search</button>
+  </form>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.25rem;">
+  {% for s in staff_members %}
+    <div class="glass-card interactive">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+        <div>
+          <h3 style="font-size: 1.15rem; margin-bottom: 0.15rem;">{{ s.name }}</h3>
+          <span class="badge badge-info">{{ s.get_role_type_display }}</span>
+        </div>
+        <div style="background: var(--bg-surface-elevated); padding: 0.35rem 0.65rem; border-radius: var(--radius-sm); border: 1px dashed var(--primary); text-align: center;">
+          <small style="font-size: 0.68rem; color: var(--text-muted); display: block;">Gate PIN</small>
+          <strong style="font-family: 'JetBrains Mono', monospace; color: var(--primary); font-size: 1.1rem;">{{ s.passcode }}</strong>
+        </div>
+      </div>
+
+      <div style="font-size: 0.85rem; color: var(--text-secondary); display: flex; flex-direction: column; gap: 0.35rem; background: var(--bg-surface-elevated); padding: 0.85rem; border-radius: var(--radius-sm); margin-bottom: 0.75rem;">
+        <div>📞 <strong>Phone:</strong> {{ s.phone_number }}</div>
+        <div>⏰ <strong>Hours:</strong> {{ s.working_hours }}</div>
+        <div>🏢 <strong>Assigned Flats:</strong>
+          {% for u in s.assigned_units.all %}
+            <span class="badge badge-neutral">{{ u.unit_number }}</span>
+          {% empty %}
+            <span style="color: var(--text-muted);">None</span>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.78rem;">
+        <span class="badge badge-paid">✓ Verified Background</span>
+        <span style="color: var(--text-muted);">Since {{ s.created_at|date:"M Y" }}</span>
+      </div>
+    </div>
+  {% empty %}
+    <div class="glass-card" style="grid-column: 1 / -1; text-align: center; padding: 3rem;">
+      <p style="color: var(--text-muted);">No domestic helpers registered yet.</p>
+    </div>
+  {% endfor %}
+</div>
+{% endblock %}

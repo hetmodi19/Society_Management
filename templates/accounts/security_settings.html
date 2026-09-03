@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Security & Access Control - SmartSociety 360{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Account Security & Access Control 🔐</h1>
+    <p class="page-subtitle">Manage login passwords, Two-Factor Authentication, and active device sessions.</p>
+  </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.75rem;">
+  <!-- Password Change Card -->
+  <div class="glass-card">
+    <div class="card-header">
+      <h2 class="card-title"><span>🔑</span> Change Password</h2>
+    </div>
+
+    <form method="post" action="{% url 'accounts:security' %}">
+      {% csrf_token %}
+      <input type="hidden" name="change_password" value="1">
+
+      <div class="form-group">
+        <label class="form-label">Current Password *</label>
+        <div class="password-field-wrapper">
+          <input type="password" name="old_password" class="form-control" placeholder="••••••••" required>
+          <button type="button" class="password-toggle-btn">🔒</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">New Password *</label>
+        <div class="password-field-wrapper">
+          <input type="password" name="new_password1" class="form-control" id="registerPasswordInput" placeholder="Minimum 8 characters" required>
+          <button type="button" class="password-toggle-btn">🔒</button>
+        </div>
+        <div class="password-strength-bar">
+          <div class="strength-segment" id="pwdSeg1"></div>
+          <div class="strength-segment" id="pwdSeg2"></div>
+          <div class="strength-segment" id="pwdSeg3"></div>
+        </div>
+        <small id="pwdStrengthText" style="font-size: 0.75rem; color: var(--text-muted);">Enter a strong password</small>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Confirm New Password *</label>
+        <div class="password-field-wrapper">
+          <input type="password" name="new_password2" class="form-control" placeholder="Repeat new password" required>
+          <button type="button" class="password-toggle-btn">🔒</button>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Update Password</button>
+    </form>
+  </div>
+
+  <!-- 2FA & PIN Protection Card -->
+  <div class="glass-card">
+    <div class="card-header">
+      <h2 class="card-title"><span>🛡️</span> Two-Factor Authentication & Gate PIN</h2>
+    </div>
+
+    <form method="post" action="{% url 'accounts:security' %}">
+      {% csrf_token %}
+      <input type="hidden" name="update_2fa" value="1">
+
+      <div style="background: var(--bg-surface-elevated); padding: 1.25rem; border-radius: var(--radius-sm); margin-bottom: 1.25rem;">
+        <label class="form-check" style="cursor: pointer;">
+          <input type="checkbox" name="two_factor_enabled" class="form-check-input" {% if user.two_factor_enabled %}checked{% endif %}>
+          <div>
+            <strong>Enable High-Security Login Verification</strong>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">Requires verification PIN when signing in from unfamiliar devices.</p>
+          </div>
+        </label>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Resident Security PIN (for Gate Clearance / Intercom)</label>
+        <input type="text" name="security_pin" class="form-control" value="{{ user.security_pin }}" maxlength="6" style="font-family: monospace; font-size: 1.1rem; letter-spacing: 0.2em; width: 140px;" placeholder="1234">
+        <small style="color: var(--text-muted);">Used for identity verification with security guards.</small>
+      </div>
+
+      <button type="submit" class="btn btn-success" style="margin-top: 1rem;">Save Security Settings</button>
+    </form>
+  </div>
+
+  <!-- Device & Login Session History -->
+  <div class="glass-card" style="grid-column: 1 / -1;">
+    <div class="card-header">
+      <h2 class="card-title"><span>💻</span> Recent Login Activity & Active Sessions</h2>
+    </div>
+
+    <div class="table-responsive">
+      <table class="custom-table">
+        <thead>
+          <tr>
+            <th>Timestamp</th>
+            <th>Device & Environment</th>
+            <th>IP Address</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for log in login_history %}
+            <tr>
+              <td>{{ log.timestamp|naturaltime }} <small style="color:var(--text-muted);">({{ log.timestamp|date:"d M Y, H:i" }})</small></td>
+              <td>
+                <strong>{{ log.device_type }}</strong>
+                <div style="font-size: 0.75rem; color: var(--text-muted); max-width: 320px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ log.user_agent }}</div>
+              </td>
+              <td><code>{{ log.ip_address }}</code></td>
+              <td>
+                {% if log.is_successful %}
+                  <span class="badge badge-success">✓ Authorized</span>
+                {% else %}
+                  <span class="badge badge-danger">Failed Attempt</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="4" style="text-align: center; color: var(--text-muted);">No login records logged yet.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

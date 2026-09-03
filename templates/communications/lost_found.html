@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Lost & Found Hub - SmartSociety 360{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Community Lost & Found Hub 🔍</h1>
+    <p class="page-subtitle">Report missing belongings, post discovered items, and claim lost articles with neighbor verification.</p>
+  </div>
+  <button class="btn btn-primary btn-sm" data-modal-target="reportLostFoundModal">+ Report Lost or Found Item</button>
+</div>
+
+<!-- Filters -->
+<div class="glass-card" style="margin-bottom: 1.5rem; padding: 0.75rem 1.25rem;">
+  <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+    <a href="{% url 'communications:lost_found' %}" class="btn {% if not selected_status %}btn-primary{% else %}btn-outline{% endif %} btn-sm">All Items</a>
+    <a href="{% url 'communications:lost_found' %}?status=FOUND" class="btn {% if selected_status == 'FOUND' %}btn-primary{% else %}btn-outline{% endif %} btn-sm">Found Items (Available to Claim)</a>
+    <a href="{% url 'communications:lost_found' %}?status=LOST" class="btn {% if selected_status == 'LOST' %}btn-primary{% else %}btn-outline{% endif %} btn-sm">Reported Missing</a>
+    <a href="{% url 'communications:lost_found' %}?status=CLAIMED" class="btn {% if selected_status == 'CLAIMED' %}btn-primary{% else %}btn-outline{% endif %} btn-sm">Returned / Claimed</a>
+  </div>
+</div>
+
+<!-- Items Grid -->
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem;">
+  {% for item in items %}
+    <div class="glass-card interactive" style="display: flex; flex-direction: column; justify-content: space-between;">
+      <div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+          <span class="badge {% if item.status == 'FOUND' %}badge-success{% elif item.status == 'LOST' %}badge-danger{% else %}badge-neutral{% endif %}">
+            ● {{ item.get_status_display }}
+          </span>
+          <span class="badge badge-purple">{{ item.get_category_display }}</span>
+        </div>
+
+        <h3 style="font-size: 1.18rem; margin-bottom: 0.35rem;">{{ item.item_name }}</h3>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+          📍 {{ item.location }} • {{ item.created_at|naturaltime }}
+        </p>
+
+        <p style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5; margin-bottom: 1rem;">
+          {{ item.description }}
+        </p>
+      </div>
+
+      <div style="border-top: 1px solid var(--border-subtle); padding-top: 0.85rem; display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 0.82rem; color: var(--text-muted);">Reported by {{ item.reported_by.full_name }}</span>
+        {% if item.status != 'CLAIMED' %}
+          <form method="post" action="{% url 'communications:claim_item' pk=item.pk %}" style="margin: 0;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline btn-sm">Mark Claimed ✓</button>
+          </form>
+        {% else %}
+          <span style="color: var(--accent-emerald); font-size: 0.85rem; font-weight: 700;">✓ Restored to Owner</span>
+        {% endif %}
+      </div>
+    </div>
+  {% empty %}
+    <div class="glass-card" style="grid-column: 1 / -1; text-align: center; padding: 3rem;">
+      <p style="color: var(--text-muted);">No items reported in Lost & Found at this time.</p>
+    </div>
+  {% endfor %}
+</div>
+
+<!-- Report Lost/Found Modal -->
+<div class="modal-backdrop" id="reportLostFoundModal">
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <h3 style="font-size: 1.2rem;">🔍 Report Lost or Found Belonging</h3>
+      <button type="button" data-modal-close style="background:none; border:none; color:var(--text-muted); font-size:1.5rem; cursor:pointer;">×</button>
+    </div>
+    <form method="post" action="{% url 'communications:lost_found' %}" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Item Title *</label>
+          {{ form.item_name }}
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label class="form-label">Category *</label>
+            {{ form.category }}
+          </div>
+          <div class="form-group">
+            <label class="form-label">Status *</label>
+            {{ form.status }}
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Location where Lost / Found *</label>
+          {{ form.location }}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Description & Identifiers</label>
+          {{ form.description }}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Contact Phone # for Claiming</label>
+          {{ form.contact_phone }}
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-modal-close>Cancel</button>
+        <button type="submit" class="btn btn-primary">Publish Item</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Technician Job Queue - SmartSociety 360{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Facility Staff & Maintenance Queue 🔧</h1>
+    <p class="page-subtitle">Assigned service tickets, electrical/plumbing repairs, and inspections.</p>
+  </div>
+</div>
+
+<div class="glass-card" style="margin-bottom: 2rem;">
+  <div class="card-header">
+    <h3 class="card-title"><span>📋</span> My Assigned Active Tickets ({{ assigned_tickets.count }})</h3>
+  </div>
+
+  <div class="table-responsive">
+    <table class="custom-table">
+      <thead>
+        <tr>
+          <th>Ticket #</th>
+          <th>Issue & Flat</th>
+          <th>Category</th>
+          <th>Priority</th>
+          <th>Logged At</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for tck in assigned_tickets %}
+          <tr>
+            <td><strong>{{ tck.ticket_number }}</strong></td>
+            <td>
+              <div><strong>{{ tck.title }}</strong></div>
+              <small style="color: var(--text-muted);">Flat {{ tck.unit.unit_number }} ({{ tck.resident.full_name }}) • Phone: {{ tck.resident.phone_number }}</small>
+            </td>
+            <td><span class="badge badge-info">{{ tck.get_category_display }}</span></td>
+            <td>
+              {% if tck.priority == 'URGENT' %}
+                <span class="badge badge-danger">Urgent</span>
+              {% elif tck.priority == 'HIGH' %}
+                <span class="badge badge-warning">High</span>
+              {% else %}
+                <span class="badge badge-neutral">{{ tck.get_priority_display }}</span>
+              {% endif %}
+            </td>
+            <td>{{ tck.created_at|naturaltime }}</td>
+            <td>
+              {% if tck.status == 'OPEN' %}
+                <span class="badge badge-unpaid">Open</span>
+              {% elif tck.status == 'IN_PROGRESS' %}
+                <span class="badge badge-pending">In Progress</span>
+              {% else %}
+                <span class="badge badge-paid">Resolved</span>
+              {% endif %}
+            </td>
+            <td>
+              <a href="{% url 'helpdesk:detail' pk=tck.pk %}" class="btn btn-primary btn-sm">Update Work</a>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+              No active tickets currently assigned to you. Great job!
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

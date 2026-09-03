@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Flats & Units Directory - SmartSociety 360{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Society Units & Flats Directory</h1>
+    <p class="page-subtitle">{{ occupied_count }} Occupied • {{ vacant_count }} Vacant • {{ occupancy_rate }}% Total Occupancy Rate</p>
+  </div>
+</div>
+
+<!-- Search & Wing Filter Bar -->
+<div class="glass-card" style="margin-bottom: 1.5rem; padding: 1rem 1.25rem;">
+  <form method="get" style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;">
+    <div style="flex: 1; min-width: 240px;">
+      <input type="text" name="q" value="{{ search_query }}" placeholder="Search by flat #, resident name, owner..." class="form-control">
+    </div>
+    <div>
+      <select name="wing" class="form-control form-select">
+        <option value="">All Society Wings</option>
+        {% for w in wings %}
+          <option value="{{ w.id }}" {% if selected_wing == w.id|stringformat:"s" %}selected{% endif %}>{{ w.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div>
+      <select name="status" class="form-control form-select">
+        <option value="">All Statuses</option>
+        <option value="OWNER" {% if selected_status == 'OWNER' %}selected{% endif %}>Owner Occupied</option>
+        <option value="TENANT" {% if selected_status == 'TENANT' %}selected{% endif %}>Tenant Occupied</option>
+        <option value="VACANT" {% if selected_status == 'VACANT' %}selected{% endif %}>Vacant</option>
+      </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Search</button>
+    {% if search_query or selected_wing or selected_status %}
+      <a href="{% url 'properties:units' %}" class="btn btn-secondary">Reset</a>
+    {% endif %}
+  </form>
+</div>
+
+<!-- Units Grid -->
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.25rem;">
+  {% for unit in units %}
+    <div class="glass-card interactive" style="display: flex; flex-direction: column; justify-content: space-between;">
+      <div>
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+          <div>
+            <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">{{ unit.wing.code }} • Floor {{ unit.floor }}</span>
+            <h3 style="font-size: 1.35rem; color: var(--text-primary); font-weight: 800;">Flat {{ unit.unit_number }}</h3>
+          </div>
+          {% if unit.occupancy_status == 'OWNER' %}
+            <span class="badge badge-owner">Owner</span>
+          {% elif unit.occupancy_status == 'TENANT' %}
+            <span class="badge badge-tenant">Tenant</span>
+          {% else %}
+            <span class="badge badge-vacant">Vacant</span>
+          {% endif %}
+        </div>
+
+        <div style="font-size: 0.85rem; color: var(--text-secondary); display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: 1rem;">
+          <div>📐 <strong>{{ unit.square_feet }}</strong> Sq. Ft. ({{ unit.get_unit_type_display }})</div>
+          {% if unit.primary_resident %}
+            <div>👤 Resident: <strong>{{ unit.primary_resident.full_name }}</strong></div>
+          {% elif unit.owner %}
+            <div>🔑 Owner: <strong>{{ unit.owner.full_name }}</strong></div>
+          {% else %}
+            <div style="color: var(--text-muted);">Unoccupied</div>
+          {% endif %}
+          <div>🚗 Parking: <strong>{{ unit.parking_slot_number|default:'None' }}</strong></div>
+        </div>
+      </div>
+
+      <div style="border-top: 1px solid var(--border-subtle); padding-top: 0.75rem; display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 0.78rem; color: var(--text-muted);">Ext: {{ unit.intercom_extension|default:'-' }}</span>
+        <a href="{% url 'properties:unit_detail' pk=unit.pk %}" class="btn btn-outline btn-sm">View Details →</a>
+      </div>
+    </div>
+  {% empty %}
+    <div class="glass-card" style="grid-column: 1 / -1; text-align: center; padding: 3rem;">
+      <p style="color: var(--text-muted);">No units match your filter criteria.</p>
+    </div>
+  {% endfor %}
+</div>
+{% endblock %}

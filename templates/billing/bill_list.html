@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Maintenance Invoices & Billing - SmartSociety 360{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Maintenance Invoices & Billing 💳</h1>
+    <p class="page-subtitle">Itemized monthly society maintenance, utility bills, and payment records.</p>
+  </div>
+  {% if user.is_society_admin or user.is_committee_member %}
+    <div style="display: flex; gap: 0.75rem;">
+      <a href="{% url 'billing:generate_batch' %}" class="btn btn-primary btn-sm">⚡ Generate Batch Bills</a>
+      <a href="{% url 'billing:ledger' %}" class="btn btn-secondary btn-sm">📑 View Ledger</a>
+    </div>
+  {% endif %}
+</div>
+
+<!-- Aggregates Stats Grid -->
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-info">
+      <span class="stat-label">Total Invoiced</span>
+      <span class="stat-value">₹{{ total_billed|intcomma }}</span>
+      <span class="stat-subtext">Cumulative demand</span>
+    </div>
+    <div class="stat-icon">📑</div>
+  </div>
+
+  <div class="stat-card emerald">
+    <div class="stat-info">
+      <span class="stat-label">Total Collected</span>
+      <span class="stat-value">₹{{ total_collected|intcomma }}</span>
+      <span class="stat-subtext">Successfully settled</span>
+    </div>
+    <div class="stat-icon">✓</div>
+  </div>
+
+  <div class="stat-card rose">
+    <div class="stat-info">
+      <span class="stat-label">Total Outstanding</span>
+      <span class="stat-value">₹{{ total_outstanding|intcomma }}</span>
+      <span class="stat-subtext">Pending payment</span>
+    </div>
+    <div class="stat-icon">💳</div>
+  </div>
+</div>
+
+<!-- Filter Bar -->
+<div class="glass-card" style="margin-bottom: 1.5rem; padding: 1rem;">
+  <form method="get" style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+    <input type="text" name="q" value="{{ search_query }}" placeholder="Search by invoice #, flat #, name..." class="form-control" style="flex: 1; min-width: 240px;">
+    <select name="status" class="form-control form-select" style="max-width: 180px;">
+      <option value="">All Statuses</option>
+      <option value="UNPAID" {% if selected_status == 'UNPAID' %}selected{% endif %}>Unpaid</option>
+      <option value="PAID" {% if selected_status == 'PAID' %}selected{% endif %}>Paid</option>
+      <option value="OVERDUE" {% if selected_status == 'OVERDUE' %}selected{% endif %}>Overdue</option>
+    </select>
+    <button type="submit" class="btn btn-primary">Filter</button>
+  </form>
+</div>
+
+<!-- Bills Table -->
+<div class="table-responsive">
+  <table class="custom-table">
+    <thead>
+      <tr>
+        <th>Invoice #</th>
+        <th>Flat / Resident</th>
+        <th>Billing Month</th>
+        <th>Due Date</th>
+        <th>Amount</th>
+        <th>Paid</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for bill in bills %}
+        <tr>
+          <td><strong style="font-family: 'JetBrains Mono', monospace; color: var(--primary);">{{ bill.bill_number }}</strong></td>
+          <td>
+            <strong>Flat {{ bill.unit.unit_number }}</strong>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">{{ bill.resident.full_name|default:'Unassigned' }}</div>
+          </td>
+          <td>{{ bill.billing_month|date:"F Y" }}</td>
+          <td>
+            <span {% if bill.is_past_due %}style="color: var(--accent-rose); font-weight:700;"{% endif %}>
+              {{ bill.due_date|date:"d M Y" }}
+            </span>
+          </td>
+          <td><strong>₹{{ bill.total_amount|intcomma }}</strong></td>
+          <td style="color: var(--accent-emerald);">₹{{ bill.paid_amount|intcomma }}</td>
+          <td>
+            {% if bill.status == 'PAID' %}
+              <span class="badge badge-paid">Paid</span>
+            {% elif bill.status == 'OVERDUE' %}
+              <span class="badge badge-overdue">Overdue</span>
+            {% else %}
+              <span class="badge badge-unpaid">Unpaid</span>
+            {% endif %}
+          </td>
+          <td>
+            <div style="display: flex; gap: 0.5rem;">
+              <a href="{% url 'billing:detail' pk=bill.pk %}" class="btn btn-outline btn-sm">View</a>
+              {% if bill.status != 'PAID' %}
+                <a href="{% url 'billing:pay' pk=bill.pk %}" class="btn btn-danger btn-sm">Pay Now</a>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 2rem;">No bills found.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

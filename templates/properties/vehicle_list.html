@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Vehicles & Parking Directory - SmartSociety 360{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Vehicles & Parking Slots 🚗</h1>
+    <p class="page-subtitle">RFID tag authorized society vehicles and designated parking slots.</p>
+  </div>
+  <a href="{% url 'properties:add_vehicle' %}" class="btn btn-primary btn-sm">+ Register Vehicle</a>
+</div>
+
+<div class="glass-card" style="margin-bottom: 1.5rem; padding: 1rem;">
+  <form method="get" style="display: flex; gap: 0.75rem;">
+    <input type="text" name="q" value="{{ search_query }}" placeholder="Search by number plate, model, parking slot, flat..." class="form-control" style="flex: 1;">
+    <button type="submit" class="btn btn-primary">Search</button>
+  </form>
+</div>
+
+<div class="table-responsive">
+  <table class="custom-table">
+    <thead>
+      <tr>
+        <th>License Plate</th>
+        <th>Vehicle Make & Model</th>
+        <th>Type</th>
+        <th>Flat / Owner</th>
+        <th>Parking Slot</th>
+        <th>RFID Tag</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for v in vehicles %}
+        <tr>
+          <td><strong style="font-family: 'JetBrains Mono', monospace; color: var(--primary);">{{ v.license_plate }}</strong></td>
+          <td>{{ v.make_model }}</td>
+          <td><span class="badge badge-info">{{ v.get_vehicle_type_display }}</span></td>
+          <td>
+            <strong>Flat {{ v.unit.unit_number }}</strong>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">{{ v.owner.full_name }}</div>
+          </td>
+          <td><strong>{{ v.parking_slot|default:v.unit.parking_slot_number }}</strong></td>
+          <td><code>{{ v.rfid_tag|default:'Auto-Assigned' }}</code></td>
+          <td><span class="badge badge-paid">Authorized</span></td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2rem;">No vehicles registered.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

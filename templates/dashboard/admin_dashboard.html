@@ -1,0 +1,201 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Executive Administration - SmartSociety 360{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Society Executive Overview 🌿</h1>
+    <p class="page-subtitle">Emerald Greens Cooperative Housing Society & Luxury Enclave</p>
+  </div>
+  <div style="display: flex; gap: 0.75rem;">
+    <a href="{% url 'billing:generate_bills' %}" class="btn btn-primary btn-sm">⚡ Run Batch Monthly Invoicing</a>
+    <a href="{% url 'communications:create_notice' %}" class="btn btn-secondary btn-sm">+ Broadcast Notice</a>
+  </div>
+</div>
+
+<!-- Primary Stats Grid -->
+<div class="stats-grid">
+  <div class="stat-card emerald">
+    <div class="stat-info">
+      <span class="stat-label">Total Monthly Collections</span>
+      <span class="stat-value">₹{{ total_revenue|intcomma }}</span>
+      <span class="stat-subtext">Maintenance + Amenities + EV</span>
+    </div>
+    <div class="stat-icon">💰</div>
+  </div>
+
+  <div class="stat-card amber">
+    <div class="stat-info">
+      <span class="stat-label">Unpaid Dues / Arrears</span>
+      <span class="stat-value">₹{{ outstanding_dues|intcomma }}</span>
+      <span class="stat-subtext">{{ unpaid_bills_count }} Overdue Flat Invoices</span>
+    </div>
+    <div class="stat-icon">💳</div>
+  </div>
+
+  <div class="stat-card cyan">
+    <div class="stat-info">
+      <span class="stat-label">Occupancy Rate</span>
+      <span class="stat-value">{{ occupancy_rate }}%</span>
+      <span class="stat-subtext">{{ occupied_units }} / {{ total_units }} Units Occupied</span>
+    </div>
+    <div class="stat-icon">🏢</div>
+  </div>
+
+  <div class="stat-card rose">
+    <div class="stat-info">
+      <span class="stat-label">Helpdesk Open Queue</span>
+      <span class="stat-value">{{ pending_tickets }}</span>
+      <span class="stat-subtext">Under active technician repair</span>
+    </div>
+    <div class="stat-icon">🔧</div>
+  </div>
+</div>
+
+<!-- High-Level Quick Operations Grid -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+  <a href="{% url 'amenities:ev_charging' %}" class="glass-card interactive" style="padding: 1.15rem; display: flex; align-items: center; gap: 0.85rem;">
+    <span style="font-size: 1.8rem;">⚡</span>
+    <div>
+      <strong style="font-size: 0.95rem;">EV Charging Ports</strong>
+      <div style="font-size: 0.75rem; color: var(--text-muted);">Smart Energy Hub</div>
+    </div>
+  </a>
+
+  <a href="{% url 'properties:move_requests' %}" class="glass-card interactive" style="padding: 1.15rem; display: flex; align-items: center; gap: 0.85rem;">
+    <span style="font-size: 1.8rem;">🚚</span>
+    <div>
+      <strong style="font-size: 0.95rem;">Service Lift Shifts</strong>
+      <div style="font-size: 0.75rem; color: var(--text-muted);">Moving Schedules</div>
+    </div>
+  </a>
+
+  <a href="{% url 'communications:documents' %}" class="glass-card interactive" style="padding: 1.15rem; display: flex; align-items: center; gap: 0.85rem;">
+    <span style="font-size: 1.8rem;">📂</span>
+    <div>
+      <strong style="font-size: 0.95rem;">Bye-Laws & Vault</strong>
+      <div style="font-size: 0.75rem; color: var(--text-muted);">Official Records</div>
+    </div>
+  </a>
+
+  <a href="{% url 'properties:violations' %}" class="glass-card interactive" style="padding: 1.15rem; display: flex; align-items: center; gap: 0.85rem;">
+    <span style="font-size: 1.8rem;">⚠️</span>
+    <div>
+      <strong style="font-size: 0.95rem;">Dispute Redressal</strong>
+      <div style="font-size: 0.75rem; color: var(--text-muted);">Parking & Infractions</div>
+    </div>
+  </a>
+</div>
+
+<!-- Interactive Visual Charts Row -->
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+  <div class="glass-card">
+    <div class="card-header">
+      <h2 class="card-title"><span>📈</span> Fiscal Cashflow Trends (Revenue vs Expenses)</h2>
+      <a href="{% url 'billing:ledger' %}" class="btn btn-outline btn-sm">Audit Ledger →</a>
+    </div>
+    <div style="height: 280px; position: relative;">
+      <canvas id="cashflowChart"></canvas>
+    </div>
+  </div>
+
+  <div class="glass-card">
+    <div class="card-header">
+      <h2 class="card-title"><span>🍩</span> Flat Occupancy Mix</h2>
+    </div>
+    <div style="height: 220px; position: relative;">
+      <canvas id="occupancyChart" 
+              data-owner="{{ owner_occupied_units|default:24 }}" 
+              data-tenant="{{ tenant_occupied_units|default:12 }}" 
+              data-vacant="{{ vacant_units|default:4 }}"></canvas>
+    </div>
+    <div style="display: flex; justify-content: space-around; margin-top: 1rem; font-size: 0.82rem;">
+      <span style="color: var(--accent-emerald);">● Owner Occupied</span>
+      <span style="color: var(--primary);">● Tenant Leased</span>
+      <span style="color: var(--text-muted);">● Vacant</span>
+    </div>
+  </div>
+</div>
+
+<!-- Tables Grid: Visitors, Complaints & Bills -->
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+  <!-- Live Gatekeeper Activity -->
+  <div class="glass-card">
+    <div class="card-header">
+      <h2 class="card-title"><span>🛡️</span> Live Gate Visitors ({{ inside_visitors_count }} Inside)</h2>
+      <a href="{% url 'gatekeeper:terminal' %}" class="btn btn-outline btn-sm">Gate Terminal →</a>
+    </div>
+
+    <div class="table-responsive">
+      <table class="custom-table">
+        <thead>
+          <tr>
+            <th>Visitor</th>
+            <th>Destination</th>
+            <th>Type</th>
+            <th>Entry Time</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for v in recent_visitors %}
+            <tr>
+              <td>
+                <strong>{{ v.visitor_name }}</strong>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">{{ v.phone_number }}</div>
+              </td>
+              <td>Flat {{ v.unit.unit_number }}</td>
+              <td><span class="badge badge-guest">{{ v.get_visitor_type_display }}</span></td>
+              <td>{{ v.entry_time|naturaltime }}</td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="4" style="text-align: center; color: var(--text-muted);">No visitors currently on premises.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Recent Service Tickets -->
+  <div class="glass-card">
+    <div class="card-header">
+      <h2 class="card-title"><span>🔧</span> High-Priority Helpdesk Queue</h2>
+      <a href="{% url 'helpdesk:tickets' %}" class="btn btn-outline btn-sm">All Tickets →</a>
+    </div>
+
+    <div class="table-responsive">
+      <table class="custom-table">
+        <thead>
+          <tr>
+            <th>Ticket #</th>
+            <th>Issue Title</th>
+            <th>Category</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for tck in recent_tickets %}
+            <tr>
+              <td><a href="{% url 'helpdesk:detail' pk=tck.pk %}"><strong>{{ tck.ticket_number }}</strong></a></td>
+              <td>
+                <div style="font-weight: 600;">{{ tck.title|truncatechars:35 }}</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">Flat {{ tck.unit.unit_number }}</div>
+              </td>
+              <td><span class="badge badge-info">{{ tck.get_category_display }}</span></td>
+              <td><span class="badge {% if tck.status == 'OPEN' %}badge-danger{% else %}badge-pending{% endif %}">{{ tck.get_status_display }}</span></td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="4" style="text-align: center; color: var(--text-muted);">Zero open complaints! All resolved.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

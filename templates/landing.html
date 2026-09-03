@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Welcome to Emerald Greens - SmartSociety 360{% endblock %}
+
+{% block content %}
+<div style="text-align: center; max-width: 820px; margin: 3rem auto 2rem;">
+  <div class="badge badge-primary" style="margin-bottom: 1.25rem; padding: 0.4rem 1rem; font-size: 0.85rem;">
+    ✨ Next-Generation Smart Housing Society ERP Platform
+  </div>
+
+  <h1 style="font-size: 2.8rem; font-weight: 800; line-height: 1.15; margin-bottom: 1.25rem; letter-spacing: -0.03em;">
+    Luxury Living & Intelligent Society Operations.
+  </h1>
+
+  <p style="font-size: 1.1rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 2rem;">
+    Experience seamless carpet-area maintenance invoicing with instant UPI checkout, digital 6-digit visitor passes, EV fast-charging reservations, service elevator shifting, and democratic society referendums.
+  </p>
+
+  <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+    {% if user.is_authenticated %}
+      <a href="{% url 'dashboard' %}" class="btn btn-primary btn-lg">
+        Go to Society Dashboard →
+      </a>
+    {% else %}
+      <a href="{% url 'accounts:login' %}" class="btn btn-primary btn-lg">
+        Resident & Staff Sign In →
+      </a>
+      <a href="{% url 'accounts:register' %}" class="btn btn-secondary btn-lg">
+        Create Resident Account
+      </a>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Key Pillars Grid -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 3.5rem;">
+  <div class="glass-card interactive">
+    <div style="font-size: 2.5rem; margin-bottom: 1rem;">🛡️</div>
+    <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem;">Digital Gatekeeper</h3>
+    <p style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.5;">
+      Issue 6-digit OTP guest passes with 1-click WhatsApp sharing, daily domestic helper passcodes, and emergency SOS siren broadcast.
+    </p>
+  </div>
+
+  <div class="glass-card interactive">
+    <div style="font-size: 2.5rem; margin-bottom: 1rem;">💳</div>
+    <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem;">Automated Invoicing</h3>
+    <p style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.5;">
+      Formula-driven maintenance billing with instant UPI QR payments, downloadable digital tax receipts, and audited fiscal ledgers.
+    </p>
+  </div>
+
+  <div class="glass-card interactive">
+    <div style="font-size: 2.5rem; margin-bottom: 1rem;">⚡</div>
+    <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem;">EV Charging & Eco-Living</h3>
+    <p style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.5;">
+      Reserve fast-charging ports, schedule service elevators for heavy furniture shifting, and access the Lost & Found hub.
+    </p>
+  </div>
+
+  <div class="glass-card interactive">
+    <div style="font-size: 2.5rem; margin-bottom: 1rem;">🗳️</div>
+    <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem;">Democratic Polls & Hub</h3>
+    <p style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.5;">
+      1-Member-1-Vote referendum polls, pinned circulars, society document vault, and vibrant community marketplace discussion feed.
+    </p>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Invoice {{ bill.bill_number }} - SmartSociety 360{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <a href="{% url 'billing:bills' %}" style="font-size: 0.85rem; color: var(--primary); font-weight: 600;">← Back to Bills</a>
+    <h1 class="page-title" style="margin-top: 0.35rem;">Invoice {{ bill.bill_number }}</h1>
+    <p class="page-subtitle">Maintenance Demand Note for {{ bill.billing_month|date:"F Y" }}</p>
+  </div>
+  <div style="display: flex; gap: 0.75rem;">
+    <button onclick="printInvoice()" class="btn btn-secondary btn-sm no-print">🖨️ Print Invoice</button>
+    {% if bill.status != 'PAID' %}
+      <a href="{% url 'billing:pay' pk=bill.pk %}" class="btn btn-primary btn-sm no-print">⚡ Pay Now Online</a>
+    {% endif %}
+  </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; align-items: start;">
+  <!-- Left Side: Itemized Bill Breakdown -->
+  <div class="glass-card">
+    <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-subtle); padding-bottom: 1.25rem; margin-bottom: 1.25rem;">
+      <div>
+        <h3 style="margin-bottom: 0.25rem;">{{ SOCIETY_NAME }}</h3>
+        <p style="font-size: 0.82rem; margin: 0;">{{ SOCIETY_ADDRESS }}</p>
+        <p style="font-size: 0.82rem; margin: 0;">Code: {{ SOCIETY_CODE }}</p>
+      </div>
+      <div style="text-align: right;">
+        <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Invoice Status</div>
+        {% if bill.status == 'PAID' %}
+          <span class="badge badge-paid" style="font-size: 0.95rem; padding: 0.4rem 0.85rem;">PAID IN FULL</span>
+        {% else %}
+          <span class="badge badge-unpaid" style="font-size: 0.95rem; padding: 0.4rem 0.85rem;">PAYMENT DUE</span>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Bill Meta Info -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; background: var(--bg-surface-elevated); padding: 1rem; border-radius: var(--radius-sm); margin-bottom: 1.5rem; font-size: 0.88rem;">
+      <div>
+        <div><strong>Billed To:</strong> {{ bill.resident.full_name|default:'Resident' }}</div>
+        <div><strong>Flat:</strong> {{ bill.unit.unit_number }} ({{ bill.unit.wing.name }})</div>
+        <div><strong>Carpet Area:</strong> {{ bill.unit.square_feet }} Sq. Ft.</div>
+      </div>
+      <div style="text-align: right;">
+        <div><strong>Invoice Date:</strong> {{ bill.generated_at|date:"d M Y" }}</div>
+        <div><strong>Due Date:</strong> <span style="color: var(--accent-rose); font-weight: 700;">{{ bill.due_date|date:"d M Y" }}</span></div>
+        <div><strong>Billing Cycle:</strong> {{ bill.billing_month|date:"F Y" }}</div>
+      </div>
+    </div>
+
+    <!-- Line Items Table -->
+    <table class="custom-table" style="margin-bottom: 1.5rem;">
+      <thead>
+        <tr>
+          <th>Charge Item Description</th>
+          <th>Rate / Calculation Basis</th>
+          <th style="text-align: right;">Amount (₹)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <strong>Base Society Maintenance Charge</strong>
+            <div style="font-size: 0.78rem; color: var(--text-muted);">Common lighting, housekeeping, lift AMC, gardening</div>
+          </td>
+          <td>{{ bill.unit.square_feet }} Sq.Ft @ ₹3.50/sqft</td>
+          <td style="text-align: right;">₹{{ bill.base_charge|intcomma }}</td>
+        </tr>
+        <tr>
+          <td>
+            <strong>Sinking & Capital Reserve Fund</strong>
+            <div style="font-size: 0.78rem; color: var(--text-muted);">Long term building preservation fund</div>
+          </td>
+          <td>{{ bill.unit.square_feet }} Sq.Ft @ ₹0.50/sqft</td>
+          <td style="text-align: right;">₹{{ bill.sinking_fund|intcomma }}</td>
+        </tr>
+        <tr>
+          <td>
+            <strong>Designated Parking Slot Maintenance</strong>
+            <div style="font-size: 0.78rem; color: var(--text-muted);">Slot: {{ bill.unit.parking_slot_number|default:'Slot A' }}</div>
+          </td>
+          <td>Fixed standard vehicle charge</td>
+          <td style="text-align: right;">₹{{ bill.parking_charge|intcomma }}</td>
+        </tr>
+        <tr>
+          <td>
+            <strong>Water & Hydro-Pneumatic Booster Utility</strong>
+            <div style="font-size: 0.78rem; color: var(--text-muted);">Municipal water pipeline charge</div>
+          </td>
+          <td>Fixed flat utility quota</td>
+          <td style="text-align: right;">₹{{ bill.water_charge|intcomma }}</td>
+        </tr>
+        <tr>
+          <td>
+            <strong>Clubhouse, Security & Infrastructure Fee</strong>
+            <div style="font-size: 0.78rem; color: var(--text-muted);">24/7 Security guard force & CCTV surveillance</div>
+          </td>
+          <td>Fixed society contribution</td>
+          <td style="text-align: right;">₹{{ bill.amenity_charge|intcomma }}</td>
+        </tr>
+        {% if bill.late_penalty > 0 %}
+          <tr style="color: var(--accent-rose);">
+            <td><strong>Late Payment Penalty Fee</strong></td>
+            <td>5% penalty past due date</td>
+            <td style="text-align: right;">₹{{ bill.late_penalty|intcomma }}</td>
+          </tr>
+        {% endif %}
+      </tbody>
+      <tfoot>
+        <tr style="border-top: 2px solid var(--border-subtle); font-size: 1.15rem; font-weight: 800;">
+          <td colspan="2">Total Payable Amount</td>
+          <td style="text-align: right; color: var(--primary);">₹{{ bill.total_amount|intcomma }}</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <!-- Right Side: Payment History & Receipts -->
+  <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+    <div class="glass-card">
+      <div class="card-header">
+        <h3 class="card-title"><span>🧾</span> Payment History</h3>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+        {% for p in payments %}
+          <div style="background: var(--bg-surface-elevated); padding: 0.85rem; border-radius: var(--radius-sm);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+              <strong style="color: var(--accent-emerald);">₹{{ p.amount|intcomma }}</strong>
+              <span class="badge badge-paid">{{ p.get_payment_method_display }}</span>
+            </div>
+            <div style="font-size: 0.78rem; color: var(--text-muted);">Receipt #{{ p.receipt_number }}</div>
+            <div style="font-size: 0.78rem; color: var(--text-muted);">Paid on {{ p.payment_date|date:"d M Y, H:i" }}</div>
+            <div style="margin-top: 0.5rem;">
+              <a href="{% url 'billing:receipt' pk=p.pk %}" class="btn btn-outline btn-sm" style="width: 100%;">View Official Receipt</a>
+            </div>
+          </div>
+        {% empty %}
+          <p style="font-size: 0.85rem; color: var(--text-muted);">No payments recorded against this invoice yet.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
