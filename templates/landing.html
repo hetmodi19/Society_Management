@@ -1,70 +1,1434 @@
-{% extends 'base.html' %}
 {% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Emerald Greens CHS Ltd. - RERA Reg. Luxury Residences & Smart Living (Mumbai)</title>
+  
+  <!-- CSS Stylesheets -->
+  <link rel="stylesheet" href="{% static 'css/base.css' %}">
+  <link rel="stylesheet" href="{% static 'css/components.css' %}">
+  <link rel="stylesheet" href="{% static 'css/landing.css' %}">
+</head>
+<body class="building-page-wrapper">
 
-{% block title %}Welcome to Emerald Greens - SmartSociety 360{% endblock %}
+  <!-- Background Ambient Glow Orbs -->
+  <div class="ambient-glow-orb orb-1"></div>
+  <div class="ambient-glow-orb orb-2"></div>
+  <div class="ambient-glow-orb orb-3"></div>
 
-{% block content %}
-<div style="text-align: center; max-width: 820px; margin: 3rem auto 2rem;">
-  <div class="badge badge-primary" style="margin-bottom: 1.25rem; padding: 0.4rem 1rem; font-size: 0.85rem;">
-    ✨ Next-Generation Smart Housing Society ERP Platform
+  <!-- ==========================================================================
+       1. LUXURY STICKY NAVBAR
+       ========================================================================== -->
+  <header class="lux-navbar" id="luxNavbar">
+    <div class="lux-container lux-navbar-inner">
+      <!-- Brand Crest -->
+      <a href="{% url 'landing' %}" class="lux-brand">
+        <div class="lux-brand-monogram">EG</div>
+        <div class="lux-brand-meta">
+          <span class="lux-brand-name">Emerald Greens CHS</span>
+          <span class="lux-brand-sub">RERA Reg. Luxury Towers • Powai</span>
+        </div>
+      </a>
+
+      <!-- Desktop Nav Links -->
+      <ul class="lux-nav-links">
+        <li><a href="#overview" class="lux-nav-link">Overview</a></li>
+        <li><a href="#residences" class="lux-nav-link">Residences</a></li>
+        <li><a href="#amenities" class="lux-nav-link">Amenities</a></li>
+        <li><a href="#features" class="lux-nav-link">Smart Living</a></li>
+        <li><a href="#calculator" class="lux-nav-link">Estimator</a></li>
+        <li><a href="#notices" class="lux-nav-link">Notices</a></li>
+        <li><a href="#testimonials" class="lux-nav-link">Reviews</a></li>
+        <li><a href="#faqs" class="lux-nav-link">FAQs</a></li>
+        <li><a href="#contact" class="lux-nav-link">Concierge</a></li>
+      </ul>
+
+      <!-- Nav Actions -->
+      <div class="lux-nav-actions">
+        <!-- Dark/Light Theme Toggle -->
+        <button class="theme-toggle-btn" id="themeToggleBtn" aria-label="Toggle Dark/Light Mode" title="Switch Theme">
+          <span id="themeToggleIcon">☀️</span>
+        </button>
+
+        <!-- Emergency Speed Dial Modal Trigger -->
+        <button class="btn-lux-outline" data-modal-target="intercomModal" title="Emergency Speed-Dial & Hotlines">
+          <span>📞 Hotlines</span>
+        </button>
+
+        <!-- Login / Dashboard CTA -->
+        {% if user.is_authenticated %}
+          <a href="{% url 'dashboard' %}" class="btn-lux-login" title="Open Resident Dashboard">
+            <span>📊 Dashboard →</span>
+          </a>
+        {% else %}
+          <a href="{% url 'accounts:login' %}" class="btn-lux-login" title="Sign In to Resident & Staff Portal">
+            <span>🔑 Resident Login →</span>
+          </a>
+        {% endif %}
+
+        <!-- Mobile Drawer Toggle Button -->
+        <button class="lux-mobile-toggle" id="luxMobileNavToggle" aria-label="Open Navigation Menu">
+          ☰
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Drawer Menu -->
+  <div id="luxMobileDrawer" aria-hidden="true">
+    <div class="lux-drawer-panel">
+      <div class="drawer-header">
+        <div class="lux-brand">
+          <div class="lux-brand-monogram">EG</div>
+          <div class="lux-brand-meta">
+            <span class="lux-brand-name">{{ SOCIETY_NAME|default:"Emerald Greens" }}</span>
+            <span class="lux-brand-sub">Navigation Menu</span>
+          </div>
+        </div>
+        <button type="button" class="drawer-close-btn" id="luxMobileDrawerClose" aria-label="Close Navigation Menu">×</button>
+      </div>
+      
+      <nav class="drawer-links-group">
+        <a href="#overview" class="drawer-nav-link" onclick="document.getElementById('luxMobileDrawer').classList.remove('show'); document.body.style.overflow='';">
+          <span class="icon">🏛️</span> Overview & Vision
+        </a>
+        <a href="#residences" class="drawer-nav-link" onclick="document.getElementById('luxMobileDrawer').classList.remove('show'); document.body.style.overflow='';">
+          <span class="icon">🏢</span> Sky Residences
+        </a>
+        <a href="#amenities" class="drawer-nav-link" onclick="document.getElementById('luxMobileDrawer').classList.remove('show'); document.body.style.overflow='';">
+          <span class="icon">🏊</span> Resort Amenities
+        </a>
+        <a href="#features" class="drawer-nav-link" onclick="document.getElementById('luxMobileDrawer').classList.remove('show'); document.body.style.overflow='';">
+          <span class="icon">⚡</span> Smart Living
+        </a>
+        <a href="#calculator" class="drawer-nav-link" onclick="document.getElementById('luxMobileDrawer').classList.remove('show'); document.body.style.overflow='';">
+          <span class="icon">🧮</span> Dues Estimator
+        </a>
+        <a href="#notices" class="drawer-nav-link" onclick="document.getElementById('luxMobileDrawer').classList.remove('show'); document.body.style.overflow='';">
+          <span class="icon">📢</span> Live Notices
+        </a>
+        <a href="#testimonials" class="drawer-nav-link" onclick="document.getElementById('luxMobileDrawer').classList.remove('show'); document.body.style.overflow='';">
+          <span class="icon">⭐</span> Resident Reviews
+        </a>
+        <a href="#faqs" class="drawer-nav-link" onclick="document.getElementById('luxMobileDrawer').classList.remove('show'); document.body.style.overflow='';">
+          <span class="icon">❓</span> FAQs
+        </a>
+        <a href="#contact" class="drawer-nav-link" onclick="document.getElementById('luxMobileDrawer').classList.remove('show'); document.body.style.overflow='';">
+          <span class="icon">📞</span> Concierge & Hotlines
+        </a>
+      </nav>
+
+      <div class="drawer-actions-box">
+        {% if user.is_authenticated %}
+          <a href="{% url 'dashboard' %}" class="btn btn-primary" style="width: 100%; justify-content: center;">📊 My Dashboard →</a>
+        {% else %}
+          <a href="{% url 'accounts:login' %}" class="btn btn-primary" style="width: 100%; justify-content: center;">🔑 Resident Portal Login →</a>
+          <a href="{% url 'accounts:register' %}" class="btn btn-secondary" style="width: 100%; justify-content: center;">📝 Create Account</a>
+        {% endif %}
+        <button type="button" class="btn btn-outline" data-modal-target="tourModal" style="width: 100%; justify-content: center;" onclick="document.getElementById('luxMobileDrawer').classList.remove('show'); document.body.style.overflow='';">
+          📅 Schedule Campus Tour
+        </button>
+      </div>
+    </div>
   </div>
 
-  <h1 style="font-size: 2.8rem; font-weight: 800; line-height: 1.15; margin-bottom: 1.25rem; letter-spacing: -0.03em;">
-    Luxury Living & Intelligent Society Operations.
-  </h1>
+  <!-- ==========================================================================
+       2. HERO SHOWCASE SECTION
+       ========================================================================== -->
+  <section class="lux-hero-section" id="overview">
+    <div class="lux-container">
+      <div class="lux-hero-grid">
+        <!-- Hero Left Column: Vision & CTAs -->
+        <div class="lux-hero-content">
+          <div class="lux-hero-badge">
+            <span class="pulse-dot"></span>
+            <span>✨ RERA Reg. P51800028472 • IGBC Green Gold Certified Enclave</span>
+          </div>
 
-  <p style="font-size: 1.1rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 2rem;">
-    Experience seamless carpet-area maintenance invoicing with instant UPI checkout, digital 6-digit visitor passes, EV fast-charging reservations, service elevator shifting, and democratic society referendums.
-  </p>
+          <h1 class="lux-hero-title">
+            Where Modern Grandeur Meets <span class="text-gradient-aqua">Vastu & Smart Living.</span>
+          </h1>
 
-  <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+          <p class="lux-hero-desc">
+            Welcome to {{ SOCIETY_NAME|default:"Emerald Greens CHS Ltd." }} — Mumbai's landmark gated residential enclave offering 100% Vastu-compliant luxury sky suites, 40,000 sq.ft private clubhouse, and fully automated SmartSociety 360 governance. From 1-tap WhatsApp gate passes for domestic staff & delivery partners to instant UPI maintenance checkout (GPay / PhonePe / Paytm), experience elevated community living.
+          </p>
+
+          <div class="lux-hero-ctas">
+            {% if user.is_authenticated %}
+              <a href="{% url 'dashboard' %}" class="btn-hero-primary">
+                <span>Go to Resident Dashboard →</span>
+              </a>
+              <a href="#amenities" class="btn-hero-secondary">
+                <span>Explore Amenities 🏊</span>
+              </a>
+            {% else %}
+              <a href="{% url 'accounts:login' %}" class="btn-hero-primary">
+                <span>Resident & Staff Portal Login 🔑</span>
+              </a>
+              <a href="{% url 'accounts:register' %}" class="btn-hero-secondary">
+                <span>New Resident Registration 🏠</span>
+              </a>
+              <button type="button" class="btn-hero-tertiary" data-modal-target="tourModal">
+                <span>Schedule Campus Visit 📅</span>
+              </button>
+            {% endif %}
+          </div>
+
+          <!-- Live Society Flash Broadcast Bar -->
+          <div class="live-society-ticker-bar">
+            <div class="ticker-badge">⚡ LIVE PULSE</div>
+            <div class="ticker-content">
+              <span>100% Rooftop Solar Online (48.5 kW) • 24/7 Cauvery / BMC Water Normal • Main Gate 1 & 2 FastTag RFID Active • 0 Security Incidents</span>
+            </div>
+            <a href="#notices" class="ticker-link">View Circulars →</a>
+          </div>
+
+          <!-- Hero Live 4-Card Stats Grid -->
+          <div class="lux-stats-strip">
+            <div class="strip-card">
+              <div class="strip-card-top">
+                <span class="strip-icon">🏢</span>
+                <span class="strip-item-num">{{ total_flats|default:"120" }}<small>+</small></span>
+              </div>
+              <div class="strip-item-label">Vastu Sky Flats</div>
+              <div class="strip-progress-bar"><div class="strip-progress-fill" style="width: 95%;"></div></div>
+            </div>
+            <div class="strip-card">
+              <div class="strip-card-top">
+                <span class="strip-icon">🏛️</span>
+                <span class="strip-item-num">{{ wings_count|default:"2" }}</span>
+              </div>
+              <div class="strip-item-label">Grand Wings (A & B)</div>
+              <div class="strip-progress-bar"><div class="strip-progress-fill" style="width: 100%;"></div></div>
+            </div>
+            <div class="strip-card">
+              <div class="strip-card-top">
+                <span class="strip-icon">🌿</span>
+                <span class="strip-item-num">100<small>%</small></span>
+              </div>
+              <div class="strip-item-label">Solar & DG Backup</div>
+              <div class="strip-progress-bar"><div class="strip-progress-fill" style="width: 100%;"></div></div>
+            </div>
+            <div class="strip-card">
+              <div class="strip-card-top">
+                <span class="strip-icon">⚡</span>
+                <span class="strip-item-num">&lt;15<small>m</small></span>
+              </div>
+              <div class="strip-item-label">MC Helpdesk SLA</div>
+              <div class="strip-progress-bar"><div class="strip-progress-fill" style="width: 98%;"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hero Right Column: High-Impact Luxury Photo & 2x2 IoT Showcase -->
+        <div class="lux-hero-showcase">
+          <div class="lux-hero-showcase-card">
+            <!-- Architectural Feature Media Frame -->
+            <div class="showcase-banner-media">
+              <img src="{% static 'images/hero_building.jpg' %}" alt="Emerald Greens Residences Luxury Tower" class="showcase-cover-img" loading="eager">
+              <div class="showcase-media-overlay"></div>
+              <span class="showcase-badge-top-left">
+                <span class="pulse-dot"></span> 24/7 Gate Terminal & FastTag Live
+              </span>
+              <span class="showcase-badge-top-right">
+                ⭐ IGBC Gold Certified
+              </span>
+              <div class="showcase-media-caption">
+                <strong>Emerald Greens CHS Towers (Powai Skyline)</strong>
+                <span>Basement 1-2 EV Charging • Rooftop Solar & Infinity Deck</span>
+              </div>
+            </div>
+
+            <!-- Compact 2x2 Real-Time IoT Pulse Grid -->
+            <div class="showcase-metrics-grid-2x2">
+              <div class="metric-compact-cell">
+                <div class="compact-cell-icon aqua">🛡️</div>
+                <div class="compact-cell-body">
+                  <div class="compact-cell-title">Smart Gate 1 & 2</div>
+                  <div class="compact-cell-status"><span class="pulse-dot-sm"></span> FastTag Active</div>
+                </div>
+              </div>
+
+              <div class="metric-compact-cell">
+                <div class="compact-cell-icon cyan">⚡</div>
+                <div class="compact-cell-body">
+                  <div class="compact-cell-title">EV Fast Chargers</div>
+                  <div class="compact-cell-status"><span class="pulse-dot-sm green"></span> 6 DC Bays Live</div>
+                </div>
+              </div>
+
+              <div class="metric-compact-cell">
+                <div class="compact-cell-icon gold">🏊</div>
+                <div class="compact-cell-body">
+                  <div class="compact-cell-title">Olympic Lap Pool</div>
+                  <div class="compact-cell-status"><span class="pulse-dot-sm amber"></span> 28°C Heated</div>
+                </div>
+              </div>
+
+              <div class="metric-compact-cell">
+                <div class="compact-cell-icon emerald">🌿</div>
+                <div class="compact-cell-body">
+                  <div class="compact-cell-title">Clean Campus Air</div>
+                  <div class="compact-cell-status"><span class="pulse-dot-sm green"></span> AQI 32 • 48.5kW</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Fast-Track Visitor Pass Action Strip -->
+            <div class="showcase-footer-action">
+              <div class="action-strip-info">
+                <strong style="font-size: 0.9rem; color: var(--text-primary); display: flex; align-items: center; gap: 0.4rem;">
+                  🎟️ Fast-Track Gate Pass Simulator
+                </strong>
+                <span style="font-size: 0.78rem; color: var(--text-muted);">Generate 6-digit WhatsApp OTP for Swiggy, Zomato, Maid & Guests</span>
+              </div>
+              <button type="button" class="btn btn-sm btn-primary" id="triggerPassSimulator" style="font-size: 0.84rem; font-weight: 800; border-radius: var(--radius-full); padding: 0.55rem 1.15rem; white-space: nowrap;">
+                Generate OTP 🎟️
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       3. RESIDENCES & ARCHITECTURE COLLECTION
+       ========================================================================== -->
+  <section class="lux-residences-section" id="residences">
+    <div class="lux-container">
+      <div class="section-header-center">
+        <div class="section-pill-tag">MahaRERA Approved • Sky Residences Collection</div>
+        <h2 class="section-title">Vastu-Compliant Masterpieces <span class="text-gradient-aqua">Crafted for Royal Indian Living</span></h2>
+        <p class="section-subtitle">
+          Every sky residence features East/North-East Vastu orientations, expansive sundecks, dedicated Puja rooms, separate domestic staff quarters, and acoustic double-glazed views of Powai.
+        </p>
+      </div>
+
+      <!-- Residence Filter Tabs -->
+      <div class="residence-tabs-nav">
+        <button class="residence-tab-btn active" data-residence-filter="all">All Configurations</button>
+        <button class="residence-tab-btn" data-residence-filter="penthouse">5BHK Sky Duplex</button>
+        <button class="residence-tab-btn" data-residence-filter="4bhk">4BHK Imperial (+Puja)</button>
+        <button class="residence-tab-btn" data-residence-filter="3bhk">3BHK Royale (+Dry Yard)</button>
+        <button class="residence-tab-btn" data-residence-filter="2bhk">2BHK Luxe Suite</button>
+      </div>
+
+      <!-- Residences Grid -->
+      <div class="residences-grid">
+        <!-- Residence 1: Penthouse with Photo Asset -->
+        <div class="residence-card" data-type="penthouse">
+          <div class="residence-card-media photo-media">
+            <img src="{% static 'images/penthouse.jpg' %}" alt="The Celestial Sky Penthouse" class="residence-cover-img" loading="lazy">
+            <div class="residence-media-gradient"></div>
+            <span class="residence-badge-tag">The Sky Collection • Floors 18 & 19</span>
+            <span class="residence-view-tag">360° Lake & Skyline Panorama</span>
+          </div>
+          <div class="residence-card-body">
+            <h3 class="residence-title">5BHK Celestial Duplex Sky Penthouse</h3>
+            <div class="residence-tower-info">Wing A & B • 100% East Facing (Vastu Compliant)</div>
+            <div class="residence-features-grid">
+              <div class="feature-spec-item">
+                <div class="feature-spec-value">4,250</div>
+                <div class="feature-spec-label">Sq.Ft RERA Carpet</div>
+              </div>
+              <div class="feature-spec-item">
+                <div class="feature-spec-value">5 BHK</div>
+                <div class="feature-spec-label">+ Maid & Puja Room</div>
+              </div>
+              <div class="feature-spec-item">
+                <div class="feature-spec-value">3 Bays</div>
+                <div class="feature-spec-label">Stilt EV Parking</div>
+              </div>
+            </div>
+            <div class="residence-perks-list">
+              <span class="perk-pill">Private Rooftop Plunge Pool</span>
+              <span class="perk-pill">Separate Domestic Staff Entry</span>
+              <span class="perk-pill">Italian Statuario Marble</span>
+              <span class="perk-pill">PNG Piped Gas & DG Backup</span>
+            </div>
+            <div class="residence-card-footer">
+              <div>
+                <div style="font-size: 0.76rem; color: var(--text-muted); text-transform: uppercase;">MahaRERA Status</div>
+                <strong style="color: var(--accent-emerald);">Ready for Possession (OC Received)</strong>
+              </div>
+              <button type="button" class="btn btn-sm btn-primary" data-modal-target="tourModal">Schedule Site Tour</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Residence 2: 4BHK Sky Villa with Exterior Tower View -->
+        <div class="residence-card" data-type="4bhk">
+          <div class="residence-card-media photo-media">
+            <img src="{% static 'images/hero_building.jpg' %}" alt="Grand 4BHK Imperial Sky Villa" class="residence-cover-img" loading="lazy">
+            <div class="residence-media-gradient"></div>
+            <span class="residence-badge-tag">Wing A • Floors 10 - 17</span>
+            <span class="residence-view-tag">Botanical Garden & Temple View</span>
+          </div>
+          <div class="residence-card-body">
+            <h3 class="residence-title">Grand 4BHK Imperial Sky Villa</h3>
+            <div class="residence-tower-info">Wing A • North-East Corner (Ishan Kon)</div>
+            <div class="residence-features-grid">
+              <div class="feature-spec-item">
+                <div class="feature-spec-value">2,850</div>
+                <div class="feature-spec-label">Sq.Ft RERA Carpet</div>
+              </div>
+              <div class="feature-spec-item">
+                <div class="feature-spec-value">4 BHK</div>
+                <div class="feature-spec-label">+ Puja & Staff Bath</div>
+              </div>
+              <div class="feature-spec-item">
+                <div class="feature-spec-value">2 Bays</div>
+                <div class="feature-spec-label">Covered Stilt Parking</div>
+              </div>
+            </div>
+            <div class="residence-perks-list">
+              <span class="perk-pill">Dedicated Mandir Niche</span>
+              <span class="perk-pill">Spacious Utility & Dry Balcony</span>
+              <span class="perk-pill">Modular Hafele/Poggenpohl Kitchen</span>
+              <span class="perk-pill">FastTag RFID Access</span>
+            </div>
+            <div class="residence-card-footer">
+              <div>
+                <div style="font-size: 0.76rem; color: var(--text-muted); text-transform: uppercase;">MahaRERA Status</div>
+                <strong style="color: var(--accent-emerald);">Limited Premium Units</strong>
+              </div>
+              <button type="button" class="btn btn-sm btn-primary" data-modal-target="tourModal">Schedule Site Tour</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Residence 3: 3BHK Royale -->
+        <div class="residence-card" data-type="3bhk">
+          <div class="residence-card-media">
+            <span class="residence-image-art">🏡</span>
+            <span class="residence-badge-tag">Wing B • Floors 2 - 9</span>
+            <span class="residence-view-tag">Clubhouse & Pool Deck View</span>
+          </div>
+          <div class="residence-card-body">
+            <h3 class="residence-title">3BHK Royale Garden Residence</h3>
+            <div class="residence-tower-info">Wing B • East Facing Balcony</div>
+            <div class="residence-features-grid">
+              <div class="feature-spec-item">
+                <div class="feature-spec-value">1,950</div>
+                <div class="feature-spec-label">Sq.Ft RERA Carpet</div>
+              </div>
+              <div class="feature-spec-item">
+                <div class="feature-spec-value">3 BHK</div>
+                <div class="feature-spec-label">3 Baths + Dry Yard</div>
+              </div>
+              <div class="feature-spec-item">
+                <div class="feature-spec-value">2 Bays</div>
+                <div class="feature-spec-label">Dedicated Stilt Parking</div>
+              </div>
+            </div>
+            <div class="residence-perks-list">
+              <span class="perk-pill">Cross-Ventilation Wind Flow</span>
+              <span class="perk-pill">Kohler Gold Sanitary Fittings</span>
+              <span class="perk-pill">Jio/Airtel Fiber Gigabit Ready</span>
+              <span class="perk-pill">Video Door Phone Intercom</span>
+            </div>
+            <div class="residence-card-footer">
+              <div>
+                <div style="font-size: 0.76rem; color: var(--text-muted); text-transform: uppercase;">MahaRERA Status</div>
+                <strong style="color: var(--accent-emerald);">Ready to Move (OC Received)</strong>
+              </div>
+              <button type="button" class="btn btn-sm btn-primary" data-modal-target="tourModal">Schedule Site Tour</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Residence 4: 2BHK Luxe -->
+        <div class="residence-card" data-type="2bhk">
+          <div class="residence-card-media">
+            <span class="residence-image-art">🏠</span>
+            <span class="residence-badge-tag">Wing A & B • Floors 1 - 8</span>
+            <span class="residence-view-tag">Landscaped Podium Garden</span>
+          </div>
+          <div class="residence-card-body">
+            <h3 class="residence-title">2BHK Luxe Executive Suite</h3>
+            <div class="residence-tower-info">Wing A & B • North-East Breeze</div>
+            <div class="residence-features-grid">
+              <div class="feature-spec-item">
+                <div class="feature-spec-value">1,350</div>
+                <div class="feature-spec-label">Sq.Ft RERA Carpet</div>
+              </div>
+              <div class="feature-spec-item">
+                <div class="feature-spec-value">2 BHK</div>
+                <div class="feature-spec-label">2 Baths + Utility Balcony</div>
+              </div>
+              <div class="feature-spec-item">
+                <div class="feature-spec-value">1 Bay</div>
+                <div class="feature-spec-label">Covered Stilt Bay</div>
+              </div>
+            </div>
+            <div class="residence-perks-list">
+              <span class="perk-pill">Vastu Modular Kitchen Setup</span>
+              <span class="perk-pill">Soundproof Saint-Gobain Glass</span>
+              <span class="perk-pill">100% Inverter & DG Backup</span>
+              <span class="perk-pill">Mahanagar Gas Connection</span>
+            </div>
+            <div class="residence-card-footer">
+              <div>
+                <div style="font-size: 0.76rem; color: var(--text-muted); text-transform: uppercase;">MahaRERA Status</div>
+                <strong style="color: var(--accent-emerald);">Ready to Move</strong>
+              </div>
+              <button type="button" class="btn btn-sm btn-primary" data-modal-target="tourModal">Schedule Site Tour</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       4. RESORT-GRADE AMENITIES SUITE
+       ========================================================================== -->
+  <section class="lux-amenities-section" id="amenities">
+    <div class="lux-container">
+      <div class="section-header-center">
+        <div class="section-pill-tag gold">40,000 Sq.Ft Grand Clubhouse & Wellness Enclave</div>
+        <h2 class="section-title">World-Class Amenities for <span class="text-gradient-gold">Royal Indian Community Living</span></h2>
+        <p class="section-subtitle">
+          Over 40,000 sq.ft of dedicated private club facilities, sacred temple sanctum, festival utsav lawns, indoor box cricket turf, and rooftop infinity pools.
+        </p>
+      </div>
+
+      <!-- Amenity Category Filters -->
+      <div class="amenity-filters-row">
+        <button class="amenity-filter-pill active" data-amenity-cat="all">All Amenities</button>
+        <button class="amenity-filter-pill emerald" data-amenity-cat="wellness">Wellness & Aqua</button>
+        <button class="amenity-filter-pill" data-amenity-cat="sports">Sports & Cricket</button>
+        <button class="amenity-filter-pill" data-amenity-cat="social">Utsav & Celebrations</button>
+        <button class="amenity-filter-pill" data-amenity-cat="green">Solar & Eco-Tech</button>
+      </div>
+
+      <!-- Amenities Cards Grid -->
+      <div class="amenities-cards-grid">
+        <!-- Amenity 1: Olympic Infinity Pool with Photo Banner -->
+        <div class="amenity-lux-card has-photo-header" data-category="wellness">
+          <div class="amenity-photo-header">
+            <img src="{% static 'images/infinity_pool.jpg' %}" alt="Olympic Infinity Pool" class="amenity-cover-img" loading="lazy">
+            <div class="amenity-media-gradient"></div>
+            <span class="amenity-photo-badge">🏊 Skyline Deck</span>
+          </div>
+          <h3 class="amenity-card-title" style="margin-top: 1rem;">Skyline Olympic Lap Pool & Toddler Splash</h3>
+          <div class="amenity-card-category">Wellness & Aqua • Clubhouse Rooftop</div>
+          <p class="amenity-card-desc">
+            Temperature-regulated heated lap pool with ozone filtration, sunken poolside cabanas, separate shallow splash pool for kids, and Jacuzzi hydrotherapy jets.
+          </p>
+          <div class="amenity-card-meta">
+            <span>🕒 6:00 AM - 10:00 PM</span>
+            <span style="color: var(--accent-emerald); font-weight: 700;">Resident Privileges Included</span>
+          </div>
+        </div>
+
+        <!-- Amenity 2: Grand Banquet & Utsav Lawn -->
+        <div class="amenity-lux-card" data-category="social">
+          <div class="amenity-icon-banner">🎉</div>
+          <h3 class="amenity-card-title">Grand Banquet Hall & Utsav Lawn</h3>
+          <div class="amenity-card-category">Utsav & Celebrations • Ground Pavilion</div>
+          <p class="amenity-card-desc">
+            Sprawling air-conditioned banquet hall with pre-function foyer and manicured open lawn for Diwali, Navratri Garba, Ganpati Utsav, weddings, and society AGMs (250+ capacity).
+          </p>
+          <div class="amenity-card-meta">
+            <span>🕒 Capacity 250+ Guests</span>
+            <span style="color: var(--accent-amber); font-weight: 700;">₹2,500 / slot</span>
+          </div>
+        </div>
+
+        <!-- Amenity 3: Temple & Yoga Pavilion -->
+        <div class="amenity-lux-card" data-category="wellness">
+          <div class="amenity-icon-banner">🛕</div>
+          <h3 class="amenity-card-title">Temple Sanctum & Yoga Dhyana Pavilion</h3>
+          <div class="amenity-card-category">Wellness & Aqua • Wing A Podium</div>
+          <p class="amenity-card-desc">
+            Serene marble Ganesh & Shiva temple sanctum surrounded by lotus water bodies, morning Surya Namaskar yoga deck, and evening spiritual bhajan pavilion.
+          </p>
+          <div class="amenity-card-meta">
+            <span>🕒 Open Daily 5:30 AM - 9:30 PM</span>
+            <span style="color: var(--accent-emerald); font-weight: 700;">Free Resident Access</span>
+          </div>
+        </div>
+
+        <!-- Amenity 4: Pro Badminton & Box Cricket -->
+        <div class="amenity-lux-card" data-category="sports">
+          <div class="amenity-icon-banner gold">🏏</div>
+          <h3 class="amenity-card-title">Indoor Badminton & Box Cricket Turf</h3>
+          <div class="amenity-card-category">Sports & Cricket • Sports Arena</div>
+          <p class="amenity-card-desc">
+            BWF-certified indoor maple hardwood badminton courts and all-weather floodlit box cricket / squash arena with digital slot booking on resident portal.
+          </p>
+          <div class="amenity-card-meta">
+            <span>🕒 6:00 AM - 11:00 PM</span>
+            <span style="color: var(--accent-emerald); font-weight: 700;">Included for Residents</span>
+          </div>
+        </div>
+
+        <!-- Amenity 5: Technogym Fitness Center -->
+        <div class="amenity-lux-card" data-category="sports">
+          <div class="amenity-icon-banner gold">🏋️</div>
+          <h3 class="amenity-card-title">Technogym High-Tech Gymnasium</h3>
+          <div class="amenity-card-category">Sports & Cricket • 2nd Floor</div>
+          <p class="amenity-card-desc">
+            State-of-the-art cardiovascular machines, Olympic free weights, Pilates reformer beds, steam sauna rooms, and certified fitness trainers.
+          </p>
+          <div class="amenity-card-meta">
+            <span>🕒 24/7 Biometric Access</span>
+            <span style="color: var(--accent-emerald); font-weight: 700;">Included for Residents</span>
+          </div>
+        </div>
+
+        <!-- Amenity 6: Senior Citizen Sit-Out Katta -->
+        <div class="amenity-lux-card" data-category="social">
+          <div class="amenity-icon-banner emerald">🌿</div>
+          <h3 class="amenity-card-title">Senior Citizens' Gazebo & Katta</h3>
+          <div class="amenity-card-category">Utsav & Celebrations • Central Greens</div>
+          <p class="amenity-card-desc">
+            Dedicated shaded sit-out pavilion with acupressure reflexology walking track, newspaper reading kiosk, herbal chai corner, and laughter club zone.
+          </p>
+          <div class="amenity-card-meta">
+            <span>🕒 24/7 Shaded Gazebo</span>
+            <span style="color: var(--accent-emerald); font-weight: 700;">Included for Residents</span>
+          </div>
+        </div>
+
+        <!-- Amenity 7: EV Charging Plaza -->
+        <div class="amenity-lux-card" data-category="green">
+          <div class="amenity-icon-banner cyan">⚡</div>
+          <h3 class="amenity-card-title">EV Hyper-Charging Plaza (48.5 kW Solar)</h3>
+          <div class="amenity-card-category">Solar & Eco-Tech • Basement 1 & 2</div>
+          <p class="amenity-card-desc">
+            6 dedicated Type 2 & CCS2 fast DC charging bays powered by society rooftop solar arrays. Real-time slot booking and auto-billing via UPI portal.
+          </p>
+          <div class="amenity-card-meta">
+            <span>🕒 24/7 Smart Metering</span>
+            <span style="color: var(--accent-cyan); font-weight: 700;">₹12.50 / kWh (Solar Offset)</span>
+          </div>
+        </div>
+
+        <!-- Amenity 8: Dolby Atmos Cinema & Kids Play -->
+        <div class="amenity-lux-card" data-category="social">
+          <div class="amenity-icon-banner purple">🎬</div>
+          <h3 class="amenity-card-title">Dolby Atmos Cinema & Kids' Play Park</h3>
+          <div class="amenity-card-category">Utsav & Celebrations • Clubhouse L1</div>
+          <p class="amenity-card-desc">
+            24-seater private acoustic cinema with 4K laser projection, plus safe cushioned EPDM rubber kids' adventure play zone with 24/7 CCTV streaming for parents.
+          </p>
+          <div class="amenity-card-meta">
+            <span>🕒 By App Booking</span>
+            <span style="color: var(--accent-amber); font-weight: 700;">₹500 / movie slot</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       5. THE SMARTSOCIETY 360 ADVANTAGE (SMART TECH)
+       ========================================================================== -->
+  <section class="lux-features-section" id="features">
+    <div class="lux-container">
+      <div class="section-header-center">
+        <div class="section-pill-tag aqua">SmartSociety 360 Ecosystem</div>
+        <h2 class="section-title">Zero Friction. Total Transparency. <br><span class="text-gradient-aqua">100% Digital Enclave.</span></h2>
+        <p class="section-subtitle">
+          Experience the pinnacle of prop-tech management designed to empower residents, streamline society operations, and safeguard family security.
+        </p>
+      </div>
+
+      <div class="features-highlight-grid">
+        <!-- Feature 1: Digital Gatekeeper -->
+        <div class="feature-box-lux">
+          <div class="feature-icon-circle">🛡️</div>
+          <h3 class="feature-box-title">Gatekeeper FastTag & Delivery Passes</h3>
+          <p class="feature-box-desc">
+            Issue 6-digit OTP guest passes via WhatsApp for Swiggy, Zomato, Blinkit, Zepto, Amazon, and domestic staff (maid, cook, driver) with instant boom barrier logging.
+          </p>
+          <ul class="feature-bullet-list">
+            <li class="feature-bullet-item"><span class="check">✓</span> Instant WhatsApp OTP pass for delivery & cabs</li>
+            <li class="feature-bullet-item"><span class="check">✓</span> Maid & cook biometric / RFID daily entry alerts</li>
+            <li class="feature-bullet-item"><span class="check">✓</span> Automatic resident vehicle FastTag barrier clearance</li>
+          </ul>
+        </div>
+
+        <!-- Feature 2: Automated Invoicing -->
+        <div class="feature-box-lux">
+          <div class="feature-icon-circle" style="background: var(--accent-amber-light); color: var(--accent-amber);">💳</div>
+          <h3 class="feature-box-title">Instant UPI Maintenance Checkout</h3>
+          <p class="feature-box-desc">
+            Dynamic RERA carpet-area billing, instant UPI QR payments (GPay, PhonePe, Paytm), audited 10% Sinking Fund calculations, and stamped PDF receipts.
+          </p>
+          <ul class="feature-bullet-list">
+            <li class="feature-bullet-item"><span class="check">✓</span> 1-Tap UPI QR payment with zero convenience fee</li>
+            <li class="feature-bullet-item"><span class="check">✓</span> Downloadable GST & society-stamped invoice</li>
+            <li class="feature-bullet-item"><span class="check">✓</span> Transparent bank reconciliation for Managing Committee</li>
+          </ul>
+        </div>
+
+        <!-- Feature 3: AI Helpdesk -->
+        <div class="feature-box-lux">
+          <div class="feature-icon-circle" style="background: var(--accent-cyan-light); color: var(--accent-cyan);">🔧</div>
+          <h3 class="feature-box-title">24/7 SLA-Tracked Society Helpdesk</h3>
+          <p class="feature-box-desc">
+            Raise requests with photo uploads for licensed in-house electricians, plumbers, carpenters, or Otis elevators with strict 15-minute emergency SLA dispatch.
+          </p>
+          <ul class="feature-bullet-list">
+            <li class="feature-bullet-item"><span class="check">✓</span> Direct photo upload and urgency level tagging</li>
+            <li class="feature-bullet-item"><span class="check">✓</span> 15-minute emergency resolution for plumbing & power</li>
+            <li class="feature-bullet-item"><span class="check">✓</span> Verified resident ratings & technician feedback</li>
+          </ul>
+        </div>
+
+        <!-- Feature 4: Democratic Voting -->
+        <div class="feature-box-lux">
+          <div class="feature-icon-circle" style="background: var(--accent-purple-light); color: var(--accent-purple);">🗳️</div>
+          <h3 class="feature-box-title">1-Flat-1-Vote Democratic AGM Polls</h3>
+          <p class="feature-box-desc">
+            Participate in Managing Committee AGM resolutions, festival budgets, sinking fund allocations, and society bye-law referendums through secure digital voting.
+          </p>
+          <ul class="feature-bullet-list">
+            <li class="feature-bullet-item"><span class="check">✓</span> Model Bye-Laws compliant 1-flat-1-vote quorum</li>
+            <li class="feature-bullet-item"><span class="check">✓</span> Real-time transparent percentage outcome visualizer</li>
+            <li class="feature-bullet-item"><span class="check">✓</span> Society circulars & audited AGM minutes vault</li>
+          </ul>
+        </div>
+
+        <!-- Feature 5: EV Charging Network -->
+        <div class="feature-box-lux">
+          <div class="feature-icon-circle">⚡</div>
+          <h3 class="feature-box-title">Solar-Powered EV Charging Grid</h3>
+          <p class="feature-box-desc">
+            Reserve basement EV charging slots powered by the society's 48.5 kW rooftop solar grid, track kWh consumption, and bill power directly to your flat maintenance.
+          </p>
+          <ul class="feature-bullet-list">
+            <li class="feature-bullet-item"><span class="check">✓</span> Real-time basement slot availability map</li>
+            <li class="feature-bullet-item"><span class="check">✓</span> Solar green energy prioritized charging rates</li>
+            <li class="feature-bullet-item"><span class="check">✓</span> Auto-recharge completion WhatsApp alerts</li>
+          </ul>
+        </div>
+
+        <!-- Feature 6: Emergency SOS Siren -->
+        <div class="feature-box-lux">
+          <div class="feature-icon-circle" style="background: var(--accent-rose-light); color: var(--accent-rose);">🚨</div>
+          <h3 class="feature-box-title">1-Tap SOS Emergency Panic Siren</h3>
+          <p class="feature-box-desc">
+            Instant audio-visual panic siren broadcasts flat number, wing, and lift position to Gate 1 security desk, supervisor, and emergency services (100, 101, 108).
+          </p>
+          <ul class="feature-bullet-list">
+            <li class="feature-bullet-item"><span class="check">✓</span> Direct Flat GPS, Wing & floor location broadcast</li>
+            <li class="feature-bullet-item"><span class="check">✓</span> 1-Touch hotlines for Apollo Hospital, Fire & Police</li>
+            <li class="feature-bullet-item"><span class="check">✓</span> 24/7 security intercom override to guard terminal</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       6. INTERACTIVE MAINTENANCE DUES ESTIMATOR
+       ========================================================================== -->
+  <section class="lux-calculator-section" id="calculator">
+    <div class="lux-container">
+      <div class="section-header-center">
+        <div class="section-pill-tag aqua">Model Bye-Laws Transparency Tool</div>
+        <h2 class="section-title">Transparent CHS Living Cost & <span class="text-gradient-aqua">Maintenance Estimator</span></h2>
+        <p class="section-subtitle">
+          Calculate your monthly society maintenance dues transparently based on RERA carpet area, wing category, parking bays, and mandatory 10% statutory sinking fund.
+        </p>
+      </div>
+
+      <div class="calculator-card-wrapper">
+        <!-- Left: Input Controls -->
+        <div class="calc-inputs-left">
+          <div class="form-group" style="margin-bottom: 1.5rem;">
+            <label class="form-label" style="font-weight: 700;">Select Wing & Floor Category</label>
+            <select id="calcTowerSelect" class="form-control" style="font-size: 0.95rem; padding: 0.75rem;">
+              <option value="standard" selected>Wing A & B Standard Residences (₹4.80 / sq.ft)</option>
+              <option value="tower_a">Wing A Premium Sky Villa (₹5.50 / sq.ft)</option>
+              <option value="penthouse">Wing A & B Celestial Sky Penthouse (₹6.20 / sq.ft)</option>
+            </select>
+          </div>
+
+          <div class="calc-range-wrapper">
+            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.75rem;">
+              <label class="form-label" style="font-weight: 700; margin: 0;">Flat RERA Carpet Area</label>
+              <span id="calcCarpetDisplay" style="font-size: 1.3rem; font-weight: 900; color: var(--lux-emerald); font-family: 'Outfit', sans-serif;">
+                1,850 sq.ft
+              </span>
+            </div>
+            <input type="range" id="calcCarpetSlider" class="calc-range-slider" min="800" max="4500" step="50" value="1850">
+            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); margin-top: 0.35rem;">
+              <span>800 sq.ft (2BHK)</span>
+              <span>1,950 sq.ft (3BHK)</span>
+              <span>4,250 sq.ft (Penthouse)</span>
+            </div>
+          </div>
+
+          <!-- Add-on options -->
+          <div class="calc-checkboxes-grid">
+            <label class="calc-check-label">
+              <input type="checkbox" id="calcParkingCheck" checked style="accent-color: var(--accent-emerald);">
+              <span>Stilt Car Parking Bay (+₹1,200)</span>
+            </label>
+            <label class="calc-check-label">
+              <input type="checkbox" id="calcEvCheck" checked style="accent-color: var(--accent-emerald);">
+              <span>Dedicated EV Charging Bay (+₹1,800)</span>
+            </label>
+            <label class="calc-check-label">
+              <input type="checkbox" id="calcClubCheck" checked style="accent-color: var(--accent-emerald);">
+              <span>Clubhouse & Sports Levy (+₹1,500)</span>
+            </label>
+            <label class="calc-check-label">
+              <input type="checkbox" checked disabled style="accent-color: var(--accent-emerald);">
+              <span>10% Sinking Fund (Bye-Laws)</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Right: Output Box -->
+        <div class="calc-output-box">
+          <div class="section-pill-tag" style="background: rgba(255, 255, 255, 0.2); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.35); margin-bottom: 0.5rem;">Estimated Monthly Maintenance</div>
+          <div class="calc-total-amount" id="calcTotalOutput">₹14,260</div>
+          <div style="font-size: 0.82rem; color: var(--text-muted);">
+            Payable via GPay, PhonePe, Paytm or Net Banking with Instant GST Receipt
+          </div>
+
+          <div class="calc-breakdown-list">
+            <div class="calc-breakdown-item">
+              <span>Service & Operations (Carpet Area):</span>
+              <strong id="calcBaseOutput">₹8,880</strong>
+            </div>
+            <div class="calc-breakdown-item">
+              <span>Statutory Sinking & Repair Fund (10%):</span>
+              <strong id="calcSinkingOutput">₹880</strong>
+            </div>
+            <div class="calc-breakdown-item">
+              <span>Stilt Parking, EV & Clubhouse:</span>
+              <strong id="calcAddonsOutput">₹4,500</strong>
+            </div>
+          </div>
+
+          <div style="margin-top: 1.5rem;">
+            {% if user.is_authenticated %}
+              <a href="{% url 'billing:bills' %}" class="btn btn-sm btn-primary" style="width: 100%;">View My Active Flat Bill →</a>
+            {% else %}
+              <a href="{% url 'accounts:login' %}" class="btn btn-sm btn-primary" style="width: 100%;">Sign In to Pay Maintenance via UPI →</a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       7. LIVE NOTICE BOARD & CIRCULARS PREVIEW
+       ========================================================================== -->
+  <section class="lux-notices-section" id="notices">
+    <div class="lux-container">
+      <div class="section-header-center">
+        <div class="section-pill-tag gold">Managing Committee Notices</div>
+        <h2 class="section-title">Live Society Circulars & <span class="text-gradient-gold">Notice Board</span></h2>
+        <p class="section-subtitle">
+          Stay informed on key committee resolutions, BMC water updates, AGM proceedings, festival celebrations, and infrastructure enhancements.
+        </p>
+      </div>
+
+      <div class="notices-preview-grid">
+        {% if pinned_notices %}
+          {% for notice in pinned_notices %}
+            <div class="notice-preview-card">
+              <div>
+                <span class="notice-badge-priority {% if notice.priority == 'URGENT' %}urgent{% else %}general{% endif %}">
+                  📌 {{ notice.get_priority_display|default:"General Circular" }}
+                </span>
+                <h3 class="notice-card-title">{{ notice.title }}</h3>
+                <p class="notice-card-body">{{ notice.content|truncatewords:22 }}</p>
+              </div>
+              <div class="notice-card-footer">
+                <span>📅 {{ notice.created_at|date:"M d, Y" }}</span>
+                <button type="button" class="btn btn-sm btn-outline" data-notice-modal 
+                        data-notice-title="{{ notice.title }}" 
+                        data-notice-body="{{ notice.content }}" 
+                        data-notice-date="{{ notice.created_at|date:'M d, Y' }}">
+                  Read Circular →
+                </button>
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <!-- Default Display Notices for Emerald Greens CHS Ltd -->
+          <div class="notice-preview-card">
+            <div>
+              <span class="notice-badge-priority urgent">📌 URGENT • WATER SUPPLY</span>
+              <h3 class="notice-card-title">Bi-Annual BMC / Cauvery Overhead Water Tank Cleaning & Disinfection</h3>
+              <p class="notice-card-body">
+                Scheduled cleaning and UV chlorination of overhead tanks across Wing A & B on Saturday from 11:00 AM to 3:00 PM. Underground booster supply remains active.
+              </p>
+            </div>
+            <div class="notice-card-footer">
+              <span>📅 Current Week</span>
+              <button type="button" class="btn btn-sm btn-outline" data-notice-modal 
+                      data-notice-title="Bi-Annual BMC Overhead Water Tank Cleaning" 
+                      data-notice-body="The Estate Office has scheduled routine cleaning and sanitization of the overhead domestic and fire water tanks for Wing A & Wing B on Saturday. Booster pumps will maintain baseline water pressure throughout the operation." 
+                      data-notice-date="Active Announcement">
+                Read Circular →
+              </button>
+            </div>
+          </div>
+
+          <div class="notice-preview-card">
+            <div>
+              <span class="notice-badge-priority general">📌 STATUTORY • GENERAL BODY</span>
+              <h3 class="notice-card-title">12th Annual General Body Meeting (AGM) & FY25-26 Audited Balance Sheet</h3>
+              <p class="notice-card-body">
+                Notice is hereby given for the Annual General Body Meeting at the Grand Banquet Hall on Sunday at 10:30 AM. Sinking fund report & e-voting on agenda items are live.
+              </p>
+            </div>
+            <div class="notice-card-footer">
+              <span>📅 Active Notice</span>
+              <button type="button" class="btn btn-sm btn-outline" data-notice-modal 
+                      data-notice-title="12th Annual General Body Meeting (AGM) Notice" 
+                      data-notice-body="All registered flat owners and associate members are requested to attend the 12th AGM. The agenda includes approval of audited annual accounts for FY2025-26, statutory sinking fund review, and festival committee budget allocation." 
+                      data-notice-date="Active Announcement">
+                Read Circular →
+              </button>
+            </div>
+          </div>
+
+          <div class="notice-preview-card">
+            <div>
+              <span class="notice-badge-priority general">📌 GATE COMPLIANCE</span>
+              <h3 class="notice-card-title">Domestic Staff (Maid / Cook / Driver) Police KYC & Biometric Pass Drive</h3>
+              <p class="notice-card-body">
+                Society Gate 1 desk is conducting a KYC update drive for all domestic helpers, car washers, and drivers. Please submit verification forms on the resident portal.
+              </p>
+            </div>
+            <div class="notice-card-footer">
+              <span>📅 Active Notice</span>
+              <button type="button" class="btn btn-sm btn-outline" data-notice-modal 
+                      data-notice-title="Domestic Staff Police KYC & Biometric Pass Drive" 
+                      data-notice-body="In accordance with local police guidelines, all flat residents employing domestic staff (maids, cooks, drivers, personal trainers) must ensure police KYC verification is updated at Gate 1 security desk." 
+                      data-notice-date="Active Announcement">
+                Read Circular →
+              </button>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       8. VERIFIED RESIDENT REVIEWS & TESTIMONIALS
+       ========================================================================== -->
+  <section class="lux-testimonials-section" id="testimonials">
+    <div class="lux-container">
+      <div class="section-header-center">
+        <div class="section-pill-tag aqua">Resident Voices</div>
+        <h2 class="section-title">Loved by Over <span class="text-gradient-aqua">450+ Discerning Families</span></h2>
+        <p class="section-subtitle">
+          Discover why esteemed homeowners and Managing Committee members cherish living at {{ SOCIETY_NAME|default:"Emerald Greens CHS Ltd." }} in Powai, Mumbai.
+        </p>
+      </div>
+
+      <div class="testimonials-grid">
+        <!-- Review 1: Committee Secretary -->
+        <div class="testimonial-card-lux">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-quote">
+            "The 1-flat-1-vote digital AGM referendums and instant UPI maintenance checkout with GST-stamped receipts have brought 100% transparency to our society accounts. Zero reconciliation discrepancies!"
+          </p>
+          <div class="testimonial-author-row">
+            <div class="author-avatar-monogram">RS</div>
+            <div>
+              <div class="author-name">Dr. Rajesh Sharma</div>
+              <div class="author-unit-badge">Hon. Secretary • Flat A-1204</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Review 2: Homeowner -->
+        <div class="testimonial-card-lux">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-quote">
+            "The 1-click WhatsApp passes for Swiggy, Zomato, and Zepto are a blessing. Plus, getting real-time notifications whenever our maid checks in at Gate 1 gives complete peace of mind for our kids."
+          </p>
+          <div class="testimonial-author-row">
+            <div class="author-avatar-monogram" style="background: linear-gradient(135deg, #f59e0b 0%, #ec4899 100%);">PK</div>
+            <div>
+              <div class="author-name">Pooja Kulkarni</div>
+              <div class="author-unit-badge">Resident Owner • Flat B-702</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Review 3: Society Chairman -->
+        <div class="testimonial-card-lux">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-quote">
+            "With 48.5 kW rooftop solar offsetting common area grid power and FastTag boom barriers clearing resident cars in under 3 seconds, Emerald Greens sets the gold standard for Mumbai gated societies."
+          </p>
+          <div class="testimonial-author-row">
+            <div class="author-avatar-monogram" style="background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);">VR</div>
+            <div>
+              <div class="author-name">Capt. Vikramaditya Rao</div>
+              <div class="author-unit-badge">Hon. Chairman • Flat A-1801</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       9. INTERACTIVE FAQ ACCORDION
+       ========================================================================== -->
+  <section class="lux-faq-section" id="faqs">
+    <div class="lux-container">
+      <div class="section-header-center">
+        <div class="section-pill-tag gold">Frequently Asked Questions</div>
+        <h2 class="section-title">Everything You Need to <span class="text-gradient-gold">Know About Living Here</span></h2>
+        <p class="section-subtitle">
+          Key questions regarding resident onboarding, gate passes, UPI maintenance, Model Bye-Laws, and amenity bookings.
+        </p>
+      </div>
+
+      <div class="faq-accordion-list">
+        <!-- FAQ 1 -->
+        <div class="faq-accordion-item open">
+          <div class="faq-accordion-header">
+            <span>How do digital visitor passes and Swiggy/Zomato deliveries work?</span>
+            <span class="faq-toggle-icon">+</span>
+          </div>
+          <div class="faq-accordion-body">
+            Residents can generate a 6-digit OTP guest pass or instant QR code from their portal with 1-click WhatsApp sharing. When your guest, cab (Uber/Ola), or delivery partner arrives at Gate 1 or 2, the security guard terminal validates the pass instantly, sending you a real-time entry notification.
+          </div>
+        </div>
+
+        <!-- FAQ 2 -->
+        <div class="faq-accordion-item">
+          <div class="faq-accordion-header">
+            <span>How do I pay monthly maintenance bills and download stamped receipts?</span>
+            <span class="faq-toggle-icon">+</span>
+          </div>
+          <div class="faq-accordion-body">
+            Bills are automatically generated on the 1st of each month according to your flat's RERA carpet area, parking bays, and 10% statutory sinking fund under Model Bye-Laws. You can pay seamlessly using any UPI app (Google Pay, PhonePe, Paytm, BHIM) by scanning the dynamic QR code in your resident portal. An official digital receipt with society stamp is generated instantly.
+          </div>
+        </div>
+
+        <!-- FAQ 3 -->
+        <div class="faq-accordion-item">
+          <div class="faq-accordion-header">
+            <span>How do I reserve the Banquet Hall, Temple Lawn, or Cricket Turf?</span>
+            <span class="faq-toggle-icon">+</span>
+          </div>
+          <div class="faq-accordion-body">
+            Log in to the Resident Portal and navigate to the Clubhouse & Amenities module. Select your desired facility (Banquet Hall for Poojas/birthdays, Box Cricket Turf, Badminton Court), choose an available date and time slot, and confirm. Status updates are processed within 24 hours.
+          </div>
+        </div>
+
+        <!-- FAQ 4 -->
+        <div class="faq-accordion-item">
+          <div class="faq-accordion-header">
+            <span>How does the 1-Tap SOS Emergency Siren and Otis Lift Rescue operate?</span>
+            <span class="faq-toggle-icon">+</span>
+          </div>
+          <div class="faq-accordion-body">
+            Clicking the red SOS button broadcasts an immediate audio-visual siren to the Gate 1 security desk with your exact flat number, wing, and elevator location. The guard desk immediately dispatches rapid response personnel and connects with Apollo Ambulance (108), Police (100/112), and Otis Lift Rescue (Ext #1999).
+          </div>
+        </div>
+
+        <!-- FAQ 5 -->
+        <div class="faq-accordion-item">
+          <div class="faq-accordion-header">
+            <span>How do I register a tenant, domestic helper, or FastTag vehicle?</span>
+            <span class="faq-toggle-icon">+</span>
+          </div>
+          <div class="faq-accordion-body">
+            Flat owners can register tenants under CHS Bye-Law guidelines with Non-Occupancy Charges (capped at 10% of service charges) and police verification. You can also add domestic staff (maids, drivers, cooks) to issue biometric daily RFID entry passes and register vehicles for automatic boom barrier clearance.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       10. CONCIERGE, EMERGENCY HOTLINES & LOCATION
+       ========================================================================== -->
+  <section class="lux-contact-section" id="contact">
+    <div class="lux-container">
+      <div class="section-header-center">
+        <div class="section-pill-tag emerald">24/7 Security Desk & Concierge</div>
+        <h2 class="section-title">Always Connected. <span class="text-gradient-emerald">Always Protected.</span></h2>
+        <p class="section-subtitle">
+          Direct intercom speed-dials for all society facilities, in-house emergency technicians, and Mumbai district emergency rescue services.
+        </p>
+      </div>
+
+      <div class="contact-grid-lux">
+        <!-- Hotlines Card -->
+        <div class="contact-info-card">
+          <h3 style="font-size: 1.3rem; font-weight: 800; margin-bottom: 1.25rem;">📞 Society Hotlines & Speed-Dials</h3>
+          
+          <div class="hotline-quick-row">
+            <div class="hotline-left">
+              <span class="hotline-icon">🛡️</span>
+              <div>
+                <strong>Main Gate 1 & 2 Security Desk (24/7)</strong>
+                <div style="font-size: 0.76rem; color: var(--text-muted);">Guard Supervisor on Duty • FastTag Entry</div>
+              </div>
+            </div>
+            <a href="tel:+919820011000" class="hotline-dial-badge" title="Call Main Gate Desk">📞 Ext #1000</a>
+          </div>
+
+          <div class="hotline-quick-row">
+            <div class="hotline-left">
+              <span class="hotline-icon">🛗</span>
+              <div>
+                <strong>Otis Elevator Breakdown Hotline</strong>
+                <div style="font-size: 0.76rem; color: var(--text-muted);">24/7 Rapid Lift Emergency Rescue</div>
+              </div>
+            </div>
+            <a href="tel:+919820011999" class="hotline-dial-badge" style="color: var(--accent-rose); background: var(--accent-rose-light);" title="Call Lift Emergency">🚨 Ext #1999</a>
+          </div>
+
+          <div class="hotline-quick-row">
+            <div class="hotline-left">
+              <span class="hotline-icon">🚑</span>
+              <div>
+                <strong>Apollo / Hiranandani Hospital ER</strong>
+                <div style="font-size: 0.76rem; color: var(--text-muted);">Nearest Emergency Trauma Care (1.2 km)</div>
+              </div>
+            </div>
+            <a href="tel:108" class="hotline-dial-badge" style="color: var(--accent-emerald);" title="Call Ambulance">🚑 108 / +91 22 2570 0108</a>
+          </div>
+
+          <div class="hotline-quick-row">
+            <div class="hotline-left">
+              <span class="hotline-icon">🚒</span>
+              <div>
+                <strong>Powai / MIDC Fire Station</strong>
+                <div style="font-size: 0.76rem; color: var(--text-muted);">Mumbai Fire Brigade HQ</div>
+              </div>
+            </div>
+            <a href="tel:101" class="hotline-dial-badge" style="color: var(--accent-rose);" title="Call Fire Station">🚒 101 / 112</a>
+          </div>
+
+          <div class="hotline-quick-row">
+            <div class="hotline-left">
+              <span class="hotline-icon">⚡</span>
+              <div>
+                <strong>Licensed Electrician & Plumber Desk</strong>
+                <div style="font-size: 0.76rem; color: var(--text-muted);">On-Site Society Maintenance Technicians</div>
+              </div>
+            </div>
+            <a href="tel:+919820011040" class="hotline-dial-badge" style="color: var(--accent-amber);" title="Call Society Technicians">⚡ Ext #1040 / #1050</a>
+          </div>
+        </div>
+
+        <!-- Campus Location & Estate Office -->
+        <div class="contact-info-card">
+          <h3 style="font-size: 1.3rem; font-weight: 800; margin-bottom: 1.25rem;">🏛️ Estate Office & Registered Address</h3>
+          
+          <div style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.75rem;">
+            <div>
+              <div style="font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase;">Society Name & Address</div>
+              <strong style="font-size: 1.05rem; color: var(--text-primary);">{{ SOCIETY_NAME|default:"Emerald Greens Co-operative Housing Society Ltd." }}</strong>
+              <p style="font-size: 0.88rem; color: var(--text-secondary); margin-top: 0.2rem;">
+                {{ SOCIETY_ADDRESS|default:"Hiranandani Powai Boulevard, Opp. Powai Lake" }}, {{ SOCIETY_CITY|default:"Powai, Mumbai, Maharashtra" }} - 400076
+              </p>
+            </div>
+
+            <div>
+              <div style="font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase;">RERA Registration & CHS Code</div>
+              <strong style="color: var(--lux-emerald);">MahaRERA: P51800028472 • CHS Reg: BOM/HSG/2024/8492</strong>
+            </div>
+
+            <div>
+              <div style="font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase;">Estate Management Office Hours</div>
+              <p style="font-size: 0.88rem; color: var(--text-secondary);">
+                Monday to Saturday: 9:00 AM - 7:00 PM • Sunday: 10:00 AM - 2:00 PM
+              </p>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <button type="button" class="btn btn-primary" data-modal-target="tourModal" style="flex: 1;">
+              Schedule Campus Visit
+            </button>
+            <button type="button" class="btn btn-secondary" onclick="copyToClipboard('Emerald Greens CHS Ltd., Hiranandani Powai Boulevard, Powai, Mumbai - 400076', 'Address copied!')">
+              Copy Address 📋
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       11. LUXURY FOOTER
+       ========================================================================== -->
+  <footer class="lux-footer">
+    <div class="lux-container">
+      <div class="lux-footer-grid">
+        <!-- Col 1: Brand & Mission -->
+        <div>
+          <div class="lux-brand" style="margin-bottom: 1.25rem;">
+            <div class="lux-brand-monogram">EG</div>
+            <div class="lux-brand-meta">
+              <span class="lux-brand-name">{{ SOCIETY_NAME|default:"Emerald Greens CHS Ltd." }}</span>
+              <span class="lux-brand-sub">RERA Reg. P51800028472 • Powai, Mumbai</span>
+            </div>
+          </div>
+          <p style="font-size: 0.88rem; line-height: 1.6; max-width: 320px; color: var(--text-secondary); margin-bottom: 1.5rem;">
+            A premier Indian residential housing society blending Vastu-compliant sky residences, 40,000 sq.ft clubhouse leisure, 48.5 kW rooftop solar, and complete SmartSociety 360 ERP governance.
+          </p>
+          <div style="display: flex; gap: 0.65rem; flex-wrap: wrap;">
+            <span class="badge badge-primary" style="font-size: 0.76rem;">🌿 IGBC Green Gold Certified</span>
+            <span class="badge badge-emerald" style="font-size: 0.76rem;">🔒 24/7 Secured</span>
+          </div>
+        </div>
+
+        <!-- Col 2: Navigation -->
+        <div>
+          <h4 class="footer-col-title">Enclave & Living</h4>
+          <ul class="footer-links-list">
+            <li class="footer-link-item"><a href="#overview">Architecture & Vastu</a></li>
+            <li class="footer-link-item"><a href="#residences">Sky Penthouses & Villas</a></li>
+            <li class="footer-link-item"><a href="#amenities">Grand Clubhouse & Utsav Lawn</a></li>
+            <li class="footer-link-item"><a href="#features">SmartSociety 360 PropTech</a></li>
+            <li class="footer-link-item"><a href="#calculator">Maintenance Dues Estimator</a></li>
+          </ul>
+        </div>
+
+        <!-- Col 3: Resident Portal Links -->
+        <div>
+          <h4 class="footer-col-title">Resident Portal</h4>
+          <ul class="footer-links-list">
+            {% if user.is_authenticated %}
+              <li class="footer-link-item"><a href="{% url 'dashboard' %}">📊 My Dashboard</a></li>
+              <li class="footer-link-item"><a href="{% url 'billing:bills' %}">💳 Pay Maintenance via UPI</a></li>
+              <li class="footer-link-item"><a href="{% url 'gatekeeper:passes' %}">🎟️ Issue WhatsApp Visitor Pass</a></li>
+              <li class="footer-link-item"><a href="{% url 'amenities:list' %}">🏊 Book Banquet & Sports Turf</a></li>
+              <li class="footer-link-item"><a href="{% url 'helpdesk:tickets' %}">🔧 Electrician / Plumber Tickets</a></li>
+            {% else %}
+              <li class="footer-link-item"><a href="{% url 'accounts:login' %}" style="color: var(--lux-emerald); font-weight: 700;">🔑 Resident Portal Login</a></li>
+              <li class="footer-link-item"><a href="{% url 'accounts:register' %}">📝 New Resident / Tenant Registration</a></li>
+              <li class="footer-link-item"><a href="{% url 'gatekeeper:terminal' %}">🛡️ Gatekeeper Terminal (Guard Desk)</a></li>
+              <li class="footer-link-item"><a href="{% url 'accounts:security' %}">⚙️ Account Security & Password</a></li>
+            {% endif %}
+          </ul>
+        </div>
+
+        <!-- Col 4: Hotlines & Bye-Laws -->
+        <div>
+          <h4 class="footer-col-title">Governance & Bye-Laws</h4>
+          <ul class="footer-links-list">
+            <li class="footer-link-item"><a href="{% url 'communications:documents' %}">📂 Model Bye-Laws & AGM Minutes</a></li>
+            <li class="footer-link-item"><a href="{% url 'communications:polls' %}">🗳️ Managing Committee E-Voting</a></li>
+            <li class="footer-link-item"><a href="{% url 'communications:notices' %}">📢 Pinned Circulars & Water Notices</a></li>
+            <li class="footer-link-item"><a href="{% url 'communications:lost_found' %}">🔍 Lost & Found Desk</a></li>
+            <li class="footer-link-item"><a href="{% url 'gatekeeper:trigger_sos' %}" style="color: var(--accent-rose); font-weight: 700;">🚨 Trigger SOS Panic Alarm</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Footer Bottom Bar -->
+      <div class="lux-footer-bottom">
+        <div>
+          © 2026 {{ SOCIETY_NAME|default:"Emerald Greens Co-operative Housing Society Ltd." }} Registered under Maharashtra Co-operative Societies Act, 1960 (Reg No: BOM/HSG/2024/8492). Powered by <strong>SmartSociety 360 ERP</strong>.
+        </div>
+        <div style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
+          <a href="{% url 'communications:documents' %}" style="color: var(--text-muted);">Privacy Policy</a>
+          <a href="{% url 'communications:documents' %}" style="color: var(--text-muted);">CHS Model Bye-Laws</a>
+          <a href="#contact" style="color: var(--text-muted);">Estate Concierge</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==========================================================================
+       12. FLOATING QUICK ACCESS DOCK (LOGIN SHORTCUT)
+       ========================================================================== -->
+  <div class="floating-login-dock">
+    <div class="floating-dock-label">
+      <span class="pulse-dot"></span>
+      <span class="dock-text">Resident Portal</span>
+    </div>
     {% if user.is_authenticated %}
-      <a href="{% url 'dashboard' %}" class="btn btn-primary btn-lg">
-        Go to Society Dashboard →
+      <a href="{% url 'dashboard' %}" class="btn-dock-cta">
+        Dashboard →
       </a>
     {% else %}
-      <a href="{% url 'accounts:login' %}" class="btn btn-primary btn-lg">
-        Resident & Staff Sign In →
-      </a>
-      <a href="{% url 'accounts:register' %}" class="btn btn-secondary btn-lg">
-        Create Resident Account
+      <a href="{% url 'accounts:login' %}" class="btn-dock-cta">
+        Portal Login 🔑
       </a>
     {% endif %}
   </div>
-</div>
 
-<!-- Key Pillars Grid -->
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 3.5rem;">
-  <div class="glass-card interactive">
-    <div style="font-size: 2.5rem; margin-bottom: 1rem;">🛡️</div>
-    <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem;">Digital Gatekeeper</h3>
-    <p style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.5;">
-      Issue 6-digit OTP guest passes with 1-click WhatsApp sharing, daily domestic helper passcodes, and emergency SOS siren broadcast.
-    </p>
+  <!-- ==========================================================================
+       13. MODALS (HOTLINES, TOUR, NOTICE READER, PASS SIMULATOR)
+       ========================================================================== -->
+  <!-- Emergency Intercom Modal -->
+  <div class="modal-backdrop" id="intercomModal">
+    <div class="modal-dialog" style="max-width: 520px;">
+      <div class="modal-header">
+        <h3 style="font-size: 1.25rem;">📞 Society Emergency Hotlines & Intercom</h3>
+        <button type="button" data-modal-close style="background:none; border:none; color:var(--text-muted); font-size:1.5rem; cursor:pointer;">×</button>
+      </div>
+      <div class="modal-body" style="display: flex; flex-direction: column; gap: 0.75rem;">
+        <div class="hotline-card">
+          <div>
+            <strong>🛡️ Main Gate 1 & 2 Security Desk (24/7)</strong>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">Guard supervisor on duty • FastTag Boom Barrier</div>
+          </div>
+          <div style="text-align: right;">
+            <strong style="color: var(--primary); font-family: monospace; font-size: 1.1rem;">Ext #1000</strong>
+          </div>
+        </div>
+
+        <div class="hotline-card">
+          <div>
+            <strong>🛗 Otis Elevator Breakdown Emergency</strong>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">24/7 Rapid lift emergency response</div>
+          </div>
+          <div style="text-align: right;">
+            <strong style="color: var(--accent-rose); font-family: monospace; font-size: 1.1rem;">Ext #1999</strong>
+          </div>
+        </div>
+
+        <div class="hotline-card">
+          <div>
+            <strong>🚑 Apollo / Hiranandani Hospital ER</strong>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">Nearest emergency trauma ambulance (1.2 km)</div>
+          </div>
+          <div style="text-align: right;">
+            <strong style="color: var(--accent-emerald); font-family: monospace; font-size: 1.1rem;">108 / 112</strong>
+          </div>
+        </div>
+
+        <div class="hotline-card">
+          <div>
+            <strong>🚒 Powai Fire Brigade Station</strong>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">Disaster rescue & fire safety HQ</div>
+          </div>
+          <div style="text-align: right;">
+            <strong style="color: var(--accent-rose); font-family: monospace; font-size: 1.1rem;">101 / 112</strong>
+          </div>
+        </div>
+
+        <div class="hotline-card">
+          <div>
+            <strong>⚡ Licensed Electrician & Plumber</strong>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">In-house society maintenance team</div>
+          </div>
+          <div style="text-align: right;">
+            <strong style="color: var(--accent-amber); font-family: monospace; font-size: 1.1rem;">Ext #1040</strong>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-modal-close>Close</button>
+      </div>
+    </div>
   </div>
 
-  <div class="glass-card interactive">
-    <div style="font-size: 2.5rem; margin-bottom: 1rem;">💳</div>
-    <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem;">Automated Invoicing</h3>
-    <p style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.5;">
-      Formula-driven maintenance billing with instant UPI QR payments, downloadable digital tax receipts, and audited fiscal ledgers.
-    </p>
+  <!-- Tour / Inquire Modal -->
+  <div class="modal-backdrop" id="tourModal">
+    <div class="modal-dialog" style="max-width: 480px;">
+      <div class="modal-header">
+        <h3 style="font-size: 1.25rem;">🏛️ Schedule a Private Enclave Tour</h3>
+        <button type="button" data-modal-close style="background:none; border:none; color:var(--text-muted); font-size:1.5rem; cursor:pointer;">×</button>
+      </div>
+      <form id="luxTourForm">
+        <div class="modal-body" style="display: flex; flex-direction: column; gap: 1rem;">
+          <p style="font-size: 0.88rem; color: var(--text-secondary);">
+            Experience the architectural grandeur, Vastu-compliant residences, rooftop lap pool, and SmartSociety 360 automation. Our Estate Concierge will host your private tour.
+          </p>
+          <div class="form-group">
+            <label class="form-label">Full Name *</label>
+            <input type="text" class="form-control" placeholder="e.g. Rajesh Sharma" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">WhatsApp / Phone Number *</label>
+            <input type="tel" class="form-control" placeholder="+91 98765 43210" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Interested Residence Configuration</label>
+            <select class="form-control">
+              <option>5BHK Celestial Duplex Sky Penthouse (4,250 sq.ft)</option>
+              <option>Grand 4BHK Imperial Sky Villa (+Puja Room)</option>
+              <option>3BHK Royale Garden Residence (+Dry Yard)</option>
+              <option>2BHK Luxe Executive Suite (1,350 sq.ft)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Preferred Date of Visit</label>
+            <input type="date" class="form-control" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-modal-close>Cancel</button>
+          <button type="submit" class="btn btn-primary">Confirm Site Tour Request →</button>
+        </div>
+      </form>
+    </div>
   </div>
 
-  <div class="glass-card interactive">
-    <div style="font-size: 2.5rem; margin-bottom: 1rem;">⚡</div>
-    <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem;">EV Charging & Eco-Living</h3>
-    <p style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.5;">
-      Reserve fast-charging ports, schedule service elevators for heavy furniture shifting, and access the Lost & Found hub.
-    </p>
+  <!-- Notice Reader Modal -->
+  <div class="modal-backdrop" id="luxNoticeModal">
+    <div class="modal-dialog" style="max-width: 550px;">
+      <div class="modal-header">
+        <h3 id="noticeModalTitle" style="font-size: 1.2rem;">Society Circular</h3>
+        <button type="button" data-modal-close style="background:none; border:none; color:var(--text-muted); font-size:1.5rem; cursor:pointer;">×</button>
+      </div>
+      <div class="modal-body">
+        <div id="noticeModalDate" style="font-size: 0.78rem; color: var(--accent-emerald); font-weight: 700; margin-bottom: 0.85rem;"></div>
+        <div id="noticeModalBody" style="font-size: 0.95rem; color: var(--text-secondary); line-height: 1.65; white-space: pre-line;"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-modal-close>Close</button>
+      </div>
+    </div>
   </div>
 
-  <div class="glass-card interactive">
-    <div style="font-size: 2.5rem; margin-bottom: 1rem;">🗳️</div>
-    <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem;">Democratic Polls & Hub</h3>
-    <p style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.5;">
-      1-Member-1-Vote referendum polls, pinned circulars, society document vault, and vibrant community marketplace discussion feed.
-    </p>
+  <!-- Quick Pass Simulator Modal -->
+  <div class="modal-backdrop" id="passSimulatorModal">
+    <div class="modal-dialog" style="max-width: 440px; text-align: center;">
+      <div class="modal-header">
+        <h3 style="font-size: 1.25rem; font-weight: 800; color: #0c4a6e;">🎟️ Fast-Track Gate Pass Simulator</h3>
+        <button type="button" data-modal-close style="background:none; border:none; color:var(--text-muted); font-size:1.5rem; cursor:pointer;">×</button>
+      </div>
+      <div class="modal-body" style="padding: 1.75rem 1.5rem;">
+        <div style="background: #f0f9ff; border: 2px dashed #0ea5e9; border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 1.25rem;">
+          <div style="font-size: 0.8rem; font-weight: 800; color: #0284c7; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.5rem;">
+            Emerald Greens CHS Ltd. • Gate 1 & 2 Fast Track
+          </div>
+          <div style="font-size: 2.5rem; font-family: 'JetBrains Mono', monospace; font-weight: 900; color: #0f172a; letter-spacing: 4px; margin: 0.5rem 0;" id="simulatedPassCode">
+            849201
+          </div>
+          <div style="font-size: 0.82rem; color: #64748b;">
+            Host: <strong>Flat A-1204 (Wing A • Horizon)</strong> • Valid for 4 Hours
+          </div>
+        </div>
+        <p style="font-size: 0.88rem; color: #334155; line-height: 1.5; margin-bottom: 1.25rem;">
+          Share this 6-digit OTP passcode with Swiggy, Zomato, Blinkit, Zepto, Maid or Cab drivers for instantaneous boom barrier clearance at Gate 1 / 2.
+        </p>
+        <button type="button" class="btn btn-whatsapp" id="copySimulatedPass" style="width: 100%; padding: 0.75rem; font-size: 0.95rem; font-weight: 800;">
+          📲 Copy & Share on WhatsApp
+        </button>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-modal-close>Close</button>
+      </div>
+    </div>
   </div>
-</div>
-{% endblock %}
+
+  <!-- Scripts -->
+  <script src="{% static 'js/main.js' %}"></script>
+  <script src="{% static 'js/landing.js' %}"></script>
+</body>
+</html>

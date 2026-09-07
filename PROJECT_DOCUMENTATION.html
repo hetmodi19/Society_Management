@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academic Project Report - SmartSociety 360 Enterprise ERP</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+        mermaid.initialize({ startOnLoad: true, theme: 'neutral' });
+    </script>
+    <style>
+        :root {
+            --primary: #0ea5e9;
+            --primary-dark: #0284c7;
+            --primary-light: #e0f2fe;
+            --accent: #06b6d4;
+            --emerald: #10b981;
+            --gold: #f59e0b;
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --border: #e2e8f0;
+            --code-bg: #0f172a;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.65;
+            font-size: 15px;
+            padding: 0;
+        }
+
+        .floating-action-bar {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(12px);
+            padding: 8px 14px;
+            border-radius: 40px;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.15);
+            border: 1px solid var(--border);
+        }
+
+        .print-btn {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .print-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(14, 165, 233, 0.4);
+        }
+
+        .document-wrapper {
+            max-width: 960px;
+            margin: 40px auto;
+            background: var(--bg-card);
+            padding: 60px 70px;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+            border: 1px solid var(--border);
+        }
+
+        /* Cover Page Styling */
+        .cover-page {
+            text-align: center;
+            padding: 40px 20px 60px;
+            border-bottom: 3px double var(--border);
+            margin-bottom: 50px;
+        }
+
+        .institute-header {
+            font-family: 'Outfit', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-main);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+        }
+
+        .dept-header {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-bottom: 40px;
+        }
+
+        .project-badge {
+            display: inline-block;
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            font-weight: 700;
+            font-size: 12px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 18px;
+        }
+
+        .project-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 32px;
+            font-weight: 800;
+            line-height: 1.25;
+            color: #0c4a6e;
+            margin-bottom: 14px;
+        }
+
+        .project-subtitle {
+            font-size: 16px;
+            color: var(--text-muted);
+            max-width: 700px;
+            margin: 0 auto 40px;
+        }
+
+        .meta-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            text-align: left;
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 30px;
+        }
+
+        .meta-col h4 {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: var(--primary-dark);
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        .meta-col p {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 12px;
+        }
+
+        /* Typography & Headings */
+        h1, h2, h3, h4, h5 {
+            font-family: 'Outfit', sans-serif;
+            color: #0f172a;
+            font-weight: 700;
+            margin-top: 36px;
+            margin-bottom: 14px;
+            line-height: 1.3;
+        }
+
+        h1 {
+            font-size: 26px;
+            border-bottom: 2px solid var(--primary-light);
+            padding-bottom: 8px;
+            color: #0369a1;
+        }
+
+        h2 {
+            font-size: 20px;
+            color: #0f172a;
+            margin-top: 32px;
+        }
+
+        h3 {
+            font-size: 16px;
+            color: #334155;
+        }
+
+        p {
+            margin-bottom: 16px;
+            color: #334155;
+            font-size: 14.5px;
+            text-align: justify;
+        }
+
+        ul, ol {
+            margin-left: 24px;
+            margin-bottom: 18px;
+            color: #334155;
+        }
+
+        li {
+            margin-bottom: 6px;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0 28px;
+            font-size: 13.5px;
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th {
+            background: #f1f5f9;
+            color: #0f172a;
+            font-weight: 700;
+            text-align: left;
+            padding: 12px 14px;
+            border-bottom: 2px solid var(--border);
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 11px 14px;
+            border-bottom: 1px solid var(--border);
+            color: #334155;
+            vertical-align: top;
+        }
+
+        tr:nth-child(even) td {
+            background: #f8fafc;
+        }
+
+        tr:hover td {
+            background: #f0f9ff;
+        }
+
+        /* Status & Badges */
+        .badge-pass {
+            background: #dcfce7;
+            color: #15803d;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            display: inline-block;
+        }
+
+        .badge-code {
+            font-family: 'JetBrains Mono', monospace;
+            background: #e2e8f0;
+            color: #0f172a;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        /* Code Blocks */
+        pre {
+            background: var(--code-bg);
+            color: #e2e8f0;
+            padding: 18px 20px;
+            border-radius: 10px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12.5px;
+            line-height: 1.5;
+            overflow-x: auto;
+            margin: 18px 0 24px;
+        }
+
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+        }
+
+        /* Callout Box */
+        .callout {
+            background: #f0f9ff;
+            border-left: 4px solid var(--primary);
+            padding: 16px 20px;
+            border-radius: 0 8px 8px 0;
+            margin: 20px 0;
+        }
+
+        .callout h4 {
+            color: #0369a1;
+            margin-top: 0;
+            margin-bottom: 6px;
+        }
+
+        .callout p {
+            margin-bottom: 0;
+            color: #0c4a6e;
+        }
+
+        /* Math formula box */
+        .math-box {
+            background: #fdf4ff;
+            border: 1px solid #f0abfc;
+            border-radius: 8px;
+            padding: 14px 18px;
+            margin: 16px 0;
+            font-family: 'JetBrains Mono', monospace;
+            color: #701a75;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .signature-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-top: 60px;
+            margin-bottom: 40px;
+        }
+
+        .sig-box {
+            border-top: 1px solid #94a3b8;
+            padding-top: 10px;
+            text-align: center;
+        }
+
+        .sig-box p {
+            text-align: center;
+            margin-bottom: 2px;
+        }
+
+        /* Mermaid diagram container */
+        .mermaid {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        /* Print Media Styles */
+        @media print {
+            body {
+                background: #fff;
+                font-size: 11pt;
+            }
+            .floating-action-bar {
+                display: none;
+            }
+            .document-wrapper {
+                margin: 0;
+                padding: 0;
+                border: none;
+                box-shadow: none;
+                max-width: 100%;
+            }
+            .page-break {
+                page-break-before: always;
+            }
+            h1 {
+                page-break-before: always;
+            }
+            pre, table, .mermaid {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="floating-action-bar">
+        <button class="print-btn" onclick="window.print()">
+            🖨️ Print / Save as PDF
+        </button>
+    </div>
+
+    <div class="document-wrapper">
+
+        <!-- COVER PAGE -->
+        <div class="cover-page">
+            <div class="institute-header">[University / College Name]</div>
+            <div class="dept-header">Department of Computer Science & Engineering / Information Technology</div>
+            
+            <div class="project-badge">Academic Project Documentation • B.Tech / B.E. Capstone</div>
+            <div class="project-title">SmartSociety 360: Next-Generation Enterprise Residential Housing Society ERP & Smart Governance Platform</div>
+            <div class="project-subtitle">A Comprehensive Full-Stack PropTech Case Study for Emerald Greens Co-operative Housing Society Ltd. (MahaRERA: P51800028472)</div>
+
+            <div class="meta-grid">
+                <div class="meta-col">
+                    <h4>Submitted By:</h4>
+                    <p>[Candidate / Student Name]</p>
+                    <h4>Roll / Registration No:</h4>
+                    <p>[University Roll Number]</p>
+                    <h4>Academic Term:</h4>
+                    <p>2025 - 2026</p>
+                </div>
+                <div class="meta-col">
+                    <h4>Internal Project Guide:</h4>
+                    <p>[Prof. / Dr. Internal Guide Name]</p>
+                    <h4>Head of Department:</h4>
+                    <p>[Dr. HOD Name]</p>
+                    <h4>Submission Date:</h4>
+                    <p>September 04, 2026</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- CERTIFICATES -->
+        <h1>1. Certificates & Declarations</h1>
+        <div class="callout">
+            <h4>Declaration of Authenticity</h4>
+            <p>I hereby declare that this project report entitled <strong>"SmartSociety 360"</strong> is an authentic record of independent academic research and engineering development carried out by me. The source code, architecture, and documentation represent original work.</p>
+        </div>
+
+        <div class="signature-grid">
+            <div class="sig-box">
+                <p><strong>[Student Name]</strong></p>
+                <p style="font-size:12px; color:var(--text-muted)">Candidate Signature & Date</p>
+            </div>
+            <div class="sig-box">
+                <p><strong>[Prof. / Dr. Guide Name]</strong></p>
+                <p style="font-size:12px; color:var(--text-muted)">Project Guide Signature & Seal</p>
+            </div>
+        </div>
+
+        <div class="page-break"></div>
+
+        <!-- EXECUTIVE SUMMARY -->
+        <h1>2. Executive Summary & Abstract</h1>
+        <p><strong>SmartSociety 360</strong> is an enterprise-grade, full-stack Residential Estate ERP, Gate Security, and Democratic Governance web application built with Python 3.12, Django 5.x, and a custom-engineered Vanilla CSS3 design system. It addresses the critical operational, financial, and security bottlenecks of high-rise residential complexes and Co-operative Housing Societies (CHS).</p>
+        
+        <p>The platform eliminates fragmented manual registers and un-audited processes by delivering:</p>
+        <ul>
+            <li><strong>Automated Financial ERP</strong>: RERA carpet-area proportional billing, statutory 10% sinking fund accounting, and 1-tap dynamic UPI QR code settlement with instant PDF GST receipts.</li>
+            <li><strong>Digital Gatekeeper & FastTag</strong>: 1-click WhatsApp 6-digit OTP guest passes, delivery partner fast-tracking, digital parcel lockers, and an instantaneous <strong>1-Tap Emergency SOS Siren</strong>.</li>
+            <li><strong>Smart Eco-Infrastructure</strong>: Conflict-free amenity calendar booking and a <strong>48.5 kW Rooftop Solar EV Hyper-Charging Plaza</strong> with live kWh billing.</li>
+            <li><strong>SLA-Tracked Helpdesk</strong>: Service ticket management with photo uploads and strict 15-minute emergency technician dispatch.</li>
+            <li><strong>Democratic E-Voting</strong>: 1-Flat-1-Vote referendums adhering to the <strong>Maharashtra Co-operative Societies Act, 1960</strong> Model Bye-Laws.</li>
+        </ul>
+
+        <!-- PROBLEM STATEMENT & COMPARISON -->
+        <h1>3. Problem Statement & Comparative Analysis</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>Domain</th>
+                    <th>Traditional Manual Process</th>
+                    <th>SmartSociety 360 Enterprise ERP</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Visitor Entry</strong></td>
+                    <td>Paper logbook; unverified phone numbers; slow queues.</td>
+                    <td>1-Click WhatsApp 6-digit OTP passes + FastTag barrier logging.</td>
+                </tr>
+                <tr>
+                    <td><strong>Maintenance Billing</strong></td>
+                    <td>Paper bills; physical cheques; delayed reconciliation.</td>
+                    <td>RERA carpet-area formula bills + Zero-fee Dynamic UPI QR settlement.</td>
+                </tr>
+                <tr>
+                    <td><strong>Emergency SOS</strong></td>
+                    <td>Intercom or manual calling; high latency.</td>
+                    <td>1-Tap Central Audio-Visual Siren broadcasting flat & floor to guard desk.</td>
+                </tr>
+                <tr>
+                    <td><strong>Service Tickets</strong></td>
+                    <td>Verbal requests to guards; lost complaints.</td>
+                    <td>Category-tagged tickets with photo upload & 15-min emergency SLA.</td>
+                </tr>
+                <tr>
+                    <td><strong>AGM Governance</strong></td>
+                    <td>Physical attendance required; proxy voting disputes.</td>
+                    <td>1-Flat-1-Vote cryptographically verifiable digital referendums.</td>
+                </tr>
+                <tr>
+                    <td><strong>Solar EV Mobility</strong></td>
+                    <td>No tracking or billing for EV charging bays.</td>
+                    <td>Integrated 48.5 kW Solar EV Plaza with real-time kWh ledger billing.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- SRS -->
+        <h1>4. Software Requirements Specification (SRS)</h1>
+        <h3>4.1 Functional Requirements</h3>
+        <ul>
+            <li><strong>FR-01 (Multi-Role RBAC)</strong>: Secure login supporting 5 distinct roles: <code>ADMIN</code>, <code>COMMITTEE</code>, <code>RESIDENT</code>, <code>GUARD</code>, and <code>STAFF</code>.</li>
+            <li><strong>FR-02 (Property Inventory)</strong>: Multi-wing floor-wise flat registry with RERA carpet areas and Vastu compliance indicators.</li>
+            <li><strong>FR-03 (Automated Billing)</strong>: Automated invoice generation with sinking fund and parking levies.</li>
+            <li><strong>FR-04 (Dynamic UPI Payments)</strong>: Instant UPI QR generation compatible with GPay, PhonePe, Paytm, and BHIM.</li>
+            <li><strong>FR-05 (Gatekeeper Passes)</strong>: 6-digit OTP pre-approved visitor passes with direct WhatsApp sharing.</li>
+            <li><strong>FR-06 (Emergency SOS Siren)</strong>: Instant one-tap alarm broadcasting audio-visual alerts to the main guard terminal.</li>
+            <li><strong>FR-07 (Amenity Reservations)</strong>: Double-booking prevention for Banquet Hall, Lap Pool, and Box Cricket Turf.</li>
+            <li><strong>FR-08 (Solar EV Grid)</strong>: Slot scheduling and kWh energy metering for 6 basement EV charging stations.</li>
+            <li><strong>FR-09 (SLA Helpdesk)</strong>: 15-minute emergency technician dispatch with post-resolution ratings.</li>
+            <li><strong>FR-10 (Democratic E-Voting)</strong>: Model Bye-Laws compliant 1-flat-1-vote secret ballot referendums.</li>
+        </ul>
+
+        <h3>4.2 Non-Functional Requirements</h3>
+        <ul>
+            <li><strong>NFR-01 (Performance)</strong>: Page response time &le; 200 ms with optimized ORM queries.</li>
+            <li><strong>NFR-02 (Security)</strong>: CSRF tokens on all POST requests, PBKDF2 password hashing, and SQL injection immunity.</li>
+            <li><strong>NFR-03 (Responsive Scalability)</strong>: Fluid design across 320px mobile viewports to 4K displays and 67% to 125% zoom levels.</li>
+        </ul>
+
+        <!-- ARCHITECTURE -->
+        <h1>5. System Architecture & Design</h1>
+        <p>The platform follows the robust <strong>Model-View-Template (MVT)</strong> architecture:</p>
+        
+        <div class="mermaid">
+        graph TD
+            User([Resident / Admin / Guard / Staff]) <-->|HTTPS Requests| Router[Django URL Router]
+            Router <--> Middleware[Session, CSRF & RBAC Middleware]
+            Middleware <--> Views[Controller Business Logic]
+            Views <--> Models[ORM Data Models]
+            Models <--> DB[(PostgreSQL / SQLite Database)]
+            Views <--> Templates[HTML5 + Vanilla CSS3 + JS Engine]
+            Templates <--> User
+        </div>
+
+        <!-- DATABASE & ERD -->
+        <h1>6. Database Schema & Entity-Relationship Design</h1>
+        <div class="mermaid">
+        erDiagram
+            USER ||--o{ RESIDENT_PROFILE : has
+            USER ||--o{ STAFF_PROFILE : has
+            WING ||--o{ UNIT : contains
+            UNIT ||--o{ RESIDENT_UNIT_MAPPING : maps
+            USER ||--o{ RESIDENT_UNIT_MAPPING : resides_in
+            UNIT ||--o{ VEHICLE : owns
+            UNIT ||--o{ MAINTENANCE_BILL : billed_to
+            MAINTENANCE_BILL ||--o{ BILL_PAYMENT : settles
+            UNIT ||--o{ PRE_APPROVED_PASS : issues
+            USER ||--o{ MAINTENANCE_TICKET : creates
+            USER ||--o{ AMENITY_BOOKING : reserves
+            USER ||--o{ EV_CHARGING_SESSION : charges
+            USER ||--o{ POLL_VOTE : casts
+            USER ||--o{ SOS_ALERT : triggers
+        </div>
+
+        <!-- MATHEMATICAL FORMULAS -->
+        <h1>7. Mathematical & Billing Calculation Models</h1>
+        <p>Base maintenance is computed proportionally against certified RERA carpet area in accordance with statutory guidelines:</p>
+
+        <div class="math-box">
+            Base Maintenance = RERA Carpet Area (sq.ft) × Rate (₹/sq.ft)<br>
+            Example: 1,850 sq.ft × ₹4.80 = ₹8,880.00
+        </div>
+
+        <div class="math-box">
+            Sinking Fund (10%) = Base Maintenance × 0.10 = ₹888.00<br>
+            Total Bill = Base Maintenance + Sinking Fund + Parking Fee + EV Levy
+        </div>
+
+        <!-- TEST CASES -->
+        <h1>8. Test Suite & Verification Matrix</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>Test ID</th>
+                    <th>Module</th>
+                    <th>Scenario & Objective</th>
+                    <th>Expected Result</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>TC-01</strong></td>
+                    <td>Accounts</td>
+                    <td>Admin login with valid credentials</td>
+                    <td>Session created; redirect to Admin Dashboard</td>
+                    <td><span class="badge-pass">PASS</span></td>
+                </tr>
+                <tr>
+                    <td><strong>TC-02</strong></td>
+                    <td>Accounts</td>
+                    <td>Access control on protected routes</td>
+                    <td>HTTP 302 Redirect to Login</td>
+                    <td><span class="badge-pass">PASS</span></td>
+                </tr>
+                <tr>
+                    <td><strong>TC-03</strong></td>
+                    <td>Gatekeeper</td>
+                    <td>Generate 6-digit WhatsApp Guest Pass</td>
+                    <td>6-digit OTP code created with WhatsApp link</td>
+                    <td><span class="badge-pass">PASS</span></td>
+                </tr>
+                <tr>
+                    <td><strong>TC-04</strong></td>
+                    <td>Gatekeeper</td>
+                    <td>1-Tap Emergency SOS Siren trigger</td>
+                    <td>Audio-visual siren broadcasted to Guard Desk</td>
+                    <td><span class="badge-pass">PASS</span></td>
+                </tr>
+                <tr>
+                    <td><strong>TC-05</strong></td>
+                    <td>Billing</td>
+                    <td>Dynamic UPI QR Code generation</td>
+                    <td>UPI QR rendered with exact amount and merchant VPA</td>
+                    <td><span class="badge-pass">PASS</span></td>
+                </tr>
+                <tr>
+                    <td><strong>TC-06</strong></td>
+                    <td>Amenities</td>
+                    <td>Banquet Hall slot conflict prevention</td>
+                    <td>Validation error: Slot already reserved</td>
+                    <td><span class="badge-pass">PASS</span></td>
+                </tr>
+                <tr>
+                    <td><strong>TC-07</strong></td>
+                    <td>Amenities</td>
+                    <td>Solar EV charging session billing</td>
+                    <td>Energy fee auto-appended to unit ledger</td>
+                    <td><span class="badge-pass">PASS</span></td>
+                </tr>
+                <tr>
+                    <td><strong>TC-08</strong></td>
+                    <td>Helpdesk</td>
+                    <td>Emergency ticket with 15-min SLA</td>
+                    <td>Technician dispatched; countdown timer active</td>
+                    <td><span class="badge-pass">PASS</span></td>
+                </tr>
+                <tr>
+                    <td><strong>TC-09</strong></td>
+                    <td>Voting</td>
+                    <td>1-Flat-1-Vote referendum enforcement</td>
+                    <td>Vote recorded; duplicate votes rejected</td>
+                    <td><span class="badge-pass">PASS</span></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- DEMO CREDENTIALS -->
+        <h1>9. Evaluation User Credentials</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>System Role</th>
+                    <th>Username</th>
+                    <th>Password</th>
+                    <th>Key Features to Review</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Society Admin / President</strong></td>
+                    <td><span class="badge-code">admin</span></td>
+                    <td><span class="badge-code">admin123</span></td>
+                    <td>Executive KPI metrics, Flat allocations, Batch billing, Financial audit ledger.</td>
+                </tr>
+                <tr>
+                    <td><strong>Managing Committee Secretary</strong></td>
+                    <td><span class="badge-code">secretary</span></td>
+                    <td><span class="badge-code">committee123</span></td>
+                    <td>Circular announcements, AGM referendum creation, Amenity approvals.</td>
+                </tr>
+                <tr>
+                    <td><strong>Resident Owner (Flat A-402)</strong></td>
+                    <td><span class="badge-code">john_doe</span></td>
+                    <td><span class="badge-code">resident123</span></td>
+                    <td>UPI maintenance payment, WhatsApp guest pass, Solar EV charging, 1-Tap SOS.</td>
+                </tr>
+                <tr>
+                    <td><strong>Main Gate Security Guard</strong></td>
+                    <td><span class="badge-code">guard_rajesh</span></td>
+                    <td><span class="badge-code">guard123</span></td>
+                    <td>Gatekeeper security terminal, Guest OTP verification, Live SOS Alarm monitor.</td>
+                </tr>
+                <tr>
+                    <td><strong>Facility Staff (Chief Electrician)</strong></td>
+                    <td><span class="badge-code">staff_mike</span></td>
+                    <td><span class="badge-code">staff123</span></td>
+                    <td>Assigned work orders, 15-minute emergency SLA countdown, Resolution notes.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- CONCLUSION -->
+        <h1>10. Conclusion & References</h1>
+        <p><strong>SmartSociety 360</strong> successfully delivers a modern, robust, and compliant enterprise housing management solution tailored for Indian residential societies. It eliminates operational friction, guarantees statutory compliance under the Maharashtra Co-operative Societies Act 1960 and MahaRERA, and elevates resident living standards.</p>
+        
+        <p style="text-align:center; font-size:12px; color:var(--text-muted); margin-top:40px;">
+            Academic Project Submission • © 2026 SmartSociety 360 Enterprise ERP • Emerald Greens CHS Ltd.
+        </p>
+
+    </div>
+</body>
+</html>

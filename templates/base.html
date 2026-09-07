@@ -1,6 +1,6 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -32,6 +32,10 @@
       </div>
 
       <nav class="sidebar-nav">
+        <a href="{% url 'landing' %}" class="nav-item">
+          <span class="nav-item-icon">🏛️</span>
+          <span>Building Website</span>
+        </a>
         <a href="{% url 'dashboard' %}" class="nav-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
           <span class="nav-item-icon">📊</span>
           <span>Dashboard</span>
@@ -396,22 +400,22 @@
         <div class="hotline-card">
           <div>
             <strong>🛡️ Main Gate Security Desk (24/7)</strong>
-            <div style="font-size: 0.75rem; color: var(--text-muted);">Guard supervisor on duty</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">Guard supervisor on duty • Gate 1 & 2 FastTag</div>
           </div>
           <div style="text-align: right;">
             <strong style="color: var(--primary); font-family: monospace; font-size: 1.1rem;">Ext #1000</strong>
-            <div style="font-size: 0.75rem; color: var(--text-muted);">+1 555-GATE-01</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">+91 98200 11000</div>
           </div>
         </div>
 
         <div class="hotline-card">
           <div>
-            <strong>🛗 Otis Elevator / Lift Breakdown Emergency</strong>
-            <div style="font-size: 0.75rem; color: var(--text-muted);">24/7 Rapid response hotline</div>
+            <strong>🛗 Otis Elevator / Lift Emergency</strong>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">24/7 Rapid lift emergency response</div>
           </div>
           <div style="text-align: right;">
             <strong style="color: var(--accent-rose); font-family: monospace; font-size: 1.1rem;">Ext #1999</strong>
-            <div style="font-size: 0.75rem; color: var(--text-muted);">+1 800-OTIS-EMERG</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">+91 98200 11999</div>
           </div>
         </div>
 
@@ -421,27 +425,29 @@
             <div style="font-size: 0.75rem; color: var(--text-muted);">Nearest emergency trauma care (1.2 km)</div>
           </div>
           <div style="text-align: right;">
-            <strong style="color: var(--accent-emerald); font-family: monospace; font-size: 1.1rem;">108 / 911</strong>
+            <strong style="color: var(--accent-emerald); font-family: monospace; font-size: 1.1rem;">108 / 112</strong>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">+91 22 2570 0108</div>
           </div>
         </div>
 
         <div class="hotline-card">
           <div>
-            <strong>🚒 Metro Fire & Rescue Station</strong>
-            <div style="font-size: 0.75rem; color: var(--text-muted);">Skyline District HQ</div>
+            <strong>🚒 Powai / MIDC Fire Brigade</strong>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">Mumbai Fire Safety HQ</div>
           </div>
           <div style="text-align: right;">
-            <strong style="color: var(--accent-rose); font-family: monospace; font-size: 1.1rem;">101 / 911</strong>
+            <strong style="color: var(--accent-rose); font-family: monospace; font-size: 1.1rem;">101 / 112</strong>
           </div>
         </div>
 
         <div class="hotline-card">
           <div>
-            <strong>⚡ Common Power Substation & Diesel Gen</strong>
-            <div style="font-size: 0.75rem; color: var(--text-muted);">Chief Electrical Engineer</div>
+            <strong>⚡ Licensed Electrician & Plumber Desk</strong>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">Chief Electrical & Plumbing Technicians</div>
           </div>
           <div style="text-align: right;">
             <strong style="color: var(--accent-amber); font-family: monospace; font-size: 1.1rem;">Ext #1040</strong>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">+91 98200 11040</div>
           </div>
         </div>
       </div>

@@ -146,9 +146,9 @@ LOGIN_URL = 'accounts:login'
 LOGIN_REDIRECT_URL = 'dashboard'
 LOGOUT_REDIRECT_URL = 'accounts:login'
 
-# Society branding info
-SOCIETY_NAME = "Emerald Greens Residential Enclave"
-SOCIETY_CODE = "EG-360"
-SOCIETY_ADDRESS = "Plot 42-45, Palm Boulevard, Skyline District"
-SOCIETY_CITY = "Metro City, 560001"
-SOCIETY_CONTACT = "+1 (800) 555-SOCIETY | contact@emeraldgreens.residence"
+# Society branding info (Indian Co-operative Housing Society & RERA Enclave)
+SOCIETY_NAME = "Emerald Greens Co-operative Housing Society Ltd."
+SOCIETY_CODE = "MAHA-CHS-MUM-2024-8492 / MAHA-RERA: P51800028472"
+SOCIETY_ADDRESS = "Plot 42-45, Palm Boulevard, Near Hiranandani Estate, Powai"
+SOCIETY_CITY = "Mumbai, Maharashtra - 400076"
+SOCIETY_CONTACT = "+91 (022) 2847-9000 | +91 98200 45678 | estate@emeraldgreens-chs.in"

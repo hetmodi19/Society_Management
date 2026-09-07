@@ -4,12 +4,18 @@
 {% block title %}Sign In - SmartSociety 360 Enterprise ERP{% endblock %}
 
 {% block content %}
-<div style="max-width: 440px; margin: 2rem auto;">
-  <div class="glass-card" style="border-top: 4px solid var(--primary); padding: 2.25rem;">
+<div style="max-width: 460px; margin: 2rem auto;">
+  <div style="margin-bottom: 1.25rem;">
+    <a href="{% url 'landing' %}" class="btn btn-secondary btn-sm" style="display: inline-flex; align-items: center; gap: 0.5rem; font-weight: 700;">
+      <span>← Back to Emerald Greens Website</span>
+    </a>
+  </div>
+
+  <div class="glass-card" style="border-top: 4px solid var(--accent-emerald); padding: 2.25rem; box-shadow: var(--shadow-lg);">
     <div style="text-align: center; margin-bottom: 2rem;">
-      <div class="brand-logo" style="margin: 0 auto 1rem; width: 56px; height: 56px; font-size: 1.6rem;">EG</div>
-      <h1 style="font-size: 1.6rem; margin-bottom: 0.35rem;">Resident Portal</h1>
-      <p style="font-size: 0.88rem; color: var(--text-secondary);">Emerald Greens Residential Enclave</p>
+      <div class="brand-logo" style="margin: 0 auto 1rem; width: 56px; height: 56px; font-size: 1.6rem; background: linear-gradient(135deg, #10b981 0%, #047857 100%);">EG</div>
+      <h1 style="font-size: 1.6rem; margin-bottom: 0.35rem;">Resident & Staff Portal</h1>
+      <p style="font-size: 0.88rem; color: var(--text-secondary);">Emerald Greens Luxury Residential Enclave</p>
     </div>
 
     <form method="post" action="{% url 'accounts:login' %}{% if request.GET.next %}?next={{ request.GET.next|urlencode }}{% endif %}">

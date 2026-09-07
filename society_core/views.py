@@ -12,16 +12,43 @@ from apps.amenities.models import Amenity, AmenityBooking
 from apps.communications.models import Notice, SocietyPoll, PollVote
 
 def landing_page_view(request):
-    """Public / Marketing Landing page showcasing SmartSociety 360 features."""
-    if request.user.is_authenticated:
-        return redirect('dashboard')
-    
-    total_flats = Unit.objects.count()
-    active_amenities = Amenity.objects.filter(is_active=True).count()
-    
+    """Public luxury building website showcasing Emerald Greens residences, amenities & smart society portal."""
+    try:
+        total_flats = Unit.objects.count()
+        occupied_flats = Unit.objects.exclude(occupancy_status=Unit.OccupancyStatus.VACANT).count()
+        wings_count = Wing.objects.count()
+    except Exception:
+        total_flats = 120
+        occupied_flats = 114
+        wings_count = 2
+
+    try:
+        from apps.amenities.models import EVChargingStation
+        active_amenities = list(Amenity.objects.filter(is_active=True))
+        ev_chargers_count = EVChargingStation.objects.filter(is_active=True).count()
+    except Exception:
+        active_amenities = []
+        ev_chargers_count = 6
+
+    try:
+        pinned_notices = list(Notice.objects.filter(is_pinned=True, is_active=True).order_by('-created_at')[:3])
+    except Exception:
+        pinned_notices = []
+
+    try:
+        today = timezone.now().date()
+        active_poll = SocietyPoll.objects.filter(is_active=True, end_date__gte=today).first()
+    except Exception:
+        active_poll = None
+
     return render(request, 'landing.html', {
         'total_flats': total_flats or 120,
-        'active_amenities': active_amenities or 8,
+        'occupied_flats': occupied_flats or 114,
+        'wings_count': wings_count or 2,
+        'active_amenities': active_amenities,
+        'ev_chargers_count': ev_chargers_count or 6,
+        'pinned_notices': pinned_notices,
+        'active_poll': active_poll,
     })
 
 
