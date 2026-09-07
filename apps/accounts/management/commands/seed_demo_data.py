@@ -22,16 +22,14 @@ class Command(BaseCommand):
         config, _ = MaintenanceConfig.objects.get_or_create(
             id=1,
             defaults={
-                'society_name': 'Emerald Greens CHS Ltd.',
-                'rate_per_sqft': Decimal('3.50'),
-                'fixed_sinking_fund': Decimal('500.00'),
-                'fixed_parking_charge_car': Decimal('300.00'),
-                'fixed_parking_charge_bike': Decimal('100.00'),
-                'fixed_water_charge': Decimal('400.00'),
-                'fixed_amenity_charge': Decimal('500.00'),
+                'name': 'Emerald Greens CHS Ltd. Standard Billing Policy',
+                'base_rate_per_sqft': Decimal('3.50'),
+                'sinking_fund_rate': Decimal('0.50'),
+                'fixed_amenities_fee': Decimal('500.00'),
+                'parking_slot_fee': Decimal('300.00'),
+                'water_fixed_charge': Decimal('400.00'),
                 'late_fee_percentage': Decimal('2.00'),
-                'grace_period_days': 15,
-                'billing_due_day': 15,
+                'payment_grace_days': 15,
             }
         )
 
@@ -40,12 +38,12 @@ class Command(BaseCommand):
             username='admin',
             defaults={
                 'email': 'admin@emeraldgreens.residence',
-                'first_name': 'Robert',
-                'last_name': 'Sterling',
+                'first_name': 'Amit',
+                'last_name': 'Sharma',
                 'role': User.Role.ADMIN,
                 'is_staff': True,
                 'is_superuser': True,
-                'phone_number': '+1 (555) 019-2834',
+                'phone_number': '+91 98765 43210',
                 'two_factor_enabled': True,
                 'security_pin': '8899',
             }
@@ -57,10 +55,10 @@ class Command(BaseCommand):
             username='secretary',
             defaults={
                 'email': 'secretary@emeraldgreens.residence',
-                'first_name': 'Elena',
-                'last_name': 'Vance',
+                'first_name': 'Neha',
+                'last_name': 'Deshmukh',
                 'role': User.Role.COMMITTEE,
-                'phone_number': '+1 (555) 018-9942',
+                'phone_number': '+91 98765 43211',
                 'security_pin': '4455',
             }
         )
@@ -70,11 +68,11 @@ class Command(BaseCommand):
         resident_owner, _ = User.objects.get_or_create(
             username='john_doe',
             defaults={
-                'email': 'john.doe@example.com',
-                'first_name': 'John',
-                'last_name': 'Doe',
+                'email': 'amit.sharma@example.in',
+                'first_name': 'Vikram',
+                'last_name': 'Joshi',
                 'role': User.Role.RESIDENT,
-                'phone_number': '+1 (555) 012-3456',
+                'phone_number': '+91 98765 43212',
                 'security_pin': '1234',
             }
         )
@@ -84,10 +82,10 @@ class Command(BaseCommand):
             user=resident_owner,
             defaults={
                 'resident_type': ResidentProfile.ResidentType.OWNER,
-                'emergency_contact_name': 'Jane Doe',
-                'emergency_contact_phone': '+1 (555) 998-1122',
+                'emergency_contact_name': 'Kavita Joshi',
+                'emergency_contact_phone': '+91 98201 11223',
                 'blood_group': 'O+',
-                'occupation': 'Senior Cloud Architect',
+                'occupation': 'Software Engineer',
                 'intercom_number': '1402',
             }
         )
@@ -95,11 +93,11 @@ class Command(BaseCommand):
         resident_tenant, _ = User.objects.get_or_create(
             username='sarah_smith',
             defaults={
-                'email': 'sarah.smith@example.com',
-                'first_name': 'Sarah',
-                'last_name': 'Smith',
+                'email': 'pooja.verma@example.in',
+                'first_name': 'Pooja',
+                'last_name': 'Verma',
                 'role': User.Role.RESIDENT,
-                'phone_number': '+1 (555) 014-7788',
+                'phone_number': '+91 98765 43213',
                 'security_pin': '5678',
             }
         )
@@ -109,10 +107,10 @@ class Command(BaseCommand):
             user=resident_tenant,
             defaults={
                 'resident_type': ResidentProfile.ResidentType.TENANT,
-                'emergency_contact_name': 'David Smith',
-                'emergency_contact_phone': '+1 (555) 334-8899',
+                'emergency_contact_name': 'Rakesh Verma',
+                'emergency_contact_phone': '+91 98202 22334',
                 'blood_group': 'A+',
-                'occupation': 'Product Designer',
+                'occupation': 'Chartered Accountant',
                 'intercom_number': '1201',
             }
         )
@@ -124,7 +122,7 @@ class Command(BaseCommand):
                 'first_name': 'Raj',
                 'last_name': 'Patel',
                 'role': User.Role.GUARD,
-                'phone_number': '+1 (555) 019-9900',
+                'phone_number': '+91 98765 43214',
             }
         )
         guard_user.set_password('guard123')
@@ -133,11 +131,11 @@ class Command(BaseCommand):
         staff_electrician, _ = User.objects.get_or_create(
             username='mike_electrician',
             defaults={
-                'email': 'mike.tech@emeraldgreens.residence',
-                'first_name': 'Mike',
-                'last_name': 'Ross',
+                'email': 'sanjay.pawar@emeraldgreens.residence',
+                'first_name': 'Sanjay',
+                'last_name': 'Pawar',
                 'role': User.Role.STAFF,
-                'phone_number': '+1 (555) 017-4321',
+                'phone_number': '+91 98765 43215',
             }
         )
         staff_electrician.set_password('staff123')
@@ -152,6 +150,24 @@ class Command(BaseCommand):
                 'rating': Decimal('4.9'),
             }
         )
+
+        # Migrate records from older seed versions before creating renamed Indian records.
+        User.objects.filter(username='admin').update(first_name='Amit', last_name='Sharma', email='admin@emeraldgreens.residence')
+        User.objects.filter(username='secretary').update(first_name='Neha', last_name='Deshmukh', email='secretary@emeraldgreens.residence')
+        User.objects.filter(username='john_doe').update(first_name='Vikram', last_name='Joshi', email='amit.sharma@example.in')
+        User.objects.filter(username='sarah_smith').update(first_name='Pooja', last_name='Verma', email='pooja.verma@example.in')
+        User.objects.filter(username='mike_electrician').update(first_name='Sanjay', last_name='Pawar', email='sanjay.pawar@emeraldgreens.residence')
+        ResidentProfile.objects.filter(user=resident_owner).update(emergency_contact_name='Kavita Joshi', occupation='Software Engineer')
+        ResidentProfile.objects.filter(user=resident_tenant).update(emergency_contact_name='Rakesh Verma', occupation='Chartered Accountant')
+        Vehicle.objects.filter(license_plate='NY-8492-EG').update(license_plate='MH-02-EQ-8492', make_model='Tata Nexon EV (Glacier White)')
+        Vehicle.objects.filter(license_plate='NY-3109-AB').update(license_plate='MH-01-AB-3109', make_model='Maruti Suzuki Grand Vitara (Pearl White)')
+        DomesticStaff.objects.filter(name='Maria Santos').update(name='Sunita Jadhav')
+        Amenity.objects.filter(slug='olympic-infinity-pool').update(name='Emerald Greens Swimming Pool', description="Temperature-controlled pool with a separate children's area for residents.")
+        Amenity.objects.filter(slug='grand-banquet-hall').update(name='Sahyadri Community Hall', description='Air-conditioned community hall for birthdays, festivals and society meetings.')
+        LostAndFoundItem.objects.filter(item_name='BMW Car Smart Key FOB with Blue Lanyard').update(item_name='Maruti Suzuki Car Key with Red Lanyard', contact_phone='+91 98765 43212')
+        LostAndFoundItem.objects.filter(item_name='Apple AirPods Pro (2nd Gen) in White Case').update(item_name='Boat Wireless Earbuds in Black Case', contact_phone='+91 98765 43213')
+        resident_owner.refresh_from_db()
+        resident_tenant.refresh_from_db()
 
         # Login records
         LoginHistory.objects.get_or_create(
@@ -215,23 +231,23 @@ class Command(BaseCommand):
 
         # 4. Vehicles
         veh_tesla, _ = Vehicle.objects.get_or_create(
-            license_plate='NY-8492-EG',
+            license_plate='MH-02-EQ-8492',
             defaults={
                 'owner': resident_owner,
                 'unit': unit_a402,
                 'vehicle_type': Vehicle.VehicleType.EV_CAR,
-                'make_model': 'Tesla Model Y (Midnight Silver)',
+                'make_model': 'Tata Nexon EV (Glacier White)',
                 'parking_slot': 'P-A402',
                 'rfid_tag': 'RFID-EG-0492',
             }
         )
         Vehicle.objects.get_or_create(
-            license_plate='NY-3109-AB',
+            license_plate='MH-01-AB-3109',
             defaults={
                 'owner': resident_tenant,
                 'unit': unit_b201,
                 'vehicle_type': Vehicle.VehicleType.CAR,
-                'make_model': 'Honda CR-V (Pearl White)',
+                'make_model': 'Maruti Suzuki Grand Vitara (Pearl White)',
                 'parking_slot': 'P-B201',
                 'rfid_tag': 'RFID-EG-0319',
             }
@@ -239,10 +255,10 @@ class Command(BaseCommand):
 
         # 5. Domestic Helpers
         maid, _ = DomesticStaff.objects.get_or_create(
-            name='Maria Santos',
+            name='Sunita Jadhav',
             defaults={
                 'role_type': DomesticStaff.StaffRole.MAID,
-                'phone_number': '+1 (555) 234-9988',
+                'phone_number': '+91 98765 43216',
                 'passcode': '4412',
                 'working_hours': '07:30 AM - 03:00 PM',
             }
@@ -302,8 +318,46 @@ class Command(BaseCommand):
             }
         )
 
+        MaintenanceBill.objects.get_or_create(
+            unit=unit_b201,
+            billing_month=current_month,
+            defaults={
+                'bill_number': f"INV-{current_month.strftime('%Y%m')}-B201",
+                'resident': resident_tenant,
+                'due_date': current_month + timedelta(days=15),
+                'base_charge': Decimal('4200.00'),
+                'sinking_fund': Decimal('600.00'),
+                'parking_charge': Decimal('300.00'),
+                'water_charge': Decimal('400.00'),
+                'amenity_charge': Decimal('500.00'),
+                'total_amount': Decimal('6000.00'),
+                'paid_amount': Decimal('3000.00'),
+                'status': MaintenanceBill.Status.PARTIAL,
+            }
+        )
+
+        for title, category, amount, vendor, invoice in [
+            ('Monthly common-area electricity', SocietyExpense.Category.ELECTRICITY, Decimal('48500.00'), 'MSEDCL', 'MSEDCL-SEP-2601'),
+            ('Security guards and CCTV monitoring', SocietyExpense.Category.SECURITY, Decimal('72000.00'), 'ShieldGuard Facility Services', 'SGFS-2026-091'),
+            ('Lift annual maintenance contract', SocietyExpense.Category.LIFT_AMC, Decimal('18500.00'), 'Otis India', 'OTIS-AMC-8842'),
+            ('Monsoon plumbing repairs', SocietyExpense.Category.REPAIRS, Decimal('12750.00'), 'Patil Plumbing Works', 'PPW-1198'),
+        ]:
+            SocietyExpense.objects.get_or_create(
+                invoice_number=invoice,
+                defaults={
+                    'title': title,
+                    'category': category,
+                    'amount': amount,
+                    'expense_date': today - timedelta(days=3),
+                    'vendor_name': vendor,
+                    'approved_by': secretary_user,
+                    'recorded_by': secretary_user,
+                    'description': f'Indian society operations expense for Emerald Greens CHS Ltd. ({invoice}).',
+                }
+            )
+
         # 7. Amenities
-        Amenity.objects.get_or_create(
+        pool, _ = Amenity.objects.get_or_create(
             slug='olympic-infinity-pool',
             defaults={
                 'name': 'Olympic Infinity Swimming Pool',
@@ -313,7 +367,7 @@ class Command(BaseCommand):
                 'hourly_rate': Decimal('0.00'),
             }
         )
-        Amenity.objects.get_or_create(
+        banquet, _ = Amenity.objects.get_or_create(
             slug='grand-banquet-hall',
             defaults={
                 'name': 'Grand Imperial Banquet Hall',
@@ -323,6 +377,44 @@ class Command(BaseCommand):
                 'hourly_rate': Decimal('1500.00'),
                 'requires_approval': True,
             }
+        )
+        gym, _ = Amenity.objects.get_or_create(
+            slug='fitness-studio',
+            defaults={
+                'name': 'Clubhouse Fitness Studio',
+                'category': 'Wellness & Sports',
+                'description': 'Residents-only gym with cardio, strength and yoga areas.',
+                'capacity': 25,
+                'hourly_rate': Decimal('0.00'),
+                'location': 'Clubhouse First Floor',
+            }
+        )
+        tennis, _ = Amenity.objects.get_or_create(
+            slug='tennis-court',
+            defaults={
+                'name': 'Rooftop Tennis Court',
+                'category': 'Sports',
+                'description': 'Floodlit synthetic court for resident practice and coaching.',
+                'capacity': 4,
+                'hourly_rate': Decimal('250.00'),
+                'location': 'Sports Arena Rooftop',
+                'requires_approval': True,
+            }
+        )
+        AmenityBooking.objects.get_or_create(
+            amenity=banquet, resident=resident_owner, unit=unit_a402,
+            booking_date=today + timedelta(days=5), start_time=time(18, 0),
+            defaults={'end_time': time(22, 0), 'guest_count': 65, 'purpose': 'Ganesh Chaturthi community gathering', 'total_fee': Decimal('6000.00'), 'status': AmenityBooking.Status.PENDING}
+        )
+        AmenityBooking.objects.get_or_create(
+            amenity=tennis, resident=resident_tenant, unit=unit_b201,
+            booking_date=today + timedelta(days=2), start_time=time(7, 0),
+            defaults={'end_time': time(8, 0), 'guest_count': 2, 'purpose': 'Weekend tennis practice', 'total_fee': Decimal('250.00'), 'status': AmenityBooking.Status.CONFIRMED}
+        )
+        AmenityBooking.objects.get_or_create(
+            amenity=pool, resident=resident_owner, unit=unit_a402,
+            booking_date=today, start_time=time(17, 0),
+            defaults={'end_time': time(18, 0), 'guest_count': 3, 'purpose': 'Family swim', 'total_fee': Decimal('0.00'), 'status': AmenityBooking.Status.CONFIRMED}
         )
 
         # 8. EV Charging Stations
@@ -370,7 +462,7 @@ class Command(BaseCommand):
                 'move_type': MoveInOutRequest.MoveType.RENOVATION,
                 'time_slot': 'Morning (08:00 AM - 12:00 PM)',
                 'service_lift_required': True,
-                'moving_company_name': 'Urban Relocations Express',
+                    'moving_company_name': 'Mumbai Packers and Movers',
                 'vehicle_count': 1,
                 'status': MoveInOutRequest.Status.APPROVED,
             }
@@ -390,25 +482,25 @@ class Command(BaseCommand):
 
         # 11. Lost & Found Items
         LostAndFoundItem.objects.get_or_create(
-            item_name='BMW Car Smart Key FOB with Blue Lanyard',
+            item_name='Maruti Suzuki Car Key with Red Lanyard',
             defaults={
                 'category': LostAndFoundItem.Category.KEYS,
                 'status': LostAndFoundItem.ItemStatus.FOUND,
                 'location': 'Near Clubhouse Swimming Pool Lounger',
                 'description': 'Found around 7 PM on Sunday. Deposited at Security Gate Desk #1.',
                 'reported_by': resident_owner,
-                'contact_phone': '+1 (555) 012-3456',
+                'contact_phone': '+91 98765 43212',
             }
         )
         LostAndFoundItem.objects.get_or_create(
-            item_name='Apple AirPods Pro (2nd Gen) in White Case',
+            item_name='Boat Wireless Earbuds in Black Case',
             defaults={
                 'category': LostAndFoundItem.Category.ELECTRONICS,
                 'status': LostAndFoundItem.ItemStatus.LOST,
                 'location': 'Gym Treadmill #3 Area',
-                'description': 'Engraved with initials "JS" on backside of case.',
+                'description': 'Black case with initials "PV" written inside the lid.',
                 'reported_by': resident_tenant,
-                'contact_phone': '+1 (555) 014-7788',
+                'contact_phone': '+91 98765 43213',
             }
         )
 
@@ -436,32 +528,59 @@ class Command(BaseCommand):
         PreApprovedPass.objects.get_or_create(
             pass_code='841920',
             defaults={
-                'visitor_name': 'Emma Watson (Architect)',
-                'visitor_phone': '+1 (555) 789-0101',
+                'visitor_name': 'Amit Kulkarni (Architect)',
+                'visitor_phone': '+91 99876 54321',
                 'unit': unit_a402,
                 'host_resident': resident_owner,
                 'valid_from': timezone.now(),
                 'valid_until': timezone.now() + timedelta(hours=12),
-                'purpose': 'Interior Renovation Consultation',
+                'purpose': 'Interior renovation consultation',
                 'is_used': False,
             }
         )
+        for name, phone, visitor_type, unit, purpose, status in [
+            ('Rohan Mehta', '+91 98111 22334', VisitorLog.VisitorType.GUEST, unit_a402, 'Family dinner', VisitorLog.Status.INSIDE),
+            ('Priya Nair', '+91 98222 33445', VisitorLog.VisitorType.DELIVERY, unit_b201, 'Grocery delivery', VisitorLog.Status.CHECKED_OUT),
+            ('Suresh Patil', '+91 98333 44556', VisitorLog.VisitorType.SERVICE, unit_a402, 'AC servicing', VisitorLog.Status.INSIDE),
+        ]:
+            VisitorLog.objects.get_or_create(
+                visitor_name=name, unit=unit, entry_time__date=today,
+                defaults={'phone_number': phone, 'visitor_type': visitor_type, 'host_resident': unit.primary_resident, 'purpose': purpose, 'status': status, 'entry_guard': guard_user, 'is_pre_approved': status == VisitorLog.Status.INSIDE}
+            )
+        ParcelLog.objects.get_or_create(
+            tracking_number='AMZ-MH-260901402',
+            defaults={'unit': unit_a402, 'recipient_name': resident_owner.full_name, 'courier_company': ParcelLog.DeliveryCompany.AMAZON, 'guard': guard_user}
+        )
+        ParcelLog.objects.get_or_create(
+            tracking_number='FKT-MH-260901201',
+            defaults={'unit': unit_b201, 'recipient_name': resident_tenant.full_name, 'courier_company': ParcelLog.DeliveryCompany.FLIPKART, 'guard': guard_user}
+        )
+
+        for ticket_number, title, category, priority, status, unit, resident, assigned_staff in [
+            ('TCK-2026-PLUMB1', 'Water seepage near kitchen sink', MaintenanceTicket.Category.PLUMBING, MaintenanceTicket.Priority.HIGH, MaintenanceTicket.Status.IN_PROGRESS, unit_a402, resident_owner, staff_electrician),
+            ('TCK-2026-LIFT01', 'Lift B vibration on second floor', MaintenanceTicket.Category.ELEVATOR, MaintenanceTicket.Priority.URGENT, MaintenanceTicket.Status.OPEN, unit_b201, resident_tenant, None),
+            ('TCK-2026-CCTV01', 'Intercom not connecting to main gate', MaintenanceTicket.Category.SECURITY, MaintenanceTicket.Priority.MEDIUM, MaintenanceTicket.Status.OPEN, unit_a402, resident_owner, staff_electrician),
+        ]:
+            MaintenanceTicket.objects.get_or_create(
+                ticket_number=ticket_number,
+                defaults={'title': title, 'category': category, 'priority': priority, 'status': status, 'unit': unit, 'resident': resident, 'assigned_staff': assigned_staff, 'description': f'Demo service request for Flat {unit.unit_number} at Emerald Greens CHS.'}
+            )
 
         # 14. Notices & Polls
         Notice.objects.get_or_create(
-            title='Annual General Body Meeting (AGM 2026) & Financial Audit Review',
+            title='Ganesh Chaturthi General Body Meeting (2026) & Financial Audit Review',
             defaults={
                 'notice_type': Notice.NoticeType.AGM,
                 'author': admin_user,
                 'is_pinned': True,
-                'content': 'All members requested to attend AGM at Banquet Hall on Sunday at 10:30 AM.',
+                'content': 'All members are requested to attend the society meeting at the clubhouse hall on Sunday at 10:30 AM.',
             }
         )
 
         poll, _ = SocietyPoll.objects.get_or_create(
-            question='Should the Society install 50kW Rooftop Solar Panels with Net-Metering?',
+            question='Should the society install 50kW rooftop solar panels with MSEDCL net metering?',
             defaults={
-                'description': 'Projected to reduce common area electricity utility bill by 68%.',
+                'description': 'The project is expected to reduce the common-area electricity bill by approximately 68%.',
                 'created_by': admin_user,
                 'end_date': today + timedelta(days=10),
             }
@@ -479,9 +598,9 @@ SmartSociety 360 - Complete Enterprise System Seeded Successfully!
 Pre-configured Demo Accounts:
   * Admin / President : admin@emeraldgreens.residence   (Password: admin123)
   * Committee Member  : secretary@emeraldgreens.residence(Password: committee123)
-  * Resident (Owner)  : john.doe@example.com            (Password: resident123)
-  * Resident (Tenant) : sarah.smith@example.com          (Password: resident123)
+    * Resident (Owner)  : amit.sharma@example.in          (Password: resident123)
+    * Resident (Tenant) : pooja.verma@example.in          (Password: resident123)
   * Security Guard    : security.raj@emeraldgreens.residence (Password: guard123)
-  * Facility Staff    : mike.tech@emeraldgreens.residence (Password: staff123)
+    * Facility Staff    : sanjay.pawar@emeraldgreens.residence (Password: staff123)
 ========================================================================
         '''))

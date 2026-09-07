@@ -96,6 +96,8 @@ def dashboard_view(request):
 
         recent_tickets = MaintenanceTicket.objects.select_related('unit', 'resident').order_by('-created_at')[:5]
         recent_visitors = VisitorLog.objects.select_related('unit').order_by('-entry_time')[:5]
+        owner_occupied_units = Unit.objects.filter(occupancy_status=Unit.OccupancyStatus.OWNER).count()
+        tenant_occupied_units = Unit.objects.filter(occupancy_status=Unit.OccupancyStatus.TENANT).count()
 
         return render(request, 'dashboard/admin_dashboard.html', {
             'total_units': total_units,
@@ -107,6 +109,13 @@ def dashboard_view(request):
             'monthly_pending': monthly_pending,
             'collection_percentage': collection_percentage,
             'net_reserve': net_reserve,
+            'total_revenue': monthly_collected,
+            'outstanding_dues': monthly_pending,
+            'unpaid_bills_count': month_bills.filter(status__in=[MaintenanceBill.Status.UNPAID, MaintenanceBill.Status.OVERDUE, MaintenanceBill.Status.PARTIAL]).count(),
+            'pending_tickets': open_tickets + in_progress_tickets,
+            'owner_occupied_units': owner_occupied_units,
+            'tenant_occupied_units': tenant_occupied_units,
+            'inside_visitors_count': active_visitors_count,
             'active_visitors_count': active_visitors_count,
             'open_tickets': open_tickets,
             'in_progress_tickets': in_progress_tickets,
@@ -132,20 +141,27 @@ def dashboard_view(request):
 
         # Passes, Tickets, Parcels
         active_passes = PreApprovedPass.objects.filter(host_resident=user, is_used=False, valid_until__gte=timezone.now())[:3]
-        my_tickets = MaintenanceTicket.objects.filter(resident=user).order_by('-created_at')[:5]
+        resident_tickets = MaintenanceTicket.objects.filter(resident=user).order_by('-created_at')
+        my_tickets = resident_tickets[:5]
         my_parcels = ParcelLog.objects.filter(unit__in=resident_flats, is_collected=False)
         my_amenity_bookings = AmenityBooking.objects.filter(resident=user, booking_date__gte=today, status=AmenityBooking.Status.CONFIRMED)[:3]
         my_vehicles = user.vehicles.filter(is_active=True)
 
         return render(request, 'dashboard/resident_dashboard.html', {
             'primary_flat': primary_flat,
+            'primary_unit': primary_flat,
             'resident_flats': resident_flats,
             'unpaid_bills': unpaid_bills,
             'total_due_amount': total_due_amount,
+            'total_unpaid_amount': total_due_amount,
             'latest_bill': latest_bill,
+            'my_bills': bills,
+            'my_unpaid_bills': unpaid_bills,
             'active_passes': active_passes,
             'my_tickets': my_tickets,
+            'open_tickets': resident_tickets.filter(status__in=[MaintenanceTicket.Status.OPEN, MaintenanceTicket.Status.IN_PROGRESS]),
             'my_parcels': my_parcels,
+            'uncollected_parcels': my_parcels,
             'my_amenity_bookings': my_amenity_bookings,
             'my_vehicles': my_vehicles,
             'pinned_notices': pinned_notices,
