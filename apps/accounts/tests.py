@@ -30,6 +30,14 @@ class AccountsTests(TestCase):
         self.assertIsNotNone(log)
         self.assertTrue(log.is_successful)
 
+    def test_login_flow_accepts_email(self):
+        response = self.client.post(reverse('accounts:login'), {
+            'username': 'resident@example.com',
+            'password': 'Password123!'
+        })
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.wsgi_request.user, self.user)
+
     def test_demo_switcher(self):
         response = self.client.get(reverse('accounts:demo_switch', kwargs={'role': 'RESIDENT'}))
         self.assertEqual(response.status_code, 302)

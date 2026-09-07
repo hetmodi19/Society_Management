@@ -27,6 +27,14 @@ class CustomAuthenticationForm(AuthenticationForm):
     username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Username or Email', 'autofocus': True}))
     password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Password'}))
 
+    def clean(self):
+        username = self.cleaned_data.get('username')
+        if username and '@' in username:
+            user = User.objects.filter(email__iexact=username).first()
+            if user:
+                self.cleaned_data['username'] = user.get_username()
+        return super().clean()
+
 
 class UserProfileUpdateForm(forms.ModelForm):
     class Meta:
