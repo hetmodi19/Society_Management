@@ -120,7 +120,17 @@
               {% endif %}
             </td>
             <td>
-              <a href="{% url 'helpdesk:detail' pk=tck.pk %}" class="btn btn-outline btn-sm">View Details →</a>
+              <div style="display: flex; gap: 0.35rem; align-items: center; flex-wrap: wrap;">
+                <a href="{% url 'helpdesk:detail' pk=tck.pk %}" class="btn btn-outline btn-sm" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;">View</a>
+                {% if request.user.is_society_admin or request.user.is_committee_member or tck.resident == request.user %}
+                  <form method="post" action="{% url 'helpdesk:delete_ticket' pk=tck.pk %}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete ticket {{ tck.ticket_number }}?');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger btn-sm" style="padding: 0.2rem 0.5rem; font-size: 0.75rem; background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3);" title="Delete Ticket">
+                      🗑️ Delete
+                    </button>
+                  </form>
+                {% endif %}
+              </div>
             </td>
           </tr>
         {% empty %}

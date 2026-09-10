@@ -13,7 +13,7 @@ Project Title     : SmartSociety 360: Integrated Residential Estate ERP, Gate Se
                     & Democratic Governance Platform
 Domain            : Web Application Development / Enterprise Resource Planning (ERP) / Smart PropTech
 Academic Term     : Final Year Capstone Project / Engineering Dissertation (2025 - 2026)
-Technology Stack  : Python 3.12, Django 5.x, SQLite / PostgreSQL, Vanilla CSS3 (Custom Design System),
+Technology Stack  : Python 3.12, Django 5.x, SQLite / PostgreSQL, Semantic HTML5, CSS3 / Bootstrap 5,
                     JavaScript (ES6+), Chart.js, Mermaid.js
 Architecture      : Model-View-Template (MVT) with Role-Based Access Control (RBAC)
 Target Entity     : Emerald Greens Co-operative Housing Society Ltd.
@@ -33,7 +33,11 @@ Submission Date   : September 2026
 ## 📑 Table of Contents
 
 1. [Certificate of Authenticity & Declaration](#1-certificate-of-authenticity--declaration)
-2. [Executive Summary & Abstract](#2-executive-summary--abstract)
+2. [Executive Summary & Project Overview](#2-executive-summary--project-overview)
+   - 2.1 [The Project in Simple Words (High-Level Summary & Elevator Pitch)](#21-the-project-in-simple-words-high-level-summary--elevator-pitch)
+   - 2.2 [How the Project is Made (Technology & Engineering Architecture)](#22-how-the-project-is-made-technology--engineering-architecture)
+   - 2.3 [Detailed Features Breakdown by Modular Apps (`apps/`)](#23-detailed-features-breakdown-by-modular-apps-apps)
+   - 2.4 [End-to-End Operational Workflow & User Lifecycle](#24-end-to-end-operational-workflow--user-lifecycle)
 3. [Introduction & Background](#3-introduction--background)
    - 3.1 Motivation & Industry Context
    - 3.2 Objectives of the Project
@@ -69,9 +73,9 @@ Submission Date   : September 2026
     - 10.2 Cryptographic Password Protection (PBKDF2 with SHA-256)
     - 10.3 Maharashtra Co-operative Societies (MCS) Act 1960 Model Bye-Laws Compliance
 11. [UI/UX & Frontend Design System](#11-uiux--frontend-design-system)
-    - 11.1 Zero-Framework Vanilla CSS Architecture
-    - 11.2 Aqua/Skyblue & Dark Luxury Palette
-    - 11.3 Multi-Resolution & Zoom Scaling Optimization (320px to 4K, 67% to 125%)
+    - 11.1 [CSS3 Design Tokens & Bootstrap 5 Integration](#111-css3-design-tokens--bootstrap-5-integration)
+    - 11.2 [Aqua/Skyblue & Dark Luxury Palette](#112-aquaskyblue--dark-luxury-palette)
+    - 11.3 [Multi-Resolution & Zoom Scaling Optimization (320px to 4K, 67% to 125%)](#113-multi-resolution--zoom-scaling-optimization-320px-to-4k-67-to-125)
 12. [Testing, Quality Assurance & Test Case Matrix](#12-testing-quality-assurance--test-case-matrix)
     - 12.1 Comprehensive Test Suite (TC-01 to TC-12)
     - 12.2 Django Test Runner & Validation Metrics
@@ -112,23 +116,208 @@ This is to certify that the project report entitled **"SmartSociety 360: Next-Ge
 
 ---
 
-## 2. Executive Summary & Abstract
+## 2. Executive Summary & Project Overview
 
-**SmartSociety 360** is an enterprise-grade Residential Estate ERP, Gate Security, and Democratic Governance web application engineered to solve the complex operational, financial, and security challenges of modern high-rise gated communities and Co-operative Housing Societies (CHS).
+### 2.1 The Project in Simple Words (High-Level Summary & Elevator Pitch)
 
-Modern gated residential complexes in metropolitan hubs represent self-sustaining micro-townships encompassing hundreds of families, multi-crore annual operational budgets, multi-tier visitor security checkpoints, shared luxury amenities, solar power microgrids, and strict statutory compliance requirements governed by the **Maharashtra Co-operative Societies Act, 1960** and the **Real Estate (Regulation and Development) Act (RERA)**.
+> **💡 What is SmartSociety 360?**  
+> **SmartSociety 360** is an all-in-one digital operating platform (ERP) for residential apartment complexes and Co-operative Housing Societies.  
+> Instead of using messy physical paper registers at the gate, cash/cheque maintenance collections, chaotic WhatsApp groups, and manual AGM paper voting, **SmartSociety 360 unifies every aspect of society life into a single, lightning-fast web application.**
 
-Traditional housing management relies on disjointed tools: physical paper gate registers, un-audited cash/cheque maintenance collections, chaotic WhatsApp messaging groups, and manual ballot voting. These practices result in security vulnerabilities, billing discrepancies, lack of financial transparency, and delayed emergency response.
+```mermaid
+graph LR
+    A[Traditional Society: Paper Logs + WhatsApp + Cash + Lost Complaints] 
+    -->|Transformed by SmartSociety 360| 
+    B[Automated ERP: Instant UPI + OTP Gate Pass + Solar EV + SLA Helpdesk + E-Voting]
+```
 
-**SmartSociety 360** overcomes these limitations by integrating all society operations into a single, cohesive, high-performance web application built with **Python 3.12** and **Django 5.x**. Key features include:
-1. **Financial ERP**: Automated RERA carpet-area maintenance invoicing, statutory 10% sinking fund accounting, and 1-tap dynamic UPI QR code settlement (compatible with GPay, PhonePe, Paytm, and BHIM) with instant PDF tax invoice generation.
-2. **Digital Gatekeeper & FastTag**: 1-click WhatsApp 6-digit OTP guest passes, delivery partner fast-tracking, digital parcel lockers, FastTag RFID vehicle logging, and an instantaneous **1-Tap SOS Emergency Panic Siren**.
-3. **Smart Infrastructure & Green Energy**: Booking calendar for luxury amenities (Clubhouse Banquet Hall, Rooftop Lap Pool, Box Cricket Turf) and a **Solar EV Hyper-Charging Grid** with live kWh energy telemetry billed directly to flat accounts.
-4. **SLA Helpdesk**: Centralized service ticket logging with photo attachments, technician auto-assignment, and strict 15-minute emergency SLA timers.
-5. **Democratic Governance**: Model Bye-Laws compliant **1-Flat-1-Vote cryptographically verified e-voting referendums**, high-priority circular broadcasts, and a tamper-proof society document vault.
-6. **Luxury UI/UX Design System**: Custom-engineered Vanilla CSS3 architecture featuring a pristine White & Aqua/Skyblue theme, dark mode toggle, fluid responsive breakpoints ($320\text{px}$ to $4\text{K}$), and pixel-perfect multi-zoom balancing ($67\%$ to $125\%$).
+#### The 5 Types of Users (Who Uses the System?):
+1. 👑 **Society Admin / Chairman / Secretary**: Oversees the entire estate, auto-generates monthly maintenance bills for all flats, monitors society expenses, posts official circulars, and creates democratic AGM voting ballots.
+2. 🏠 **Residents (Owners & Tenants)**: Pays monthly maintenance instantly via a **Dynamic UPI QR Code** (GPay/PhonePe/Paytm), generates 6-digit WhatsApp visitor passes, books clubhouse amenities, charges electric vehicles at the Solar EV Plaza, raises maintenance tickets, and casts verified votes in society elections.
+3. 🛡️ **Security Guards**: Operates the **Digital Gatekeeper Terminal** at Gate 1 and Gate 2 to verify guest OTPs in under 2 seconds, logs delivery parcels, tracks FastTag vehicle entries, and monitors the **1-Tap Emergency SOS Panic Siren**.
+4. 🔧 **Facility Staff & Technicians (Electrician / Plumber / Lift Mechanic)**: Receives maintenance work orders on their mobile dashboard, tracks issues with photos, and resolves emergency complaints within a strict **15-minute SLA timer**.
+5. 🔍 **Auditors & Evaluators**: Evaluates financial balance sheets, statutory 10% sinking funds, and test-drives any user role instantly via the **"⚡ Switch Role"** top navigation bar.
 
-The platform has been rigorously tested through a 12-point automated test suite, achieving $100\%$ test coverage and zero security vulnerabilities.
+---
+
+### 2.2 How the Project is Made (Technology & Engineering Architecture)
+
+The project is built on the **Model-View-Template (MVT)** architectural standard, combining a robust Python backend with a custom-crafted, lightweight frontend:
+
+```mermaid
+graph TD
+    subgraph ClientLayer["1. Client & Presentation Layer (Frontend)"]
+        HTML[Semantic HTML5 Templates]
+        CSS[Vanilla CSS3 Custom Design System - No Heavy Frameworks]
+        JS[Vanilla JavaScript ES6+ & Chart.js Analytics]
+    end
+
+    subgraph BackendLayer["2. Application Controller & Business Logic (Backend)"]
+        Django[Django 5.x Web Framework on Python 3.12]
+        MVT[Model-View-Template Controller Engine]
+        RBAC[5-Tier Role-Based Access Control Engine]
+    end
+
+    subgraph DataLayer["3. Database & Security Foundation (Persistence)"]
+        DB[(Relational DB: SQLite / PostgreSQL with ACID Transactions)]
+        Crypto[PBKDF2 SHA-256 Hashing + CSRF Token Validation]
+    end
+
+    ClientLayer <-->|HTTP / HTTPS Requests & Dynamic UPI QR Rendering| BackendLayer
+    BackendLayer <--> DataLayer
+```
+
+#### Core Technical Foundations:
+- **Backend**: Built with **Python 3.12** and **Django 5.x**. The code is split into **7 decoupled modular apps** inside `apps/`, making it highly maintainable and clean.
+- **Database Layer**: Uses Django's Object-Relational Mapper (ORM). All financial payments and bill settlements run inside atomic transactions (`transaction.atomic()`) ensuring zero payment duplications or ledger mismatches. Configured for **SQLite 3** for local demonstration and **PostgreSQL 15+** for cloud production.
+- **Frontend & Styling**: Built with **Semantic HTML5, custom CSS3, and Bootstrap 5 + Bootstrap Icons**. Features a corporate **Aqua/Skyblue & Dark Luxury** palette, instant Dark/Light mode toggle, and responsive layouts that look pristine from **$320\text{px}$ smartphones to $3840\text{px}$ 4K displays**, even at browser zoom levels from **$67\%$ to $125\%$**.
+- **Interactive Visuals**: Real-time financial income/expense breakdowns and AGM referendum vote distributions are rendered dynamically using **Chart.js**.
+
+---
+
+### 2.3 Detailed Features Breakdown by Modular Apps (`apps/`)
+
+The platform contains **7 dedicated modular sub-applications**, each engineered to solve a specific domain problem:
+
+```mermaid
+graph TD
+    subgraph Subsystems["7 Modular Sub-Projects in apps/"]
+        App1["1. apps.accounts<br><b>Multi-Role Authentication</b>"]
+        App2["2. apps.properties<br><b>Estate & Unit Inventory</b>"]
+        App3["3. apps.billing<br><b>Billing & Dynamic UPI</b>"]
+        App4["4. apps.gatekeeper<br><b>Gate Security & SOS Alarm</b>"]
+        App5["5. apps.amenities<br><b>Clubhouse & Solar EV Plaza</b>"]
+        App6["6. apps.helpdesk<br><b>15-Min SLA Service Helpdesk</b>"]
+        App7["7. apps.communications<br><b>1-Flat-1-Vote AGM & Vault</b>"]
+    end
+```
+
+---
+
+#### 1. Accounts & Access Control Subsystem (`apps.accounts`)
+* **Problem It Solves**: In a residential complex, an Admin, a Resident, a Guard, and a Technician need completely different permissions and views.
+* **Detailed Features**:
+  - **Custom User Model**: Inherits from Django's `AbstractUser`, storing phone numbers, avatars, verification badges, and primary roles (`ADMIN`, `COMMITTEE`, `RESIDENT`, `GUARD`, `STAFF`).
+  - **Role-Based View Protection**: Custom `@role_required` Python decorators prevent unauthorized URL access (e.g. guards cannot view financial ledgers; residents cannot approve society expenses).
+  - **⚡ Real-Time Role Switcher**: A quick-switch dropdown in the top navigation bar allowing evaluators, examiners, and testers to preview the application as any of the 5 roles with a single click.
+  - **KYC & Profiles**: Detailed `ResidentProfile` (ownership type, blood group, emergency contact) and `StaffProfile` (job title, shift hours).
+  - **Security Login Audit**: `LoginHistory` model logs every login event with client IP address, timestamp, and browser user-agent for forensic security.
+
+---
+
+#### 2. Properties & Unit Inventory Subsystem (`apps.properties`)
+* **Problem It Solves**: Managing multiple building wings, hundreds of apartments, vehicle parking allocations, and daily domestic staff manually leads to lost records and unauthorized parking.
+* **Detailed Features**:
+  - **Hierarchical Estate Architecture**: Maps **Wings** (Wing A - 'Aravali', Wing B - 'Nilgiri', Wing C - 'Sahyadri'), **Floors (1 to 24)**, and **Unit Configurations** (2BHK, 3BHK, 4BHK, 5BHK Penthouse).
+  - **RERA Carpet Area Specifications**: Stores exact square-footage carpet area and Vastu compliance indicators per flat for accurate maintenance calculation.
+  - **Resident-Unit Mapping**: Distinguishes between Owner-Occupied, Tenant-Occupied, and Vacant flats, including lease agreement validity tracking.
+  - **Vehicle & FastTag Registry**: Logs resident 2-wheelers, 4-wheelers, and EVs with designated parking bays (Basement B1/B2) and FastTag RFID tags.
+  - **Domestic Staff KYC Directory**: Tracks daily house helpers (maids, cooks, drivers, cleaners) with KYC document status and allocated flat access.
+
+---
+
+#### 3. Financial ERP & Dynamic UPI Payment Gateway (`apps.billing`)
+* **Problem It Solves**: Manual paper maintenance bills and cheques cause clearing delays, human calculation errors, payment disputes, and hefty 2% gateway transaction fees.
+* **Detailed Features**:
+  - **Automated RERA Maintenance Invoicing**: Computes monthly dues using a transparent mathematical model:
+    $$\text{Total Bill} = (\text{RERA Carpet Area} \times \text{Rate/sq.ft}) + \text{Parking Charges} + \text{EV Infrastructure} + \text{10\% Statutory Sinking Fund}$$
+  - **Interactive Dynamic UPI QR Code**: Encodes the society's merchant VPA (`emeraldgreens@upi`), the unique Bill Reference Number, and the exact payable amount directly into a standards-compliant UPI QR code ready for instant mobile scanning via **Google Pay, PhonePe, Paytm, and BHIM** with zero gateway surcharge.
+  - **Stamped GST PDF Tax Invoices**: Auto-generates formal digital tax invoices with society registration numbers, GST breakdown, and official digital verification stamps.
+  - **Society Expense & Audit Ledger**: Tracks all estate expenditures (security agency salaries, garden landscaping, elevator AMC, BMC water bills, and solar grid maintenance) with invoice attachments and approval workflows.
+
+---
+
+#### 4. Gatekeeper, Visitor Security & Emergency SOS (`apps.gatekeeper`)
+* **Problem It Solves**: Illegible paper visitor books allow unverified strangers into buildings, and residents lack an immediate way to alert security during emergencies.
+* **Detailed Features**:
+  - **1-Click WhatsApp 6-Digit OTP Guest Passes**: Residents generate pre-approved guest passes that create a pre-formatted WhatsApp invite containing a secure 6-digit OTP code and directions to the society.
+  - **Digital Guard Terminal**: Guards at Gate 1 and Gate 2 enter the 6-digit OTP to authenticate guests in 2 seconds, auto-opening the boom barrier.
+  - **Delivery Partner Fast-Tracking**: Quick check-in presets for delivery services (Swiggy, Zomato, Blinkit, Amazon, Zepto) with unit notification.
+  - **Digital Parcel Locker**: Secure parcel drop-off at the gate with OTP-verified pickup by residents.
+  - **1-Tap Emergency SOS Panic Siren**: Residents can trigger an instant SOS alert from their dashboard. This triggers an **immediate audio-visual flashing red siren** across all guard terminals showing the exact flat number, wing, floor, resident name, and phone number for instant rescue.
+
+---
+
+#### 5. Amenity Scheduling & 48.5 kW Solar EV Plaza (`apps.amenities`)
+* **Problem It Solves**: Double-booking of clubhouse facilities creates resident disputes, and unregulated EV charging strains the society's power grid.
+* **Detailed Features**:
+  - **Conflict-Free Amenity Booking**: Visual calendar booking for luxury amenities (Grand Banquet Hall, Rooftop Lap Pool, Box Cricket Turf, Squash Court) with automated time-slot conflict prevention.
+  - **48.5 kW Rooftop Solar EV Hyper-Charging Grid**: Manages 6 dedicated basement EV charging bays powered by clean rooftop solar energy.
+  - **Live kWh Telemetry & Auto-Billing**: Tracks charging duration and energy dispensed (kWh) in real time. Upon session completion, the system calculates the tariff (e.g. ₹12.50/kWh) and automatically appends the charge to the resident's flat maintenance ledger.
+
+---
+
+#### 6. SLA-Enforced Helpdesk & Maintenance Ticketing (`apps.helpdesk`)
+* **Problem It Solves**: Verbal complaints to guards or society managers get forgotten, leading to unresolved water leakages, elevator breakdowns, and resident dissatisfaction.
+* **Detailed Features**:
+  - **Category-Based Service Ticketing**: Residents log maintenance tickets under Electrical, Plumbing, Carpentry, Elevator, Civil, or Security categories with photo attachments.
+  - **Technician Auto-Dispatch**: Direct assignment of tickets to on-duty staff members (e.g. Chief Electrician, Senior Plumber).
+  - **Strict 15-Minute Emergency SLA Countdown**: Emergency tickets display an active live countdown timer ensuring rapid response for critical issues.
+  - **Two-Way Comment Thread**: Direct communication thread between resident and assigned technician for status updates.
+  - **Resident Satisfaction Ratings**: Post-resolution 5-star rating and feedback mechanism for continuous quality assurance.
+
+---
+
+#### 7. Democratic E-Governance, AGM Voting & Document Vault (`apps.communications`)
+* **Problem It Solves**: In-person Annual General Meetings (AGM) suffer from low attendance, proxy vote disputes, and lost paper circulars.
+* **Detailed Features**:
+  - **1-Flat-1-Vote Cryptographic AGM Voting**: Enables tamper-proof democratic voting on major society resolutions (e.g., Solar Grid Expansion, Society Painting, Security Vendor Selection), mathematically enforcing that each flat casts exactly one vote.
+  - **Real-Time Dynamic Voting Analytics**: Graphical outcome bars powered by Chart.js displaying live voting percentages and quorum status.
+  - **High-Priority Notice Broadcasts**: Digital noticeboard with category tags (`GENERAL`, `URGENT`, `MAINTENANCE`, `AGM`) and priority badges.
+  - **Tamper-Proof Society Document Vault**: Secure digital repository for Model Bye-Laws, Fire Safety NOCs, audited balance sheets, and historical AGM meeting minutes with role-based download permissions.
+
+---
+
+### 2.4 End-to-End Operational Workflow & User Lifecycle
+
+The complete life-cycle of the society operates smoothly across 6 interconnected phases:
+
+```mermaid
+graph TD
+    subgraph Phase1["Phase 1: Estate Setup & KYC"]
+        P1[Admin configures Wings, Units, & Tariff Rates] --> P2[Residents register & get verified with flat ownership]
+        P2 --> P3[Vehicles & Domestic Helpers registered with KYC]
+    end
+
+    subgraph Phase2["Phase 2: Gate Security & Visitors"]
+        P4[Resident creates 6-digit OTP pass & shares via WhatsApp] --> P5[Visitor arrives at Gate 1 / Gate 2]
+        P5 --> P6[Guard enters OTP on Gatekeeper Terminal - Boom barrier opens]
+    end
+
+    subgraph Phase3["Phase 3: Automated Invoicing & Payments"]
+        P7[System auto-computes monthly maintenance with RERA formula] --> P8[Resident scans Dynamic UPI QR code via GPay/PhonePe]
+        P8 --> P9[Payment verified & Stamped GST PDF invoice generated]
+    end
+
+    subgraph Phase4["Phase 4: Amenities & Solar EV Grid"]
+        P10[Resident books Banquet Hall / Pool on calendar] --> P11[Resident plugs EV into Solar Bay - kWh logged & billed]
+    end
+
+    subgraph Phase5["Phase 5: Maintenance Helpdesk"]
+        P12[Resident raises ticket with photo] --> P13[15-min emergency SLA timer starts - Technician dispatched]
+        P13 --> P14[Issue resolved & resident provides 5-star feedback]
+    end
+
+    subgraph Phase6["Phase 6: Governance & Emergency SOS"]
+        P15[Secretary launches AGM Referendum - Residents cast 1-Flat-1-Vote]
+        P16[Resident taps SOS - Audio-visual siren alerts all guard terminals]
+    end
+
+    Phase1 --> Phase2
+    Phase2 --> Phase3
+    Phase3 --> Phase4
+    Phase4 --> Phase5
+    Phase5 --> Phase6
+```
+
+#### Step-by-Step Lifecycle Walkthrough:
+1. **Onboarding & Setup**: The Administrator sets up the building blocks (Wings A/B/C, unit layouts, RERA carpet areas, parking spaces, and maintenance rates). Residents register, upload KYC details, and are mapped to their respective flats.
+2. **Daily Visitor Flow**: A resident expecting a guest creates a 6-digit OTP pass and clicks "Share on WhatsApp". When the guest reaches the security gate, the guard inputs the OTP into the Gatekeeper terminal. The system verifies validity, opens the boom barrier, and logs the entry timestamp.
+3. **Monthly Maintenance Billing**: At the start of the month, the billing engine auto-generates itemized invoices for each flat. The resident opens their bill, scans the **Dynamic UPI QR Code** directly from any UPI app, submits the transaction reference, and immediately downloads an official GST tax receipt.
+4. **Smart Amenities & Green Energy**: A resident reserves the Banquet Hall on the booking calendar. If charging an EV, the resident connects to one of the 6 basement bays; the system tracks kWh energy drawn from the 48.5 kW rooftop solar grid and appends the charge to the monthly flat bill.
+5. **Helpdesk & Ticket SLA**: If an emergency pipe burst occurs, the resident files a ticket with photo proof. The system assigns the on-duty plumber and starts a **15-minute emergency SLA timer**. Once fixed, the resident inspects the work and leaves a 5-star review.
+6. **Democratic AGM Voting**: The Managing Committee initiates an e-voting referendum on society upgrades. Every flat casts a verified secret ballot. The system tallies results in real time with interactive Chart.js graphs and saves final records in the Document Vault.
+7. **Emergency Panic SOS Response**: If a medical or security crisis occurs, the resident taps the **1-Tap SOS Button**. An immediate audio-visual siren flashes across all security guard screens with flat, wing, and floor details, ensuring a physical response within seconds.
 
 ---
 
@@ -252,7 +441,7 @@ graph TD
     Views <--> Forms[Validation Layer (forms.py)]
     Views <--> Models[ORM Data Access Layer (models.py)]
     Models <--> Database[(Relational Database: SQLite / PostgreSQL)]
-    Views <--> Templates[HTML5 Templates + Vanilla CSS Design System + JS]
+    Views <--> Templates[HTML5 Templates + CSS3 / Bootstrap 5 + JavaScript]
     Templates <--> Client
 ```
 
@@ -602,8 +791,8 @@ $$\text{EV Energy Charge} = E_{\text{consumed}}\text{ (in kWh)} \times R_{\text{
 
 ## 11. UI/UX & Frontend Design System
 
-### 11.1 Zero-Framework Vanilla CSS Architecture
-- **Performance Rationale**: Engineered with pure Vanilla CSS3 custom properties (design tokens) without heavy third-party framework overhead (Bootstrap/Tailwind), resulting in instant page loads and zero bundle bloat.
+### 11.1 CSS3 Design Tokens & Bootstrap 5 Integration
+- **Performance Rationale**: Engineered with custom CSS3 design tokens and responsive Bootstrap 5 utilities + Bootstrap Icons (`bi bi-*`), delivering lightning-fast rendering, crisp typography, and rich visual components.
 - **Design Tokens (`static/css/base.css`)**:
   ```css
   :root {
@@ -711,14 +900,14 @@ OK
 
 To facilitate evaluation by university examiners, project guides, and faculty members, the system includes pre-configured demo user accounts covering all operational roles:
 
-| Role Description | Username | Password | Key Workflows to Evaluate |
+| Role & Persona | Username | Password | Key Workflows to Evaluate |
 | :--- | :--- | :--- | :--- |
-| **Society Admin / President** | `admin` | `admin123` | Executive KPI dashboard, Master flat directory, Batch bill generator, Expense audit ledger. |
-| **Managing Committee Secretary** | `secretary` | `committee123` | Circular announcements, AGM referendum creation, Amenity approvals, Expense approvals. |
-| **Resident Owner (Flat A-402)** | `john_doe` | `resident123` | Dynamic UPI maintenance payment, 1-Click WhatsApp guest pass, Solar EV charging, SOS trigger, AGM vote. |
-| **Resident Tenant (Flat B-201)** | `sarah_smith` | `resident123` | Visitor pass generation, Parcel locker status, Helpdesk tickets, Community forum discussions. |
-| **Main Gate Security Guard** | `guard_rajesh` | `guard123` | Gatekeeper security terminal, Guest OTP verification, FastTag boom barrier log, Live SOS Alarm monitor. |
-| **Facility Staff (Chief Electrician)**| `staff_mike` | `staff123` | Assigned electrical and lift maintenance work orders, 15-minute SLA timer, Service resolution notes. |
+| **Society Admin / President (Rajesh Sharma)** | `admin` | `admin123` | Executive KPI dashboard, Master flat directory, Batch bill generator, Expense audit ledger. |
+| **Managing Committee Secretary (Ananya Deshmukh)** | `secretary` | `committee123` | Circular announcements, AGM referendum creation, Amenity approvals, Expense approvals. |
+| **Resident Owner (Vikram Malhotra - Flat A-402)** | `john_doe` | `resident123` | Dynamic UPI maintenance payment, 1-Click WhatsApp guest pass, Solar EV charging, SOS trigger, AGM vote. |
+| **Resident Tenant (Priya Patel - Flat B-201)** | `sarah_smith` | `resident123` | Visitor pass generation, Parcel locker status, Helpdesk tickets, Community forum discussions. |
+| **Main Gate Security Guard (Rajesh Gurjar)** | `guard_raj` | `guard123` | Gatekeeper security terminal, Guest OTP verification, FastTag boom barrier log, Live SOS Alarm monitor. |
+| **Facility Staff - Chief Electrician (Mukesh Sharma)**| `mike_electrician` | `staff123` | Assigned electrical and lift maintenance work orders, 15-minute SLA timer, Service resolution notes. |
 
 *Evaluation Pro-Tip: You can switch roles instantaneously at any time using the **"⚡ Switch Role"** dropdown in the top navigation bar.*
 

@@ -19,7 +19,7 @@ def society_context(request):
 
     if request.user.is_authenticated:
         try:
-            from apps.communications.models import Notice, EmergencyAlert
+            from apps.communications.models import Notice
             from apps.helpdesk.models import MaintenanceTicket
             from apps.billing.models import MaintenanceBill
             from apps.gatekeeper.models import SOSAlert
@@ -35,17 +35,15 @@ def society_context(request):
 
             # Unpaid bills
             if request.user.role in ['ADMIN', 'COMMITTEE']:
-                context['unpaid_bills_count'] = MaintenanceBill.objects.filter(status__in=['UNPAID', 'OVERDUE']).count()
+                context['unpaid_bills_count'] = MaintenanceBill.objects.filter(status__in=['UNPAID', 'OVERDUE', 'PARTIAL']).count()
             elif request.user.role == 'RESIDENT':
-                # Bills for resident flats
-                flats = request.user.resident_flats.all()
-                context['unpaid_bills_count'] = MaintenanceBill.objects.filter(unit__in=flats, status__in=['UNPAID', 'OVERDUE']).count()
+                flats = (request.user.resident_flats.all() | request.user.owned_units.all()).distinct()
+                context['unpaid_bills_count'] = MaintenanceBill.objects.filter(unit__in=flats, status__in=['UNPAID', 'OVERDUE', 'PARTIAL']).count()
 
             # Emergency pinned notices
             context['urgent_notices'] = Notice.objects.filter(is_pinned=True, is_active=True).order_by('-created_at')[:2]
 
         except Exception:
-            # During migrations or setup before tables exist
             pass
 
     return context

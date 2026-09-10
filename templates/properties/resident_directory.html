@@ -4,16 +4,23 @@
 {% block title %}Resident Phonebook & Directory - SmartSociety 360{% endblock %}
 
 {% block content %}
-<div class="page-header">
+<div class="page-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
   <div>
     <h1 class="page-title">Society Resident Directory 👥</h1>
-    <p class="page-subtitle">Search and connect with fellow residents across all wings.</p>
+    <p class="page-subtitle">Search and connect with verified homeowners and tenants across all wings.</p>
   </div>
+  {% if request.user.is_society_admin or request.user.is_committee_member %}
+    <div style="display: flex; gap: 0.75rem;">
+      <a href="{% url 'properties:add_resident' %}" class="btn btn-primary btn-sm" style="display: inline-flex; align-items: center; gap: 0.4rem; font-weight: 700;">
+        <span>👤 + Add New Resident</span>
+      </a>
+    </div>
+  {% endif %}
 </div>
 
 <!-- Search Bar -->
 <div class="glass-card" style="margin-bottom: 1.5rem; padding: 1rem 1.25rem;">
-  <form method="get" style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+  <form method="get" style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;">
     <input type="text" name="q" value="{{ search_query }}" placeholder="Search by name, flat #, phone number..." class="form-control" style="flex: 1; min-width: 250px;">
     <select name="wing" class="form-control form-select" style="max-width: 200px;">
       <option value="">All Wings</option>
@@ -22,37 +29,76 @@
       {% endfor %}
     </select>
     <button type="submit" class="btn btn-primary">Search</button>
+    {% if search_query or selected_wing %}
+      <a href="{% url 'properties:directory' %}" class="btn btn-secondary">Reset</a>
+    {% endif %}
   </form>
 </div>
 
 <!-- Resident Cards Grid -->
-<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.25rem;">
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 1.25rem;">
   {% for unit in units %}
     {% if unit.primary_resident %}
-      <div class="glass-card interactive">
-        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
-          <div class="user-avatar" style="width: 50px; height: 50px; font-size: 1.25rem;">
-            {{ unit.primary_resident.initials }}
+      <div class="glass-card interactive" style="display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; margin-bottom: 1rem;">
+            <div style="display: flex; align-items: center; gap: 0.85rem;">
+              <div class="user-avatar" style="width: 48px; height: 48px; font-size: 1.2rem; {% if unit.occupancy_status == 'TENANT' %}background: linear-gradient(135deg, var(--accent-amber), #f59e0b);{% endif %}">
+                {{ unit.primary_resident.initials }}
+              </div>
+              <div>
+                <h3 style="font-size: 1.15rem; margin-bottom: 0.15rem; font-weight: 800;">{{ unit.primary_resident.full_name }}</h3>
+                <span style="font-size: 0.8rem; color: var(--text-muted);">
+                  {% if unit.occupancy_status == 'OWNER' %}Homeowner{% else %}Tenant Occupant{% endif %}
+                </span>
+              </div>
+            </div>
+            {% if unit.occupancy_status == 'OWNER' %}
+              <span class="badge badge-owner">Occupied</span>
+            {% elif unit.occupancy_status == 'TENANT' %}
+              <span class="badge badge-tenant">Rented</span>
+            {% else %}
+              <span class="badge badge-vacant">Vacant</span>
+            {% endif %}
           </div>
-          <div>
-            <h3 style="font-size: 1.15rem; margin-bottom: 0.15rem;">{{ unit.primary_resident.full_name }}</h3>
-            <span class="badge {% if unit.occupancy_status == 'OWNER' %}badge-owner{% else %}badge-tenant{% endif %}">
-              Flat {{ unit.unit_number }} ({{ unit.get_occupancy_status_display }})
-            </span>
+
+          <div style="font-size: 0.85rem; color: var(--text-secondary); display: flex; flex-direction: column; gap: 0.4rem; background: var(--bg-surface-elevated); padding: 0.85rem; border-radius: var(--radius-sm); margin-bottom: 1rem;">
+            <div>🏢 <strong>Flat:</strong> Flat {{ unit.unit_number }} ({{ unit.wing.code }})</div>
+            <div>📞 <strong>Phone:</strong> {{ unit.primary_resident.phone_number|default:'Protected' }}</div>
+            <div>✉️ <strong>Email:</strong> {{ unit.primary_resident.email|default:'Protected' }}</div>
+            {% if unit.primary_resident.resident_profile.occupation %}
+              <div>💼 <strong>Profession:</strong> {{ unit.primary_resident.resident_profile.occupation }}</div>
+            {% endif %}
+            <div>📟 <strong>Intercom:</strong> Ext {{ unit.intercom_extension|default:unit.unit_number }}</div>
           </div>
         </div>
 
-        <div style="font-size: 0.85rem; color: var(--text-secondary); display: flex; flex-direction: column; gap: 0.4rem; background: var(--bg-surface-elevated); padding: 0.85rem; border-radius: var(--radius-sm);">
-          <div>📞 <strong>Phone:</strong> {{ unit.primary_resident.phone_number|default:'Protected' }}</div>
-          <div>✉️ <strong>Email:</strong> {{ unit.primary_resident.email|default:'Protected' }}</div>
-          <div>🏢 <strong>Tower:</strong> {{ unit.wing.name }} (Floor {{ unit.floor }})</div>
-          <div>📟 <strong>Intercom:</strong> Ext {{ unit.intercom_extension|default:'-' }}</div>
+        <div style="border-top: 1px solid var(--border-subtle); padding-top: 0.75rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+          <a href="{% url 'properties:unit_detail' pk=unit.pk %}" class="btn btn-outline btn-sm" style="padding: 0.25rem 0.65rem; font-size: 0.78rem;">
+            View Flat →
+          </a>
+          {% if request.user.is_society_admin or request.user.is_committee_member %}
+            <div style="display: flex; gap: 0.35rem; align-items: center;">
+              <a href="{% url 'properties:edit_resident' pk=unit.primary_resident.pk %}" class="btn btn-secondary btn-sm" style="padding: 0.25rem 0.55rem; font-size: 0.75rem;">
+                ✏️ Edit
+              </a>
+              <form method="POST" action="{% url 'properties:delete_resident' pk=unit.primary_resident.pk %}" style="display: inline;" onsubmit="return confirm('Are you sure you want to remove resident {{ unit.primary_resident.full_name }}?');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger btn-sm" style="padding: 0.25rem 0.55rem; font-size: 0.75rem; background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3);" title="Remove Resident">
+                  🗑️ Delete
+                </button>
+              </form>
+            </div>
+          {% endif %}
         </div>
       </div>
     {% endif %}
   {% empty %}
     <div class="glass-card" style="grid-column: 1 / -1; text-align: center; padding: 3rem;">
-      <p style="color: var(--text-muted);">No residents found matching search query.</p>
+      <p style="color: var(--text-muted); font-size: 1.1rem; margin-bottom: 1rem;">No residents found matching search query.</p>
+      {% if request.user.is_society_admin or request.user.is_committee_member %}
+        <a href="{% url 'properties:add_resident' %}" class="btn btn-primary btn-sm">+ Add New Resident</a>
+      {% endif %}
     </div>
   {% endfor %}
 </div>

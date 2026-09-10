@@ -228,5 +228,54 @@ def resolve_sos_view(request, pk):
     return redirect('dashboard')
 
 
+@login_required
+def delete_visitor_log_view(request, pk):
+    """Delete a visitor log entry (Security Guard or Society Admin)."""
+    visitor = get_object_or_404(VisitorLog, pk=pk)
+    if not (request.user.is_society_admin or request.user.is_security_guard or request.user.is_committee_member):
+        messages.error(request, "Permission Denied: Only Guards and Admins can delete gate records.")
+        return redirect('gatekeeper:terminal')
+
+    if request.method == 'POST':
+        name = visitor.visitor_name
+        visitor.delete()
+        messages.success(request, f"Visitor record for {name} has been removed.")
+        return redirect('gatekeeper:terminal')
+    return redirect('gatekeeper:terminal')
+
+
+@login_required
+def delete_pass_view(request, pk):
+    """Delete / Revoke a visitor QR pass."""
+    pass_obj = get_object_or_404(PreApprovedPass, pk=pk)
+    if not (request.user.is_society_admin or request.user.is_security_guard or pass_obj.host_resident == request.user):
+        messages.error(request, "Permission Denied: You cannot delete this pass.")
+        return redirect('gatekeeper:passes')
+
+    if request.method == 'POST':
+        code = pass_obj.pass_code
+        pass_obj.delete()
+        messages.success(request, f"Pass {code} has been revoked and deleted.")
+        return redirect('gatekeeper:passes')
+    return redirect('gatekeeper:passes')
+
+
+@login_required
+def delete_parcel_view(request, pk):
+    """Delete a parcel log record."""
+    parcel = get_object_or_404(ParcelLog, pk=pk)
+    if not (request.user.is_society_admin or request.user.is_security_guard or request.user.is_committee_member):
+        messages.error(request, "Permission Denied: Only Guards and Admins can delete parcel logs.")
+        return redirect('gatekeeper:parcels')
+
+    if request.method == 'POST':
+        unit_num = parcel.unit.unit_number if parcel.unit else ''
+        parcel.delete()
+        messages.success(request, f"Parcel record for Flat {unit_num} has been removed.")
+        return redirect('gatekeeper:parcels')
+    return redirect('gatekeeper:parcels')
+
+
 gate_terminal_view = terminal_view
 verify_passcode_view = verify_pass_view
+

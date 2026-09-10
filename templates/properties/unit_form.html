@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - SmartSociety 360{% endblock %}
+
+{% block content %}
+<div style="max-width: 780px; margin: 0 auto;">
+  <div style="margin-bottom: 1.25rem;">
+    <a href="{% if is_edit %}{% url 'properties:unit_detail' pk=unit.pk %}{% else %}{% url 'properties:units' %}{% endif %}" class="btn btn-secondary btn-sm" style="display: inline-flex; align-items: center; gap: 0.5rem; font-weight: 700;">
+      <span>← Back to {% if is_edit %}Flat {{ unit.unit_number }}{% else %}Flats Directory{% endif %}</span>
+    </a>
+  </div>
+
+  <div class="glass-card" style="border-top: 4px solid var(--primary); padding: 2.25rem; box-shadow: var(--shadow-lg);">
+    <div style="margin-bottom: 2rem;">
+      <h1 style="font-size: 1.6rem; margin-bottom: 0.35rem; color: var(--text-primary); font-weight: 800;">
+        {% if is_edit %}✏️ {{ title }}{% else %}🏢 {{ title }}{% endif %}
+      </h1>
+      <p style="font-size: 0.88rem; color: var(--text-secondary);">
+        {% if is_edit %}
+          Update property specifications, occupancy status, owner allocation, and tenant lease details.
+        {% else %}
+          Add a new residential apartment or penthouse to the society master directory.
+        {% endif %}
+      </p>
+    </div>
+
+    <form method="post">
+      {% csrf_token %}
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem;">
+        <!-- Wing / Tower -->
+        <div class="form-group">
+          <label class="form-label">Society Tower / Wing *</label>
+          {{ form.wing }}
+          {% if form.wing.errors %}<div style="color: var(--accent-rose); font-size: 0.8rem;">{{ form.wing.errors.0 }}</div>{% endif %}
+        </div>
+
+        <!-- Flat Number -->
+        <div class="form-group">
+          <label class="form-label">Flat / Unit Number *</label>
+          {{ form.unit_number }}
+          {% if form.unit_number.errors %}<div style="color: var(--accent-rose); font-size: 0.8rem;">{{ form.unit_number.errors.0 }}</div>{% endif %}
+        </div>
+
+        <!-- Floor Elevation -->
+        <div class="form-group">
+          <label class="form-label">Floor Number *</label>
+          {{ form.floor }}
+          {% if form.floor.errors %}<div style="color: var(--accent-rose); font-size: 0.8rem;">{{ form.floor.errors.0 }}</div>{% endif %}
+        </div>
+
+        <!-- Unit Type -->
+        <div class="form-group">
+          <label class="form-label">Unit Layout / Type *</label>
+          {{ form.unit_type }}
+          {% if form.unit_type.errors %}<div style="color: var(--accent-rose); font-size: 0.8rem;">{{ form.unit_type.errors.0 }}</div>{% endif %}
+        </div>
+
+        <!-- Carpet Area -->
+        <div class="form-group">
+          <label class="form-label">Carpet Area (Sq. Ft.) *</label>
+          {{ form.square_feet }}
+          {% if form.square_feet.errors %}<div style="color: var(--accent-rose); font-size: 0.8rem;">{{ form.square_feet.errors.0 }}</div>{% endif %}
+        </div>
+
+        <!-- Occupancy Status -->
+        <div class="form-group">
+          <label class="form-label">Occupancy Status *</label>
+          {{ form.occupancy_status }}
+          <small style="color: var(--text-muted); font-size: 0.75rem;">Occupied (Owner) • Rented (Tenant) • Vacant (Empty)</small>
+          {% if form.occupancy_status.errors %}<div style="color: var(--accent-rose); font-size: 0.8rem;">{{ form.occupancy_status.errors.0 }}</div>{% endif %}
+        </div>
+
+        <!-- Registered Property Owner -->
+        <div class="form-group">
+          <label class="form-label">Registered Owner</label>
+          {{ form.owner }}
+          <small style="color: var(--text-muted); font-size: 0.75rem;">Assigned property deed holder</small>
+          {% if form.owner.errors %}<div style="color: var(--accent-rose); font-size: 0.8rem;">{{ form.owner.errors.0 }}</div>{% endif %}
+        </div>
+
+        <!-- Primary Resident / Tenant -->
+        <div class="form-group">
+          <label class="form-label">Primary Resident / Tenant</label>
+          {{ form.primary_resident }}
+          <small style="color: var(--text-muted); font-size: 0.75rem;">Occupant / Lease holder living in flat</small>
+          {% if form.primary_resident.errors %}<div style="color: var(--accent-rose); font-size: 0.8rem;">{{ form.primary_resident.errors.0 }}</div>{% endif %}
+        </div>
+
+        <!-- Parking Slot -->
+        <div class="form-group">
+          <label class="form-label">Designated Parking Slot</label>
+          {{ form.parking_slot_number }}
+          {% if form.parking_slot_number.errors %}<div style="color: var(--accent-rose); font-size: 0.8rem;">{{ form.parking_slot_number.errors.0 }}</div>{% endif %}
+        </div>
+
+        <!-- Intercom Extension -->
+        <div class="form-group">
+          <label class="form-label">Intercom Extension</label>
+          {{ form.intercom_extension }}
+          {% if form.intercom_extension.errors %}<div style="color: var(--accent-rose); font-size: 0.8rem;">{{ form.intercom_extension.errors.0 }}</div>{% endif %}
+        </div>
+      </div>
+
+      <div style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: flex-end; border-top: 1px solid var(--border-subtle); padding-top: 1.25rem;">
+        <a href="{% if is_edit %}{% url 'properties:unit_detail' pk=unit.pk %}{% else %}{% url 'properties:units' %}{% endif %}" class="btn btn-secondary">
+          Cancel
+        </a>
+        <button type="submit" class="btn btn-primary" style="padding: 0.75rem 2rem;">
+          {% if is_edit %}💾 Save Flat Changes{% else %}✨ Create Flat Record{% endif %}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

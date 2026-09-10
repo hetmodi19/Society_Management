@@ -1,0 +1,232 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Hon. Treasurer & Finance Portal - SmartSociety 360{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+      <span class="badge badge-info" style="font-size: 0.8rem; padding: 0.25rem 0.6rem;">💰 Financial Treasury</span>
+      <span class="badge badge-primary" style="font-size: 0.8rem; padding: 0.25rem 0.6rem;">Treasurer & Accounts</span>
+    </div>
+    <h1 class="page-title">Society Treasury & Financial Ledger 💳</h1>
+    <p class="page-subtitle">Emerald Greens Cooperative Housing Society Ltd. &bull; Fiscal Auditing, Collections & Balances</p>
+  </div>
+  <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+    <a href="{% url 'billing:generate_bills' %}" class="btn btn-primary btn-sm">⚡ Run Batch Monthly Invoicing</a>
+    <a href="{% url 'billing:financial_ledger' %}" class="btn btn-secondary btn-sm">📑 Financial Ledger</a>
+    <a href="{% url 'billing:bills_list' %}" class="btn btn-outline btn-sm">💳 All Invoices</a>
+  </div>
+</div>
+
+<!-- Primary Financial Stats Grid -->
+<div class="stats-grid">
+  <!-- Monthly Collections -->
+  <div class="stat-card emerald">
+    <div class="stat-info">
+      <span class="stat-label">Total Monthly Collections</span>
+      <span class="stat-value">₹{{ total_monthly_collections|default:0|intcomma }}</span>
+      <span class="stat-subtext">Maintenance + Amenities + EV Charging</span>
+    </div>
+    <div class="stat-icon">💰</div>
+  </div>
+
+  <!-- Arrears / Unpaid Dues -->
+  <div class="stat-card amber">
+    <div class="stat-info">
+      <span class="stat-label">Unpaid Dues / Arrears</span>
+      <span class="stat-value">₹{{ outstanding_dues|default:0|intcomma }}</span>
+      <span class="stat-subtext">{{ overdue_bills_count|default:0 }} Overdue Flat Invoices</span>
+    </div>
+    <div class="stat-icon">💳</div>
+  </div>
+
+  <!-- Net Society Reserves -->
+  <div class="stat-card cyan">
+    <div class="stat-info">
+      <span class="stat-label">Society Net Reserves</span>
+      <span class="stat-value">₹{{ net_reserve|default:0|intcomma }}</span>
+      <span class="stat-subtext">All-time Collections minus Approved Expenses</span>
+    </div>
+    <div class="stat-icon">🏛️</div>
+  </div>
+
+  <!-- Collection Efficiency -->
+  <div class="stat-card purple">
+    <div class="stat-info">
+      <span class="stat-label">Collection Efficiency</span>
+      <span class="stat-value">{{ collection_percentage|default:0 }}%</span>
+      <span class="stat-subtext">₹{{ monthly_collected|default:0|intcomma }} collected of ₹{{ monthly_billed|default:0|intcomma }} billed</span>
+    </div>
+    <div class="stat-icon">📈</div>
+  </div>
+</div>
+
+<!-- Financial Quick Operations -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+  <a href="{% url 'billing:bills_list' %}" class="glass-card interactive" style="padding: 1rem; display: flex; align-items: center; gap: 0.75rem; text-decoration: none; color: var(--text-main);">
+    <div style="font-size: 1.5rem; background: rgba(59, 130, 246, 0.15); width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center;">💳</div>
+    <div>
+      <div style="font-weight: 700; font-size: 0.95rem;">Maintenance Bills</div>
+      <div style="font-size: 0.8rem; color: var(--text-muted);">{{ unpaid_bills_count|default:0 }} Pending Receipts</div>
+    </div>
+  </a>
+
+  <a href="{% url 'billing:financial_ledger' %}" class="glass-card interactive" style="padding: 1rem; display: flex; align-items: center; gap: 0.75rem; text-decoration: none; color: var(--text-main);">
+    <div style="font-size: 1.5rem; background: rgba(16, 185, 129, 0.15); width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center;">📑</div>
+    <div>
+      <div style="font-weight: 700; font-size: 0.95rem;">Audited Ledger</div>
+      <div style="font-size: 0.8rem; color: var(--text-muted);">Trial Balance & Reports</div>
+    </div>
+  </a>
+
+  <a href="{% url 'billing:generate_bills' %}" class="glass-card interactive" style="padding: 1rem; display: flex; align-items: center; gap: 0.75rem; text-decoration: none; color: var(--text-main);">
+    <div style="font-size: 1.5rem; background: rgba(245, 158, 11, 0.15); width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center;">⚡</div>
+    <div>
+      <div style="font-weight: 700; font-size: 0.95rem;">Batch Invoicing</div>
+      <div style="font-size: 0.8rem; color: var(--text-muted);">Generate Society Bills</div>
+    </div>
+  </a>
+
+  <a href="{% url 'properties:directory' %}" class="glass-card interactive" style="padding: 1rem; display: flex; align-items: center; gap: 0.75rem; text-decoration: none; color: var(--text-main);">
+    <div style="font-size: 1.5rem; background: rgba(139, 92, 246, 0.15); width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center;">👥</div>
+    <div>
+      <div style="font-weight: 700; font-size: 0.95rem;">Resident Accounts</div>
+      <div style="font-size: 0.8rem; color: var(--text-muted);">Owner & Tenant Ledger</div>
+    </div>
+  </a>
+</div>
+
+<!-- 6-Month Fiscal Cashflow Trends Chart -->
+<div class="glass-card" style="margin-bottom: 2rem;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+    <div>
+      <h2 style="font-size: 1.15rem; font-weight: 700; margin: 0;">📊 6-Month Fiscal Cashflow & Reserve Trends</h2>
+      <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0.2rem 0 0 0;">Actual database-driven monthly revenue (Collections) versus approved society expenses</p>
+    </div>
+    <div style="display: flex; gap: 1rem; font-size: 0.85rem;">
+      <span style="display: flex; align-items: center; gap: 0.4rem;">
+        <span style="width: 10px; height: 10px; border-radius: 50%; background: #10b981;"></span>
+        Total Collections
+      </span>
+      <span style="display: flex; align-items: center; gap: 0.4rem;">
+        <span style="width: 10px; height: 10px; border-radius: 50%; background: #f43f5e;"></span>
+        Society Expenses
+      </span>
+    </div>
+  </div>
+  <div style="height: 280px; position: relative;">
+    <canvas id="financeChart"></canvas>
+  </div>
+</div>
+
+<!-- Two Column Layout: Overdue Invoices & Recent Collections -->
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+  
+  <!-- Left: Overdue Invoices / Arrears Recovery -->
+  <div class="glass-card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+      <div>
+        <h2 style="font-size: 1.1rem; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+          <span>⚠️ Overdue Invoices</span>
+          <span class="badge badge-warning">{{ overdue_bills_count|default:0 }}</span>
+        </h2>
+        <p style="font-size: 0.75rem; color: var(--text-muted); margin: 0.2rem 0 0 0;">Pending payment past statutory grace period</p>
+      </div>
+      <a href="{% url 'billing:bills_list' %}?status=OVERDUE" style="font-size: 0.8rem; color: var(--brand-primary); font-weight: 600;">View All &rarr;</a>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Flat</th>
+            <th>Resident / Owner</th>
+            <th>Balance Due</th>
+            <th>Due Date</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for b in overdue_bills %}
+          <tr>
+            <td><strong>{{ b.unit.unit_number }}</strong></td>
+            <td>{{ b.resident.full_name|default:b.unit.owner.full_name|default:"Member" }}</td>
+            <td><strong style="color: var(--accent-rose);">₹{{ b.remaining_due|intcomma }}</strong></td>
+            <td style="font-size: 0.8rem; color: var(--text-muted);">{{ b.due_date|date:"d M Y" }}</td>
+            <td>
+              <span class="badge badge-danger">Overdue</span>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">
+              🎉 Zero overdue bills! All resident dues are fully settled.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Right: Recent Payment Transactions -->
+  <div class="glass-card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+      <div>
+        <h2 style="font-size: 1.1rem; font-weight: 700; margin: 0;">💳 Real-Time Collections Stream</h2>
+        <p style="font-size: 0.75rem; color: var(--text-muted); margin: 0.2rem 0 0 0;">Verified bank, UPI, and gateway receipts</p>
+      </div>
+      <a href="{% url 'billing:bills_list' %}" style="font-size: 0.8rem; color: var(--brand-primary); font-weight: 600;">Full Records &rarr;</a>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Txn ID</th>
+            <th>Flat</th>
+            <th>Amount</th>
+            <th>Method</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in recent_payments %}
+          <tr>
+            <td style="font-family: monospace; font-size: 0.75rem;">{{ p.transaction_id|truncatechars:12 }}</td>
+            <td><strong>{{ p.bill.unit.unit_number }}</strong></td>
+            <td><strong style="color: var(--accent-emerald);">₹{{ p.amount|intcomma }}</strong></td>
+            <td><span class="badge badge-secondary" style="font-size: 0.7rem;">{{ p.get_payment_method_display }}</span></td>
+            <td style="font-size: 0.8rem; color: var(--text-muted);">{{ p.payment_date|date:"d M Y" }}</td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">
+              No payment receipts recorded yet this month.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/charts.js' %}"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const labels = {{ cashflow_labels_json|safe|default:'[]' }};
+    const revenue = {{ cashflow_revenue_json|safe|default:'[]' }};
+    const expenses = {{ cashflow_expenses_json|safe|default:'[]' }};
+    if (typeof initFinanceChart === 'function') {
+      initFinanceChart(labels, revenue, expenses);
+    }
+  });
+</script>
+{% endblock %}

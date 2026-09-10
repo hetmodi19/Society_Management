@@ -3,8 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q, Count
 from .models import Wing, Unit, ResidentUnitMapping, Vehicle, DomesticStaff, MoveInOutRequest, RuleViolationReport
-from .forms import UnitForm, VehicleForm, DomesticStaffForm, MoveInOutRequestForm, RuleViolationReportForm
-from apps.accounts.decorators import committee_required
+from .forms import UnitForm, VehicleForm, DomesticStaffForm, MoveInOutRequestForm, RuleViolationReportForm, ResidentForm, ResidentEditForm
+from apps.accounts.models import User, ResidentProfile
 
 @login_required
 def unit_list_view(request):
@@ -37,8 +37,10 @@ def unit_list_view(request):
         )
 
     total_units_count = Unit.objects.count()
-    occupied_count = Unit.objects.exclude(occupancy_status=Unit.OccupancyStatus.VACANT).count()
+    owner_occupied_count = Unit.objects.filter(occupancy_status=Unit.OccupancyStatus.OWNER).count()
+    rented_count = Unit.objects.filter(occupancy_status=Unit.OccupancyStatus.TENANT).count()
     vacant_count = Unit.objects.filter(occupancy_status=Unit.OccupancyStatus.VACANT).count()
+    occupied_count = owner_occupied_count + rented_count
     occupancy_rate = round((occupied_count / total_units_count * 100) if total_units_count > 0 else 0, 1)
 
     return render(request, 'properties/unit_list.html', {
@@ -49,8 +51,192 @@ def unit_list_view(request):
         'selected_status': status_filter,
         'total_units_count': total_units_count,
         'occupied_count': occupied_count,
+        'owner_occupied_count': owner_occupied_count,
+        'rented_count': rented_count,
         'vacant_count': vacant_count,
         'occupancy_rate': occupancy_rate,
+    })
+
+
+@login_required
+def add_unit_view(request):
+    """Add a new flat/unit to the society database."""
+    if not (request.user.is_society_admin or request.user.is_committee_member):
+        messages.error(request, "Permission Denied: Only Society Admins and Committee members can add new units.")
+        return redirect('properties:units')
+
+    if request.method == 'POST':
+        form = UnitForm(request.POST)
+        if form.is_valid():
+            unit = form.save()
+            messages.success(request, f"Flat {unit.unit_number} ({unit.wing.code}) created successfully!")
+            return redirect('properties:unit_detail', pk=unit.pk)
+    else:
+        form = UnitForm()
+
+    return render(request, 'properties/unit_form.html', {
+        'form': form,
+        'title': 'Add New Society Flat / Unit',
+        'is_edit': False,
+    })
+
+
+@login_required
+def edit_unit_view(request, pk):
+    """Edit flat/unit details, occupancy status, and owner/tenant allocation."""
+    unit = get_object_or_404(Unit, pk=pk)
+
+    if not (request.user.is_society_admin or request.user.is_committee_member):
+        messages.error(request, "Permission Denied: Only Society Admins and Committee members can edit unit details.")
+        return redirect('properties:unit_detail', pk=unit.pk)
+
+    if request.method == 'POST':
+        form = UnitForm(request.POST, instance=unit)
+        if form.is_valid():
+            saved_unit = form.save()
+            messages.success(request, f"Flat {saved_unit.unit_number} details updated successfully!")
+            return redirect('properties:unit_detail', pk=saved_unit.pk)
+    else:
+        form = UnitForm(instance=unit)
+
+    return render(request, 'properties/unit_form.html', {
+        'form': form,
+        'unit': unit,
+        'title': f"Edit Flat {unit.unit_number} Details",
+        'is_edit': True,
+    })
+
+
+@login_required
+def add_resident_view(request):
+    """Register a new resident with authentic persona details and optional flat assignment."""
+    if not (request.user.is_society_admin or request.user.is_committee_member):
+        messages.error(request, "Permission Denied: Only Society Admins and Committee members can register new residents.")
+        return redirect('properties:directory')
+
+    if request.method == 'POST':
+        form = ResidentForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            username = data['username'].strip().lower()
+            if User.objects.filter(username=username).exists():
+                messages.error(request, f"Username '{username}' already exists. Please choose a different username.")
+                return render(request, 'properties/resident_form.html', {'form': form, 'title': 'Register New Resident', 'is_edit': False})
+
+            user = User.objects.create_user(
+                username=username,
+                email=data['email'],
+                password=data['password'] or 'resident123',
+                first_name=data['first_name'],
+                last_name=data['last_name'],
+                role=User.Role.RESIDENT,
+                phone_number=data['phone_number'],
+            )
+
+            res_type = data['resident_type']
+            ResidentProfile.objects.create(
+                user=user,
+                resident_type=res_type,
+                occupation=data.get('occupation', ''),
+                emergency_contact_name=data.get('emergency_contact_name', ''),
+                emergency_contact_phone=data.get('emergency_contact_phone', ''),
+                blood_group=data.get('blood_group', 'Unknown'),
+            )
+
+            unit = data.get('unit')
+            if unit:
+                if res_type == 'OWNER':
+                    unit.owner = user
+                    unit.primary_resident = user
+                    unit.occupancy_status = Unit.OccupancyStatus.OWNER
+                    unit.save()
+                    ResidentUnitMapping.objects.create(user=user, unit=unit, relation_type=ResidentUnitMapping.Relation.OWNER, is_primary=True)
+                else:
+                    unit.primary_resident = user
+                    unit.occupancy_status = Unit.OccupancyStatus.TENANT
+                    unit.save()
+                    ResidentUnitMapping.objects.create(user=user, unit=unit, relation_type=ResidentUnitMapping.Relation.TENANT, is_primary=True)
+
+            messages.success(request, f"Resident {user.full_name} registered successfully!")
+            return redirect('properties:directory')
+    else:
+        initial_unit_id = request.GET.get('unit')
+        initial_data = {}
+        if initial_unit_id:
+            try:
+                initial_data['unit'] = Unit.objects.get(pk=initial_unit_id)
+            except Unit.DoesNotExist:
+                pass
+        form = ResidentForm(initial=initial_data)
+
+    return render(request, 'properties/resident_form.html', {
+        'form': form,
+        'title': 'Register New Resident',
+        'is_edit': False,
+    })
+
+
+@login_required
+def edit_resident_view(request, pk):
+    """Edit resident profile, contact details, and flat mapping."""
+    user = get_object_or_404(User, pk=pk)
+
+    if not (request.user.is_society_admin or request.user.is_committee_member or request.user == user):
+        messages.error(request, "Permission Denied: You cannot edit this resident's profile.")
+        return redirect('properties:directory')
+
+    profile, _ = ResidentProfile.objects.get_or_create(user=user)
+    current_unit = user.resident_flats.first() or user.owned_units.first()
+
+    if request.method == 'POST':
+        form = ResidentEditForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            user.first_name = data['first_name']
+            user.last_name = data['last_name']
+            user.email = data['email']
+            user.phone_number = data['phone_number']
+            user.save()
+
+            profile.resident_type = data['resident_type']
+            profile.occupation = data.get('occupation', '')
+            profile.emergency_contact_name = data.get('emergency_contact_name', '')
+            profile.emergency_contact_phone = data.get('emergency_contact_phone', '')
+            profile.blood_group = data.get('blood_group', 'Unknown')
+            profile.save()
+
+            new_unit = data.get('unit')
+            if new_unit and new_unit != current_unit:
+                if data['resident_type'] == 'OWNER':
+                    new_unit.owner = user
+                    new_unit.primary_resident = user
+                    new_unit.occupancy_status = Unit.OccupancyStatus.OWNER
+                else:
+                    new_unit.primary_resident = user
+                    new_unit.occupancy_status = Unit.OccupancyStatus.TENANT
+                new_unit.save()
+
+            messages.success(request, f"Resident {user.full_name}'s details updated successfully!")
+            return redirect('properties:directory')
+    else:
+        form = ResidentEditForm(initial={
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'email': user.email,
+            'phone_number': user.phone_number,
+            'resident_type': profile.resident_type,
+            'unit': current_unit,
+            'occupation': profile.occupation,
+            'emergency_contact_name': profile.emergency_contact_name,
+            'emergency_contact_phone': profile.emergency_contact_phone,
+            'blood_group': profile.blood_group,
+        })
+
+    return render(request, 'properties/resident_form.html', {
+        'form': form,
+        'user_obj': user,
+        'title': f"Edit Details for {user.full_name}",
+        'is_edit': True,
     })
 
 
@@ -86,6 +272,7 @@ def unit_detail_view(request, pk):
         'unit': unit,
         'is_owner': is_owner,
         'is_tenant': is_tenant,
+        'is_management': is_management,
         'mappings': mappings,
         'vehicles': vehicles,
         'staff': staff,
@@ -110,7 +297,9 @@ def resident_directory_view(request):
             Q(unit_number__icontains=search_query) |
             Q(primary_resident__first_name__icontains=search_query) |
             Q(primary_resident__last_name__icontains=search_query) |
-            Q(primary_resident__phone_number__icontains=search_query)
+            Q(primary_resident__phone_number__icontains=search_query) |
+            Q(owner__first_name__icontains=search_query) |
+            Q(owner__last_name__icontains=search_query)
         )
 
     return render(request, 'properties/resident_directory.html', {
@@ -265,3 +454,101 @@ def violations_view(request):
         'violations_list': violations_list,
         'form': form,
     })
+
+
+@login_required
+def delete_unit_view(request, pk):
+    """Delete a flat/unit from society records (Admin/Committee only)."""
+    unit = get_object_or_404(Unit, pk=pk)
+    if not (request.user.is_society_admin or request.user.is_committee_member):
+        messages.error(request, "Permission Denied: Only Society Admins and Committee members can delete units.")
+        return redirect('properties:units')
+
+    if request.method == 'POST':
+        unit_num = unit.unit_number
+        wing_code = unit.wing.code if unit.wing else ''
+        unit.delete()
+        messages.success(request, f"Flat {unit_num} ({wing_code}) has been deleted successfully.")
+        return redirect('properties:units')
+    return redirect('properties:unit_detail', pk=unit.pk)
+
+
+@login_required
+def delete_resident_view(request, pk):
+    """Delete/Unlink a resident profile (Admin/Committee only)."""
+    user = get_object_or_404(User, pk=pk)
+    if not (request.user.is_society_admin or request.user.is_committee_member):
+        messages.error(request, "Permission Denied: Only Society Admins and Committee members can remove residents.")
+        return redirect('properties:directory')
+
+    if request.method == 'POST':
+        name = user.full_name
+        Unit.objects.filter(owner=user).update(owner=None, occupancy_status=Unit.OccupancyStatus.VACANT)
+        Unit.objects.filter(primary_resident=user).update(primary_resident=None, occupancy_status=Unit.OccupancyStatus.VACANT)
+        user.delete()
+        messages.success(request, f"Resident {name} has been removed from the society directory.")
+        return redirect('properties:directory')
+    return redirect('properties:directory')
+
+
+@login_required
+def delete_vehicle_view(request, pk):
+    """Delete a registered vehicle (Owner or Admin/Committee)."""
+    vehicle = get_object_or_404(Vehicle, pk=pk)
+    if not (request.user.is_society_admin or request.user.is_committee_member or vehicle.owner == request.user):
+        messages.error(request, "Permission Denied: You cannot delete this vehicle record.")
+        return redirect('properties:vehicles')
+
+    if request.method == 'POST':
+        plate = vehicle.license_plate
+        vehicle.delete()
+        messages.success(request, f"Vehicle {plate} has been removed.")
+        return redirect('properties:vehicles')
+    return redirect('properties:vehicles')
+
+
+@login_required
+def delete_domestic_staff_view(request, pk):
+    """Delete daily helper / domestic staff (Admin/Committee)."""
+    staff = get_object_or_404(DomesticStaff, pk=pk)
+    if not (request.user.is_society_admin or request.user.is_committee_member):
+        messages.error(request, "Permission Denied: Only Admins/Committee can delete staff records.")
+        return redirect('properties:staff')
+
+    if request.method == 'POST':
+        name = staff.name
+        staff.delete()
+        messages.success(request, f"Helper {name} record has been deleted.")
+        return redirect('properties:staff')
+    return redirect('properties:staff')
+
+
+@login_required
+def delete_move_request_view(request, pk):
+    """Delete/Cancel a move-in/out request."""
+    move_req = get_object_or_404(MoveInOutRequest, pk=pk)
+    if not (request.user.is_society_admin or request.user.is_committee_member or move_req.resident == request.user):
+        messages.error(request, "Permission Denied: You cannot delete this move request.")
+        return redirect('properties:move_requests')
+
+    if request.method == 'POST':
+        move_req.delete()
+        messages.success(request, "Move request has been cancelled and removed.")
+        return redirect('properties:move_requests')
+    return redirect('properties:move_requests')
+
+
+@login_required
+def delete_violation_view(request, pk):
+    """Delete/Dismiss a rule violation report."""
+    violation = get_object_or_404(RuleViolationReport, pk=pk)
+    if not (request.user.is_society_admin or request.user.is_committee_member or violation.reported_by == request.user):
+        messages.error(request, "Permission Denied: You cannot delete this violation report.")
+        return redirect('properties:violations')
+
+    if request.method == 'POST':
+        violation.delete()
+        messages.success(request, "Violation report has been removed.")
+        return redirect('properties:violations')
+    return redirect('properties:violations')
+

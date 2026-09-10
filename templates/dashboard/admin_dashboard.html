@@ -21,7 +21,7 @@
   <div class="stat-card emerald">
     <div class="stat-info">
       <span class="stat-label">Total Monthly Collections</span>
-      <span class="stat-value">₹{{ total_revenue|intcomma }}</span>
+      <span class="stat-value">₹{{ total_revenue|default:0|intcomma }}</span>
       <span class="stat-subtext">Maintenance + Amenities + EV</span>
     </div>
     <div class="stat-icon">💰</div>
@@ -30,8 +30,8 @@
   <div class="stat-card amber">
     <div class="stat-info">
       <span class="stat-label">Unpaid Dues / Arrears</span>
-      <span class="stat-value">₹{{ outstanding_dues|intcomma }}</span>
-      <span class="stat-subtext">{{ unpaid_bills_count }} Overdue Flat Invoices</span>
+      <span class="stat-value">₹{{ outstanding_dues|default:0|intcomma }}</span>
+      <span class="stat-subtext">{{ overdue_bills_count|default:0 }} Overdue Flat Invoices</span>
     </div>
     <div class="stat-icon">💳</div>
   </div>
@@ -39,8 +39,8 @@
   <div class="stat-card cyan">
     <div class="stat-info">
       <span class="stat-label">Occupancy Rate</span>
-      <span class="stat-value">{{ occupancy_rate }}%</span>
-      <span class="stat-subtext">{{ occupied_units }} / {{ total_units }} Units Occupied</span>
+      <span class="stat-value">{{ occupancy_rate|default:0 }}%</span>
+      <span class="stat-subtext">{{ occupied_units|default:0 }} / {{ total_units|default:0 }} Occupied ({{ owner_occupied_units|default:0 }} Owner, {{ rented_units|default:0 }} Rented)</span>
     </div>
     <div class="stat-icon">🏢</div>
   </div>
@@ -48,7 +48,7 @@
   <div class="stat-card rose">
     <div class="stat-info">
       <span class="stat-label">Helpdesk Open Queue</span>
-      <span class="stat-value">{{ pending_tickets }}</span>
+      <span class="stat-value">{{ pending_tickets|default:0 }}</span>
       <span class="stat-subtext">Under active technician repair</span>
     </div>
     <div class="stat-icon">🔧</div>
@@ -108,9 +108,9 @@
     </div>
     <div style="height: 220px; position: relative;">
       <canvas id="occupancyChart" 
-              data-owner="{{ owner_occupied_units|default:24 }}" 
-              data-tenant="{{ tenant_occupied_units|default:12 }}" 
-              data-vacant="{{ vacant_units|default:4 }}"></canvas>
+              data-owner="{{ owner_occupied_units|default:0 }}" 
+              data-tenant="{{ rented_units|default:0 }}" 
+              data-vacant="{{ vacant_units|default:0 }}"></canvas>
     </div>
     <div style="display: flex; justify-content: space-around; margin-top: 1rem; font-size: 0.82rem;">
       <span style="color: var(--accent-emerald);">● Owner Occupied</span>
@@ -125,7 +125,7 @@
   <!-- Live Gatekeeper Activity -->
   <div class="glass-card">
     <div class="card-header">
-      <h2 class="card-title"><span>🛡️</span> Live Gate Visitors ({{ inside_visitors_count }} Inside)</h2>
+      <h2 class="card-title"><span>🛡️</span> Live Gate Visitors ({{ inside_visitors_count|default:0 }} Inside)</h2>
       <a href="{% url 'gatekeeper:terminal' %}" class="btn btn-outline btn-sm">Gate Terminal →</a>
     </div>
 
@@ -199,3 +199,26 @@
   </div>
 </div>
 {% endblock %}
+
+{% block extra_scripts %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    try {
+      const labels = {{ cashflow_labels_json|safe }};
+      const revenue = {{ cashflow_revenue_json|safe }};
+      const expenses = {{ cashflow_expenses_json|safe }};
+      
+      window._lastCashflowData = {
+        labels: labels,
+        revenue: revenue,
+        expenses: expenses
+      };
+
+      initFinanceChart('cashflowChart', revenue, expenses, labels);
+    } catch(e) {
+      console.error('Error initializing cashflow chart:', e);
+    }
+  });
+</script>
+{% endblock %}
+

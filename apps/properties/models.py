@@ -61,6 +61,34 @@ class Unit(models.Model):
     def display_name(self):
         return f"Flat {self.unit_number}"
 
+    @property
+    def is_owner_occupied(self):
+        return self.occupancy_status == self.OccupancyStatus.OWNER
+
+    @property
+    def is_rented(self):
+        return self.occupancy_status == self.OccupancyStatus.TENANT
+
+    @property
+    def is_vacant(self):
+        return self.occupancy_status == self.OccupancyStatus.VACANT
+
+    @property
+    def occupancy_badge_label(self):
+        if self.is_owner_occupied:
+            return "Occupied"
+        elif self.is_rented:
+            return "Rented"
+        return "Vacant"
+
+    @property
+    def occupancy_badge_class(self):
+        if self.is_owner_occupied:
+            return "badge-owner"
+        elif self.is_rented:
+            return "badge-tenant"
+        return "badge-vacant"
+
 
 class ResidentUnitMapping(models.Model):
     class Relation(models.TextChoices):

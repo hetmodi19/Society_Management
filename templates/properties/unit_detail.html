@@ -5,7 +5,7 @@
 {% block title %}Flat {{ unit.unit_number }} - SmartSociety 360{% endblock %}
 
 {% block content %}
-<div class="page-header">
+<div class="page-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
   <div>
     <a href="{% url 'properties:units' %}" style="font-size: 0.85rem; color: var(--primary); font-weight: 600;">← Back to Flats Directory</a>
     <h1 class="page-title" style="margin-top: 0.35rem;">
@@ -13,104 +13,203 @@
     </h1>
     <p class="page-subtitle">{{ unit.wing.name }} • Floor {{ unit.floor }} • {{ unit.get_unit_type_display }} ({{ unit.square_feet }} Sq. Ft.)</p>
   </div>
-  <div>
-    <span class="badge {% if unit.occupancy_status == 'OWNER' %}badge-owner{% elif unit.occupancy_status == 'TENANT' %}badge-tenant{% else %}badge-vacant{% endif %}" style="font-size: 0.95rem; padding: 0.5rem 1rem;">
-      ● {{ unit.get_occupancy_status_display }}
-    </span>
+  <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+    {% if unit.occupancy_status == 'OWNER' %}
+      <span class="badge badge-owner" style="font-size: 0.95rem; padding: 0.5rem 1rem;">● Occupied</span>
+    {% elif unit.occupancy_status == 'TENANT' %}
+      <span class="badge badge-tenant" style="font-size: 0.95rem; padding: 0.5rem 1rem;">● Rented</span>
+    {% else %}
+      <span class="badge badge-vacant" style="font-size: 0.95rem; padding: 0.5rem 1rem;">● Vacant</span>
+    {% endif %}
+
+    {% if request.user.is_society_admin or request.user.is_committee_member %}
+      <a href="{% url 'properties:edit_unit' pk=unit.pk %}" class="btn btn-primary btn-sm" style="display: inline-flex; align-items: center; gap: 0.4rem; font-weight: 700;">
+        <span>✏️ Edit Flat</span>
+      </a>
+      <a href="{% url 'properties:add_resident' %}?unit={{ unit.pk }}" class="btn btn-secondary btn-sm" style="display: inline-flex; align-items: center; gap: 0.4rem; font-weight: 700;">
+        <span>👤 + Add Resident</span>
+      </a>
+      <form method="POST" action="{% url 'properties:delete_unit' pk=unit.pk %}" style="display: inline;" onsubmit="return confirm('Are you sure you want to permanently delete Flat {{ unit.unit_number }} and all associated records?');">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger btn-sm" style="display: inline-flex; align-items: center; gap: 0.4rem; font-weight: 700; background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3);">
+          <span>🗑️ Delete Flat</span>
+        </button>
+      </form>
+    {% endif %}
   </div>
 </div>
 
 <!-- Grid for Owner, Tenant & Specifications -->
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
   
-  <!-- Registered Owner Card -->
-  <div class="glass-card" style="border-top: 4px solid var(--primary);">
-    <div class="card-header">
-      <h2 class="card-title"><span>👑</span> Registered Property Owner</h2>
-      <span class="badge badge-primary">Owner of Record</span>
-    </div>
-
-    {% if unit.owner %}
-      <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem;">
-        <div class="user-avatar" style="width: 52px; height: 52px; font-size: 1.2rem;">{{ unit.owner.initials }}</div>
-        <div>
-          <h3 style="font-size: 1.2rem; margin-bottom: 0.2rem;">{{ unit.owner.full_name }}</h3>
-          <span style="font-size: 0.82rem; color: var(--text-muted);">{{ unit.owner.get_role_display }}</span>
-        </div>
+  {% if unit.occupancy_status == 'VACANT' %}
+    <!-- Vacant Residence Card (No owner name displayed) -->
+    <div class="glass-card" style="border-top: 4px solid var(--text-muted); grid-column: 1 / -1;">
+      <div class="card-header">
+        <h2 class="card-title"><span>📭</span> Property Occupancy Status</h2>
+        <span class="badge badge-vacant">Vacant Apartment</span>
       </div>
-
-      <div style="background: var(--bg-surface-elevated); padding: 1rem; border-radius: var(--radius-sm); font-size: 0.88rem; display: flex; flex-direction: column; gap: 0.5rem;">
-        <div style="display: flex; justify-content: space-between;">
-          <span style="color: var(--text-muted);">Contact Phone:</span>
-          <strong>{{ unit.owner.phone_number|default:"Not Provided" }}</strong>
-        </div>
-        <div style="display: flex; justify-content: space-between;">
-          <span style="color: var(--text-muted);">Official Email:</span>
-          <strong>{{ unit.owner.email }}</strong>
-        </div>
-        <div style="display: flex; justify-content: space-between;">
-          <span style="color: var(--text-muted);">Intercom Extension:</span>
-          <strong style="font-family: monospace; color: var(--primary);">Ext #{{ unit.intercom_extension|default:unit.unit_number }}</strong>
-        </div>
-      </div>
-    {% else %}
-      <p style="color: var(--text-muted); padding: 1rem; text-align: center;">No registered owner assigned yet.</p>
-    {% endif %}
-  </div>
-
-  <!-- Current Resident / Tenant Card -->
-  <div class="glass-card" style="border-top: 4px solid {% if unit.occupancy_status == 'TENANT' %}var(--accent-amber){% else %}var(--accent-emerald){% endif %};">
-    <div class="card-header">
-      <h2 class="card-title">
-        <span>{% if unit.occupancy_status == 'TENANT' %}🏡{% else %}🏠{% endif %}</span>
-        {% if unit.occupancy_status == 'TENANT' %}Current Tenant / Occupant{% else %}Primary Resident (Self){% endif %}
-      </h2>
-      <span class="badge {% if unit.occupancy_status == 'TENANT' %}badge-pending{% else %}badge-paid{% endif %}">
-        {{ unit.get_occupancy_status_display }}
-      </span>
-    </div>
-
-    {% if unit.occupancy_status == 'TENANT' and unit.primary_resident %}
-      <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem;">
-        <div class="user-avatar" style="width: 52px; height: 52px; font-size: 1.2rem; background: linear-gradient(135deg, var(--accent-amber), #f59e0b);">
-          {{ unit.primary_resident.initials }}
-        </div>
-        <div>
-          <h3 style="font-size: 1.2rem; margin-bottom: 0.2rem;">{{ unit.primary_resident.full_name }}</h3>
-          <span style="font-size: 0.82rem; color: var(--accent-amber); font-weight: 700;">Active Lease Holder</span>
-        </div>
-      </div>
-
-      <div style="background: var(--bg-surface-elevated); padding: 1rem; border-radius: var(--radius-sm); font-size: 0.88rem; display: flex; flex-direction: column; gap: 0.5rem;">
-        <div style="display: flex; justify-content: space-between;">
-          <span style="color: var(--text-muted);">Tenant Phone:</span>
-          <strong>{{ unit.primary_resident.phone_number|default:"Not Provided" }}</strong>
-        </div>
-        <div style="display: flex; justify-content: space-between;">
-          <span style="color: var(--text-muted);">Tenant Email:</span>
-          <strong>{{ unit.primary_resident.email }}</strong>
-        </div>
-        {% if unit.primary_resident.resident_profile.occupation %}
-          <div style="display: flex; justify-content: space-between;">
-            <span style="color: var(--text-muted);">Occupation:</span>
-            <strong>{{ unit.primary_resident.resident_profile.occupation }}</strong>
+      <div style="background: var(--bg-surface-elevated); border-radius: var(--radius-sm); padding: 2rem; text-align: center;">
+        <span style="font-size: 2.5rem; display: block; margin-bottom: 0.5rem;">🏢</span>
+        <h3 style="margin-bottom: 0.5rem; color: var(--text-primary); font-size: 1.3rem;">Flat {{ unit.unit_number }} is Currently Vacant</h3>
+        <p style="font-size: 0.9rem; color: var(--text-secondary); max-width: 520px; margin: 0 auto 1.25rem;">
+          This residential unit is currently unoccupied in the society inventory. No active tenant or resident occupant is registered.
+        </p>
+        {% if request.user.is_society_admin or request.user.is_committee_member %}
+          <div style="display: flex; justify-content: center; gap: 0.75rem;">
+            <a href="{% url 'properties:edit_unit' pk=unit.pk %}" class="btn btn-primary btn-sm">Assign Owner / Occupant</a>
+            <a href="{% url 'properties:add_resident' %}?unit={{ unit.pk }}" class="btn btn-secondary btn-sm">Enroll New Resident</a>
           </div>
         {% endif %}
       </div>
-    {% elif unit.occupancy_status == 'OWNER' %}
+    </div>
+
+  {% elif unit.occupancy_status == 'TENANT' %}
+    <!-- Rented Case: Registered Owner Card -->
+    <div class="glass-card" style="border-top: 4px solid var(--primary);">
+      <div class="card-header">
+        <h2 class="card-title"><span>👑</span> Registered Property Owner</h2>
+        <span class="badge badge-primary">Deed Holder</span>
+      </div>
+
+      {% if unit.owner %}
+        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem;">
+          <div class="user-avatar" style="width: 52px; height: 52px; font-size: 1.2rem;">{{ unit.owner.initials }}</div>
+          <div>
+            <h3 style="font-size: 1.2rem; margin-bottom: 0.2rem;">{{ unit.owner.full_name }}</h3>
+            <span style="font-size: 0.82rem; color: var(--text-muted);">{{ unit.owner.get_role_display }}</span>
+          </div>
+        </div>
+
+        <div style="background: var(--bg-surface-elevated); padding: 1rem; border-radius: var(--radius-sm); font-size: 0.88rem; display: flex; flex-direction: column; gap: 0.5rem;">
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: var(--text-muted);">Owner Phone:</span>
+            <strong>{{ unit.owner.phone_number|default:"Not Provided" }}</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: var(--text-muted);">Owner Email:</span>
+            <strong>{{ unit.owner.email }}</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: var(--text-muted);">Intercom Extension:</span>
+            <strong style="font-family: monospace; color: var(--primary);">Ext #{{ unit.intercom_extension|default:unit.unit_number }}</strong>
+          </div>
+        </div>
+      {% else %}
+        <p style="color: var(--text-muted); padding: 1.5rem; text-align: center;">No registered owner profile linked.</p>
+      {% endif %}
+    </div>
+
+    <!-- Rented Case: Active Tenant Card -->
+    <div class="glass-card" style="border-top: 4px solid var(--accent-amber);">
+      <div class="card-header">
+        <h2 class="card-title"><span>🏡</span> Current Tenant / Occupant</h2>
+        <span class="badge badge-tenant">Active Lease Holder</span>
+      </div>
+
+      {% if unit.primary_resident %}
+        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem;">
+          <div class="user-avatar" style="width: 52px; height: 52px; font-size: 1.2rem; background: linear-gradient(135deg, var(--accent-amber), #f59e0b);">
+            {{ unit.primary_resident.initials }}
+          </div>
+          <div>
+            <h3 style="font-size: 1.2rem; margin-bottom: 0.2rem;">{{ unit.primary_resident.full_name }}</h3>
+            <span style="font-size: 0.82rem; color: var(--accent-amber); font-weight: 700;">Resident Tenant</span>
+          </div>
+        </div>
+
+        <div style="background: var(--bg-surface-elevated); padding: 1rem; border-radius: var(--radius-sm); font-size: 0.88rem; display: flex; flex-direction: column; gap: 0.5rem;">
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: var(--text-muted);">Tenant Phone:</span>
+            <strong>{{ unit.primary_resident.phone_number|default:"Not Provided" }}</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: var(--text-muted);">Tenant Email:</span>
+            <strong>{{ unit.primary_resident.email }}</strong>
+          </div>
+          {% if unit.primary_resident.resident_profile.occupation %}
+            <div style="display: flex; justify-content: space-between;">
+              <span style="color: var(--text-muted);">Profession:</span>
+              <strong>{{ unit.primary_resident.resident_profile.occupation }}</strong>
+            </div>
+          {% endif %}
+        </div>
+      {% else %}
+        <p style="color: var(--text-muted); padding: 1.5rem; text-align: center;">Tenant occupied record with pending tenant profile.</p>
+      {% endif %}
+    </div>
+
+  {% else %}
+    <!-- Occupied (Owner Occupied) Case -->
+    <div class="glass-card" style="border-top: 4px solid var(--accent-emerald);">
+      <div class="card-header">
+        <h2 class="card-title"><span>👑</span> Registered Property Owner</h2>
+        <span class="badge badge-owner">Owner Occupied</span>
+      </div>
+
+      {% if unit.owner %}
+        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem;">
+          <div class="user-avatar" style="width: 52px; height: 52px; font-size: 1.2rem;">{{ unit.owner.initials }}</div>
+          <div>
+            <h3 style="font-size: 1.2rem; margin-bottom: 0.2rem;">{{ unit.owner.full_name }}</h3>
+            <span style="font-size: 0.82rem; color: var(--accent-emerald); font-weight: 700;">Homeowner & Resident</span>
+          </div>
+        </div>
+
+        <div style="background: var(--bg-surface-elevated); padding: 1rem; border-radius: var(--radius-sm); font-size: 0.88rem; display: flex; flex-direction: column; gap: 0.5rem;">
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: var(--text-muted);">Contact Phone:</span>
+            <strong>{{ unit.owner.phone_number|default:"Not Provided" }}</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: var(--text-muted);">Official Email:</span>
+            <strong>{{ unit.owner.email }}</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: var(--text-muted);">Intercom Extension:</span>
+            <strong style="font-family: monospace; color: var(--primary);">Ext #{{ unit.intercom_extension|default:unit.unit_number }}</strong>
+          </div>
+        </div>
+      {% elif unit.primary_resident %}
+        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem;">
+          <div class="user-avatar" style="width: 52px; height: 52px; font-size: 1.2rem;">{{ unit.primary_resident.initials }}</div>
+          <div>
+            <h3 style="font-size: 1.2rem; margin-bottom: 0.2rem;">{{ unit.primary_resident.full_name }}</h3>
+            <span style="font-size: 0.82rem; color: var(--accent-emerald); font-weight: 700;">Homeowner</span>
+          </div>
+        </div>
+
+        <div style="background: var(--bg-surface-elevated); padding: 1rem; border-radius: var(--radius-sm); font-size: 0.88rem; display: flex; flex-direction: column; gap: 0.5rem;">
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: var(--text-muted);">Contact Phone:</span>
+            <strong>{{ unit.primary_resident.phone_number|default:"Not Provided" }}</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: var(--text-muted);">Official Email:</span>
+            <strong>{{ unit.primary_resident.email }}</strong>
+          </div>
+        </div>
+      {% else %}
+        <p style="color: var(--text-muted); padding: 1.5rem; text-align: center;">Owner-occupied flat with unassigned user profile.</p>
+      {% endif %}
+    </div>
+
+    <!-- Self-Occupied Status Confirmation -->
+    <div class="glass-card" style="border-top: 4px solid var(--accent-emerald);">
+      <div class="card-header">
+        <h2 class="card-title"><span>🏡</span> Occupancy Profile</h2>
+        <span class="badge badge-owner">Self Occupied</span>
+      </div>
+
       <div style="background: var(--accent-emerald-light); color: var(--accent-emerald); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: var(--radius-sm); padding: 1.5rem; text-align: center;">
         <span style="font-size: 2rem;">🏡</span>
         <h4 style="margin-top: 0.5rem; color: inherit;">Owner-Occupied Residence</h4>
-        <p style="font-size: 0.85rem; color: inherit; margin: 0;">This apartment is occupied directly by registered property owner {{ unit.owner.full_name }}.</p>
+        <p style="font-size: 0.85rem; color: inherit; margin: 0;">
+          This apartment is occupied directly by the registered property owner {% if unit.owner %}{{ unit.owner.full_name }}{% elif unit.primary_resident %}{{ unit.primary_resident.full_name }}{% endif %}.
+        </p>
       </div>
-    {% else %}
-      <div style="background: var(--bg-surface-elevated); border-radius: var(--radius-sm); padding: 1.5rem; text-align: center;">
-        <span style="font-size: 2rem;">📭</span>
-        <h4 style="margin-top: 0.5rem;">Vacant Apartment</h4>
-        <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">No active tenant registered.</p>
-      </div>
-    {% endif %}
-  </div>
+    </div>
+  {% endif %}
 
   <!-- Flat Specifications & Parking Allocation -->
   <div class="glass-card" style="border-top: 4px solid var(--accent-cyan);">
@@ -127,7 +226,7 @@
 
       <div style="background: var(--bg-surface-elevated); padding: 0.75rem 1rem; border-radius: var(--radius-sm); display:flex; justify-content:space-between;">
         <span style="color: var(--text-muted);">Carpet Area (Sq Ft):</span>
-        <strong>{{ unit.square_feet }} sq. ft.</strong>
+        <strong>{{ unit.square_feet }} sq. ft. ({{ unit.get_unit_type_display }})</strong>
       </div>
 
       <div style="background: var(--bg-surface-elevated); padding: 0.75rem 1rem; border-radius: var(--radius-sm); display:flex; justify-content:space-between;">

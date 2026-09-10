@@ -45,9 +45,19 @@
         </div>
       </div>
 
-      <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.78rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.78rem; border-top: 1px solid var(--border-subtle); padding-top: 0.65rem; margin-top: 0.5rem; flex-wrap: wrap; gap: 0.4rem;">
         <span class="badge badge-paid">✓ Verified Background</span>
-        <span style="color: var(--text-muted);">Since {{ s.created_at|date:"M Y" }}</span>
+        <div style="display: flex; gap: 0.4rem; align-items: center;">
+          <span style="color: var(--text-muted); font-size: 0.72rem;">Since {{ s.created_at|date:"M Y" }}</span>
+          {% if request.user.is_society_admin or request.user.is_committee_member %}
+            <form method="POST" action="{% url 'properties:delete_staff' pk=s.pk %}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete domestic helper {{ s.name }}?');">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-danger btn-sm" style="padding: 0.2rem 0.5rem; font-size: 0.72rem; background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3);" title="Delete Helper">
+                🗑️ Delete
+              </button>
+            </form>
+          {% endif %}
+        </div>
       </div>
     </div>
   {% empty %}

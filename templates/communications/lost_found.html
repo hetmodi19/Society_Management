@@ -45,16 +45,26 @@
         </p>
       </div>
 
-      <div style="border-top: 1px solid var(--border-subtle); padding-top: 0.85rem; display: flex; justify-content: space-between; align-items: center;">
+      <div style="border-top: 1px solid var(--border-subtle); padding-top: 0.85rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.4rem;">
         <span style="font-size: 0.82rem; color: var(--text-muted);">Reported by {{ item.reported_by.full_name }}</span>
-        {% if item.status != 'CLAIMED' %}
-          <form method="post" action="{% url 'communications:claim_item' pk=item.pk %}" style="margin: 0;">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-outline btn-sm">Mark Claimed ✓</button>
-          </form>
-        {% else %}
-          <span style="color: var(--accent-emerald); font-size: 0.85rem; font-weight: 700;">✓ Restored to Owner</span>
-        {% endif %}
+        <div style="display: flex; gap: 0.35rem; align-items: center;">
+          {% if item.status != 'CLAIMED' %}
+            <form method="post" action="{% url 'communications:claim_item' pk=item.pk %}" style="margin: 0; display: inline;">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-outline btn-sm" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;">Claim ✓</button>
+            </form>
+          {% else %}
+            <span style="color: var(--accent-emerald); font-size: 0.82rem; font-weight: 700;">✓ Restored</span>
+          {% endif %}
+          {% if request.user.is_society_admin or request.user.is_committee_member or item.reported_by == request.user %}
+            <form method="post" action="{% url 'communications:delete_lost_found' pk=item.pk %}" style="margin: 0; display: inline;" onsubmit="return confirm('Are you sure you want to delete this lost & found item?');">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-danger btn-sm" style="padding: 0.2rem 0.5rem; font-size: 0.75rem; background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3);" title="Delete Item">
+                🗑️ Delete
+              </button>
+            </form>
+          {% endif %}
+        </div>
       </div>
     </div>
   {% empty %}

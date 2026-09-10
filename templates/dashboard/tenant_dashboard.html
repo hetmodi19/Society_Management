@@ -1,0 +1,274 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Tenant Resident Portal - SmartSociety 360{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+      <span class="badge badge-primary" style="font-size: 0.8rem; padding: 0.25rem 0.6rem;">🏡 Tenant Resident</span>
+      <span class="badge badge-info" style="font-size: 0.8rem; padding: 0.25rem 0.6rem;">Emerald Greens Enclave</span>
+    </div>
+    <h1 class="page-title">Welcome Home, {{ user.first_name|default:user.username }}! 🌿</h1>
+    <p class="page-subtitle">
+      {% if primary_unit %}
+        Tenant Resident of Flat <strong>{{ primary_unit.unit_number }}</strong> ({{ primary_unit.wing.name }})
+      {% else %}
+        Emerald Greens Luxury Enclave
+      {% endif %}
+    </p>
+  </div>
+  <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+    <a href="{% url 'gatekeeper:create_pass' %}" class="btn btn-primary btn-sm">+ Issue Visitor Pass</a>
+    <a href="{% url 'helpdesk:create' %}" class="btn btn-secondary btn-sm">+ Raise Complaint</a>
+    <a href="{% url 'amenities:list' %}" class="btn btn-outline btn-sm">🏊 Book Amenity</a>
+  </div>
+</div>
+
+<!-- Landlord & Tenancy Details Banner -->
+{% if primary_unit and primary_unit.owner %}
+<div class="glass-card" style="margin-bottom: 1.5rem; border-left: 4px solid var(--brand-primary); padding: 1.15rem 1.5rem;">
+  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); font-weight: 700;">Tenancy Agreement & Property Ownership</div>
+      <div style="font-size: 1.1rem; font-weight: 700; margin-top: 0.2rem;">
+        Flat {{ primary_unit.unit_number }} &bull; Property Owner: {{ primary_unit.owner.full_name }}
+      </div>
+      <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">
+        📞 {{ primary_unit.owner.phone_number|default:"Available via Intercom" }} &bull; ✉️ {{ primary_unit.owner.email }} &bull; Intercom: #{{ primary_unit.intercom_extension|default:"1201" }}
+      </div>
+    </div>
+    <div style="display: flex; gap: 0.5rem;">
+      <a href="{% url 'properties:unit_detail' primary_unit.pk %}" class="btn btn-outline btn-xs">View Flat Details</a>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<!-- Primary Tenant Stats Grid -->
+<div class="stats-grid">
+  <!-- Dues Card -->
+  <div class="stat-card {% if total_unpaid_amount > 0 %}rose{% else %}emerald{% endif %}">
+    <div class="stat-info">
+      <span class="stat-label">Maintenance Dues</span>
+      <span class="stat-value">₹{{ total_unpaid_amount|default:0|intcomma }}</span>
+      <span class="stat-subtext">{% if total_unpaid_amount > 0 %}Due by 15th of Month{% else %}All Dues Clear ✓{% endif %}</span>
+    </div>
+    <div class="stat-icon">💳</div>
+  </div>
+
+  <!-- Active Passes -->
+  <div class="stat-card cyan">
+    <div class="stat-info">
+      <span class="stat-label">Active Guest Passes</span>
+      <span class="stat-value">{{ active_passes.count|default:0 }}</span>
+      <span class="stat-subtext">Pre-approved QR PIN Clearance</span>
+    </div>
+    <div class="stat-icon">🎟️</div>
+  </div>
+
+  <!-- Deliveries / Parcels -->
+  <div class="stat-card amber">
+    <div class="stat-info">
+      <span class="stat-label">Parcels at Gate Locker</span>
+      <span class="stat-value">{{ uncollected_parcels.count|default:0 }}</span>
+      <span class="stat-subtext">Awaiting Pickup from Locker</span>
+    </div>
+    <div class="stat-icon">📦</div>
+  </div>
+
+  <!-- Open Tickets -->
+  <div class="stat-card purple">
+    <div class="stat-info">
+      <span class="stat-label">Service Requests</span>
+      <span class="stat-value">{{ open_tickets.count|default:0 }}</span>
+      <span class="stat-subtext">Active tickets in progress</span>
+    </div>
+    <div class="stat-icon">🔧</div>
+  </div>
+</div>
+
+<!-- Two-Column Main Content -->
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
+  
+  <!-- Left Column: Invoices & Service Requests -->
+  <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+    
+    <!-- Flat Invoices & Dues -->
+    <div class="glass-card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <div>
+          <h2 style="font-size: 1.15rem; font-weight: 700; margin: 0;">💳 Flat Maintenance & Utility Invoices</h2>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0.2rem 0 0 0;">Recent monthly statements for Flat {{ primary_unit.unit_number|default:"" }}</p>
+        </div>
+        <a href="{% url 'billing:bills_list' %}" style="font-size: 0.85rem; color: var(--brand-primary); font-weight: 600;">View Invoices &rarr;</a>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Invoice Month</th>
+              <th>Total Amount</th>
+              <th>Balance Due</th>
+              <th>Due Date</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for b in my_bills|slice:":4" %}
+            <tr>
+              <td><strong>{{ b.billing_month|date:"F Y" }}</strong></td>
+              <td>₹{{ b.total_amount|intcomma }}</td>
+              <td>
+                {% if b.remaining_due > 0 %}
+                  <strong style="color: var(--accent-rose);">₹{{ b.remaining_due|intcomma }}</strong>
+                {% else %}
+                  <span style="color: var(--accent-emerald);">₹0.00</span>
+                {% endif %}
+              </td>
+              <td style="font-size: 0.8rem; color: var(--text-muted);">{{ b.due_date|date:"d M Y" }}</td>
+              <td>
+                {% if b.status == 'PAID' %}
+                  <span class="badge badge-success">Paid</span>
+                {% elif b.status == 'OVERDUE' %}
+                  <span class="badge badge-danger">Overdue</span>
+                {% else %}
+                  <span class="badge badge-warning">Unpaid</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if b.remaining_due > 0 %}
+                  <a href="{% url 'billing:pay_bill' b.pk %}" class="btn btn-primary btn-xs">Pay Now</a>
+                {% else %}
+                  <a href="{% url 'billing:bill_detail' b.pk %}" class="btn btn-outline btn-xs">Receipt</a>
+                {% endif %}
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">No invoices generated for this unit yet.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- My Service Requests / Tickets -->
+    <div class="glass-card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <div>
+          <h2 style="font-size: 1.15rem; font-weight: 700; margin: 0;">🔧 My Maintenance & Repair Requests</h2>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0.2rem 0 0 0;">Plumbing, electrical, and appliance service tickets</p>
+        </div>
+        <a href="{% url 'helpdesk:create' %}" class="btn btn-primary btn-xs">+ New Ticket</a>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+        {% for t in my_tickets %}
+        <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--glass-border); padding: 0.85rem 1rem; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span style="font-weight: 600; font-size: 0.95rem;">{{ t.title }}</span>
+              <span class="badge {% if t.priority == 'CRITICAL' %}badge-danger{% elif t.priority == 'HIGH' %}badge-warning{% else %}badge-info{% endif %}" style="font-size: 0.7rem;">
+                {{ t.get_priority_display }}
+              </span>
+            </div>
+            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">
+              Ticket #{{ t.ticket_number }} &bull; {{ t.get_category_display }} &bull; {{ t.created_at|date:"d M Y" }}
+            </div>
+          </div>
+          <div>
+            {% if t.status == 'RESOLVED' or t.status == 'CLOSED' %}
+              <span class="badge badge-success">{{ t.get_status_display }}</span>
+            {% elif t.status == 'IN_PROGRESS' %}
+              <span class="badge badge-primary">In Progress</span>
+            {% else %}
+              <span class="badge badge-warning">Open</span>
+            {% endif %}
+          </div>
+        </div>
+        {% empty %}
+        <div style="text-align: center; color: var(--text-muted); padding: 1.5rem;">You have not raised any service tickets yet.</div>
+        {% endfor %}
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Right Column: Visitor Passes, Parcels, Notices -->
+  <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+    
+    <!-- Active Visitor Passes -->
+    <div class="glass-card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h2 style="font-size: 1.1rem; font-weight: 700; margin: 0;">🎟️ My Guest Passes</h2>
+        <a href="{% url 'gatekeeper:create_pass' %}" style="font-size: 0.8rem; color: var(--brand-primary); font-weight: 600;">+ Issue &rarr;</a>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+        {% for pass in active_passes %}
+        <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--glass-border); padding: 0.75rem 0.85rem; border-radius: 8px;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="font-weight: 600; font-size: 0.9rem;">{{ pass.visitor_name }}</div>
+            <span class="badge badge-success" style="font-family: monospace; font-size: 0.85rem;">PIN: {{ pass.access_code }}</span>
+          </div>
+          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">
+            Valid until {{ pass.valid_until|date:"d M, h:i A" }}
+          </div>
+        </div>
+        {% empty %}
+        <div style="color: var(--text-muted); font-size: 0.85rem; padding: 0.5rem 0;">No active guest passes issued.</div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Parcels at Locker -->
+    <div class="glass-card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h2 style="font-size: 1.1rem; font-weight: 700; margin: 0;">📦 Gate Locker Parcels</h2>
+        <span class="badge badge-amber">{{ uncollected_parcels.count }}</span>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+        {% for p in uncollected_parcels %}
+        <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--glass-border); padding: 0.75rem 0.85rem; border-radius: 8px;">
+          <div style="font-weight: 600; font-size: 0.9rem;">{{ p.courier_company }} &bull; Locker #{{ p.locker_number|default:"Gate" }}</div>
+          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">
+            Code: <strong>{{ p.pickup_code }}</strong> &bull; Received {{ p.arrival_time|timesince }} ago
+          </div>
+        </div>
+        {% empty %}
+        <div style="color: var(--text-muted); font-size: 0.85rem;">No parcels waiting at security locker.</div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Society Notices -->
+    <div class="glass-card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h2 style="font-size: 1.1rem; font-weight: 700; margin: 0;">📢 Society Notices</h2>
+        <a href="{% url 'communications:notices' %}" style="font-size: 0.8rem; color: var(--brand-primary); font-weight: 600;">All &rarr;</a>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+        {% for n in pinned_notices %}
+        <div style="padding-bottom: 0.75rem; border-bottom: 1px solid var(--glass-border);">
+          <a href="{% url 'communications:notice_detail' n.pk %}" style="font-weight: 600; font-size: 0.9rem; color: var(--text-main); text-decoration: none;">{{ n.title }}</a>
+          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">
+            {{ n.published_date|date:"d M Y" }}
+          </div>
+        </div>
+        {% empty %}
+        <div style="color: var(--text-muted); font-size: 0.85rem;">No announcements currently.</div>
+        {% endfor %}
+      </div>
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}

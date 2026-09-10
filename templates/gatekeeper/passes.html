@@ -47,14 +47,17 @@
         <div><strong>Valid Until:</strong> {{ pass.valid_until|date:"d M Y, H:i" }} ({{ pass.valid_until|timeuntil }} remaining)</div>
       </div>
 
-      <!-- Actions including WhatsApp Share -->
-      <div style="display: flex; gap: 0.5rem;">
-        <a href="https://api.whatsapp.com/send?text=Hello%20{{ pass.visitor_name|urlencode }}!%20Here%20is%20your%20entry%20pass%20for%20Emerald%20Greens%20Society,%20Flat%20{{ pass.unit.unit_number }}.%0A%0A*Security%20Gate%20Passcode:*%20{{ pass.pass_code }}%0A*Valid%20Until:*%20{{ pass.valid_until|date:'d M Y, H:i'|urlencode }}%0A%0APlease%20show%20this%20code%20at%20the%20Main%20Security%20Gate." target="_blank" class="btn btn-whatsapp btn-sm" style="flex: 1;">
+      <!-- Actions including WhatsApp Share & Delete -->
+      <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+        <a href="https://api.whatsapp.com/send?text=Hello%20{{ pass.visitor_name|urlencode }}!%20Here%20is%20your%20entry%20pass%20for%20Emerald%20Greens%20Society,%20Flat%20{{ pass.unit.unit_number }}.%0A%0A*Security%20Gate%20Passcode:*%20{{ pass.pass_code }}%0A*Valid%20Until:*%20{{ pass.valid_until|date:'d M Y, H:i'|urlencode }}%0A%0APlease%20show%20this%20code%20at%20the%20Main%20Security%20Gate." target="_blank" class="btn btn-whatsapp btn-sm" style="flex: 1; min-width: 130px;">
           <span>📲 WhatsApp Pass</span>
         </a>
-        <button type="button" class="btn btn-secondary btn-sm" onclick="showToast('QR Pass Badge saved as image')">
-          🖨️ Print Badge
-        </button>
+        <form method="post" action="{% url 'gatekeeper:delete_pass' pk=pass.pk %}" style="display: inline;" onsubmit="return confirm('Are you sure you want to revoke and delete pass {{ pass.pass_code }}?');">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger btn-sm" style="padding: 0.25rem 0.6rem; background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3);" title="Delete Pass">
+            🗑️ Delete
+          </button>
+        </form>
       </div>
     </div>
   {% empty %}

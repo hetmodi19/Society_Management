@@ -38,7 +38,9 @@
             <strong>{{ flat.unit_number }}</strong> ({{ flat.wing.name }})
             <div style="font-size: 0.75rem; color: var(--text-muted);">{{ flat.get_unit_type_display }} • {{ flat.square_feet }} Sq.Ft</div>
           </div>
-          <span class="badge badge-owner">{{ flat.get_occupancy_status_display }}</span>
+          <span class="badge {% if flat.occupancy_status == 'OWNER' %}badge-owner{% elif flat.occupancy_status == 'TENANT' %}badge-tenant{% else %}badge-vacant{% endif %}">
+            {{ flat.occupancy_badge_label }}
+          </span>
         </div>
       {% empty %}
         <p style="font-size: 0.85rem; color: var(--text-muted);">No flats linked yet.</p>

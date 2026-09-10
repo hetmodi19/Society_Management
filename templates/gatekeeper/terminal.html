@@ -103,9 +103,17 @@
               {% endif %}
             </td>
             <td>
-              <a href="{% url 'gatekeeper:checkout' pk=v.pk %}" class="btn btn-secondary btn-sm" onclick="return confirm('Confirm departure of {{ v.visitor_name }}?')">
-                <span>Check Out →</span>
-              </a>
+              <div style="display: flex; gap: 0.35rem; align-items: center; flex-wrap: wrap;">
+                <a href="{% url 'gatekeeper:checkout' pk=v.pk %}" class="btn btn-secondary btn-sm" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="return confirm('Confirm departure of {{ v.visitor_name }}?');">
+                  <span>Out →</span>
+                </a>
+                <form method="post" action="{% url 'gatekeeper:delete_visitor' pk=v.pk %}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this visitor log for {{ v.visitor_name }}?');">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-danger btn-sm" style="padding: 0.2rem 0.5rem; font-size: 0.75rem; background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3);" title="Delete Log">
+                    🗑️ Delete
+                  </button>
+                </form>
+              </div>
             </td>
           </tr>
         {% empty %}

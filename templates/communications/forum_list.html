@@ -49,9 +49,19 @@
         {{ post.content|truncatechars:180 }}
       </p>
 
-      <div style="border-top: 1px solid var(--border-subtle); padding-top: 0.75rem; display: flex; justify-content: space-between; align-items: center;">
+      <div style="border-top: 1px solid var(--border-subtle); padding-top: 0.75rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.4rem;">
         <span style="font-size: 0.85rem; color: var(--text-muted);">💬 {{ post.replies_count }} Replies</span>
-        <a href="{% url 'communications:post_detail' pk=post.pk %}" class="btn btn-outline btn-sm">Join Conversation →</a>
+        <div style="display: flex; gap: 0.35rem; align-items: center;">
+          {% if request.user.is_society_admin or request.user.is_committee_member or post.author == request.user %}
+            <form method="post" action="{% url 'communications:delete_post' pk=post.pk %}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete post \'{{ post.title }}\'?');">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-danger btn-sm" style="padding: 0.2rem 0.5rem; font-size: 0.75rem; background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3);" title="Delete Post">
+                🗑️ Delete
+              </button>
+            </form>
+          {% endif %}
+          <a href="{% url 'communications:post_detail' pk=post.pk %}" class="btn btn-outline btn-sm" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;">Join →</a>
+        </div>
       </div>
     </div>
   {% empty %}

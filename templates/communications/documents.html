@@ -48,11 +48,21 @@
         {% endif %}
       </div>
 
-      <div style="border-top: 1px solid var(--border-subtle); padding-top: 0.85rem; display: flex; justify-content: space-between; align-items: center;">
+      <div style="border-top: 1px solid var(--border-subtle); padding-top: 0.85rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.4rem;">
         <span style="font-size: 0.78rem; color: var(--text-muted);">Uploaded {{ doc.uploaded_at|date:"d M Y" }}</span>
-        <a href="#" class="btn btn-primary btn-sm" onclick="showToast('Downloading verified document certificate...'); return false;">
-          ⬇️ View Document
-        </a>
+        <div style="display: flex; gap: 0.35rem; align-items: center;">
+          <a href="#" class="btn btn-outline btn-sm" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="showToast('Downloading verified document certificate...'); return false;">
+            ⬇️ View
+          </a>
+          {% if request.user.is_society_admin or request.user.is_committee_member %}
+            <form method="post" action="{% url 'communications:delete_document' pk=doc.pk %}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete document \'{{ doc.title }}\'?');">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-danger btn-sm" style="padding: 0.2rem 0.5rem; font-size: 0.75rem; background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3);" title="Delete Document">
+                🗑️ Delete
+              </button>
+            </form>
+          {% endif %}
+        </div>
       </div>
     </div>
   {% empty %}

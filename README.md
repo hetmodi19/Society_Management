@@ -73,14 +73,14 @@ Visit `http://127.0.0.1:8000/` in your browser.
 
 You can test any role instantly using the **"⚡ Switch Role"** topbar dropdown, or sign in manually with these pre-configured credentials:
 
-| Role | Username / Email | Password | Access Highlights |
+| Role & Persona | Username / Email | Password | Access Highlights |
 | :--- | :--- | :--- | :--- |
-| **👑 Admin / President** | `admin` / `admin@emeraldgreens.residence` | `admin123` | Full analytics, ledger, batch billing, flat directory |
-| **📜 Committee Member** | `secretary` / `secretary@emeraldgreens.residence` | `committee123` | Approvals, notices, expenses, directory |
-| **🏠 Resident (Owner)** | `john_doe` / `john.doe@example.com` | `resident123` | Pay maintenance, generate visitor pass, book pool |
-| **🏡 Resident (Tenant)** | `sarah_smith` / `sarah.smith@example.com` | `resident123` | View invoices, raise complaint, cast poll vote |
-| **🛡️ Security Guard** | `guard_raj` / `security.raj@emeraldgreens.residence` | `guard123` | Live gatekeeper terminal, OTP PIN verification |
-| **🔧 Facility Staff** | `mike_electrician` / `mike.tech@emeraldgreens.residence` | `staff123` | Maintenance task queue, update work |
+| **👑 Admin / President (Rajesh Sharma)** | `admin` / `admin@emeraldgreens.residence` | `admin123` | Full analytics, ledger, batch billing, flat directory |
+| **📜 Committee Member (Ananya Deshmukh)** | `secretary` / `secretary@emeraldgreens.residence` | `committee123` | Approvals, notices, expenses, directory |
+| **🏠 Resident Owner (Vikram Malhotra)** | `john_doe` / `vikram.malhotra@example.com` | `resident123` | Pay maintenance, generate visitor pass, book pool |
+| **🏡 Resident Tenant (Priya Patel)** | `sarah_smith` / `priya.patel@example.com` | `resident123` | View invoices, raise complaint, cast poll vote |
+| **🛡️ Security Guard (Rajesh Gurjar)** | `guard_raj` / `security.rajesh@emeraldgreens.residence` | `guard123` | Live gatekeeper terminal, OTP PIN verification |
+| **🔧 Facility Staff (Mukesh Sharma)** | `mike_electrician` / `mukesh.tech@emeraldgreens.residence` | `staff123` | Maintenance task queue, update work |
 
 ---
 

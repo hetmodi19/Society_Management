@@ -6,10 +6,16 @@ from django.utils import timezone
 class User(AbstractUser):
     class Role(models.TextChoices):
         ADMIN = 'ADMIN', _('Society Super Admin / President')
+        SECRETARY = 'SECRETARY', _('Hon. Secretary')
+        TREASURER = 'TREASURER', _('Hon. Treasurer')
+        ACCOUNTANT = 'ACCOUNTANT', _('Society Accountant')
         COMMITTEE = 'COMMITTEE', _('Management Committee Member')
-        RESIDENT = 'RESIDENT', _('Resident (Owner / Tenant)')
-        GUARD = 'GUARD', _('Security Gatekeeper')
-        STAFF = 'STAFF', _('Facility Maintenance Staff')
+        FACILITY_MGR = 'FACILITY_MGR', _('Facility Manager')
+        OWNER = 'OWNER', _('Flat Owner (Resident)')
+        TENANT = 'TENANT', _('Tenant / Rented Person')
+        RESIDENT = 'RESIDENT', _('Resident Member')
+        GUARD = 'GUARD', _('Security Guard / Gatekeeper')
+        STAFF = 'STAFF', _('Maintenance Staff / Technician')
 
     role = models.CharField(
         max_length=20,
@@ -45,12 +51,57 @@ class User(AbstractUser):
         return self.role == self.Role.ADMIN or self.is_superuser
 
     @property
+    def is_secretary(self):
+        return self.role in [self.Role.ADMIN, self.Role.SECRETARY] or self.is_superuser
+
+    @property
+    def is_treasurer(self):
+        return self.role in [self.Role.ADMIN, self.Role.TREASURER, self.Role.ACCOUNTANT] or self.is_superuser
+
+    @property
+    def is_accountant(self):
+        return self.role in [self.Role.ADMIN, self.Role.TREASURER, self.Role.ACCOUNTANT] or self.is_superuser
+
+    @property
+    def is_financial_manager(self):
+        return self.role in [self.Role.ADMIN, self.Role.TREASURER, self.Role.ACCOUNTANT] or self.is_superuser
+
+    @property
+    def is_facility_manager(self):
+        return self.role in [self.Role.ADMIN, self.Role.FACILITY_MGR] or self.is_superuser
+
+    @property
     def is_committee_member(self):
-        return self.role in [self.Role.ADMIN, self.Role.COMMITTEE] or self.is_superuser
+        return self.role in [
+            self.Role.ADMIN,
+            self.Role.SECRETARY,
+            self.Role.TREASURER,
+            self.Role.ACCOUNTANT,
+            self.Role.COMMITTEE,
+            self.Role.FACILITY_MGR
+        ] or self.is_superuser
+
+    @property
+    def is_flat_owner(self):
+        if self.role == self.Role.OWNER:
+            return True
+        if self.role == self.Role.RESIDENT and hasattr(self, 'resident_profile') and self.resident_profile.resident_type == 'OWNER':
+            return True
+        if self.owned_units.exists():
+            return True
+        return False
+
+    @property
+    def is_tenant(self):
+        if self.role == self.Role.TENANT:
+            return True
+        if self.role == self.Role.RESIDENT and hasattr(self, 'resident_profile') and self.resident_profile.resident_type == 'TENANT':
+            return True
+        return False
 
     @property
     def is_resident_user(self):
-        return self.role == self.Role.RESIDENT
+        return self.role in [self.Role.OWNER, self.Role.TENANT, self.Role.RESIDENT] or self.is_flat_owner or self.is_tenant
 
     @property
     def is_security_guard(self):
@@ -58,7 +109,11 @@ class User(AbstractUser):
 
     @property
     def is_facility_staff(self):
-        return self.role == self.Role.STAFF
+        return self.role in [self.Role.STAFF, self.Role.FACILITY_MGR]
+
+    def has_permission(self, perm_code):
+        from .permissions import has_perm
+        return has_perm(self, perm_code)
 
     def __str__(self):
         return f"{self.full_name} ({self.get_role_display()})"

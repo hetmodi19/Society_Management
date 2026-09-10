@@ -4,11 +4,21 @@
 {% block title %}Flats & Units Directory - SmartSociety 360{% endblock %}
 
 {% block content %}
-<div class="page-header">
+<div class="page-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
   <div>
-    <h1 class="page-title">Society Units & Flats Directory</h1>
-    <p class="page-subtitle">{{ occupied_count }} Occupied • {{ vacant_count }} Vacant • {{ occupancy_rate }}% Total Occupancy Rate</p>
+    <h1 class="page-title">Society Units & Flats Directory 🏢</h1>
+    <p class="page-subtitle">{{ occupied_count }} Occupied ({{ owner_occupied_count }} Owner, {{ rented_count }} Rented) • {{ vacant_count }} Vacant • {{ occupancy_rate }}% Total Occupancy Rate</p>
   </div>
+  {% if request.user.is_society_admin or request.user.is_committee_member %}
+    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+      <a href="{% url 'properties:add_unit' %}" class="btn btn-primary btn-sm" style="display: inline-flex; align-items: center; gap: 0.4rem; font-weight: 700;">
+        <span>+ Add New Flat</span>
+      </a>
+      <a href="{% url 'properties:add_resident' %}" class="btn btn-secondary btn-sm" style="display: inline-flex; align-items: center; gap: 0.4rem; font-weight: 700;">
+        <span>👤 + Add Resident</span>
+      </a>
+    </div>
+  {% endif %}
 </div>
 
 <!-- Search & Wing Filter Bar -->
@@ -28,8 +38,8 @@
     <div>
       <select name="status" class="form-control form-select">
         <option value="">All Statuses</option>
-        <option value="OWNER" {% if selected_status == 'OWNER' %}selected{% endif %}>Owner Occupied</option>
-        <option value="TENANT" {% if selected_status == 'TENANT' %}selected{% endif %}>Tenant Occupied</option>
+        <option value="OWNER" {% if selected_status == 'OWNER' %}selected{% endif %}>Occupied (Owner)</option>
+        <option value="TENANT" {% if selected_status == 'TENANT' %}selected{% endif %}>Rented (Tenant)</option>
         <option value="VACANT" {% if selected_status == 'VACANT' %}selected{% endif %}>Vacant</option>
       </select>
     </div>
@@ -41,45 +51,78 @@
 </div>
 
 <!-- Units Grid -->
-<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.25rem;">
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 1.25rem;">
   {% for unit in units %}
     <div class="glass-card interactive" style="display: flex; flex-direction: column; justify-content: space-between;">
       <div>
         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
           <div>
             <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">{{ unit.wing.code }} • Floor {{ unit.floor }}</span>
-            <h3 style="font-size: 1.35rem; color: var(--text-primary); font-weight: 800;">Flat {{ unit.unit_number }}</h3>
+            <h3 style="font-size: 1.35rem; color: var(--text-primary); font-weight: 800; margin: 0.1rem 0 0 0;">Flat {{ unit.unit_number }}</h3>
           </div>
           {% if unit.occupancy_status == 'OWNER' %}
-            <span class="badge badge-owner">Owner</span>
+            <span class="badge badge-owner">Occupied</span>
           {% elif unit.occupancy_status == 'TENANT' %}
-            <span class="badge badge-tenant">Tenant</span>
+            <span class="badge badge-tenant">Rented</span>
           {% else %}
             <span class="badge badge-vacant">Vacant</span>
           {% endif %}
         </div>
 
-        <div style="font-size: 0.85rem; color: var(--text-secondary); display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: 1rem;">
+        <div style="font-size: 0.85rem; color: var(--text-secondary); display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 1rem;">
           <div>📐 <strong>{{ unit.square_feet }}</strong> Sq. Ft. ({{ unit.get_unit_type_display }})</div>
-          {% if unit.primary_resident %}
-            <div>👤 Resident: <strong>{{ unit.primary_resident.full_name }}</strong></div>
-          {% elif unit.owner %}
-            <div>🔑 Owner: <strong>{{ unit.owner.full_name }}</strong></div>
+
+          {% if unit.occupancy_status == 'OWNER' %}
+            {% if unit.owner %}
+              <div>👤 Owner: <strong>{{ unit.owner.full_name }}</strong></div>
+            {% elif unit.primary_resident %}
+              <div>👤 Owner: <strong>{{ unit.primary_resident.full_name }}</strong></div>
+            {% else %}
+              <div>👤 Owner: <strong>Owner Occupied</strong></div>
+            {% endif %}
+          {% elif unit.occupancy_status == 'TENANT' %}
+            {% if unit.owner %}
+              <div>🔑 Owner: <strong>{{ unit.owner.full_name }}</strong></div>
+            {% endif %}
+            {% if unit.primary_resident %}
+              <div>👤 Tenant: <strong>{{ unit.primary_resident.full_name }}</strong></div>
+            {% else %}
+              <div>👤 Tenant: <strong>Active Tenant</strong></div>
+            {% endif %}
           {% else %}
-            <div style="color: var(--text-muted);">Unoccupied</div>
+            <div style="color: var(--text-muted);">📭 Status: <strong>Vacant / Available</strong></div>
           {% endif %}
+
           <div>🚗 Parking: <strong>{{ unit.parking_slot_number|default:'None' }}</strong></div>
         </div>
       </div>
 
-      <div style="border-top: 1px solid var(--border-subtle); padding-top: 0.75rem; display: flex; justify-content: space-between; align-items: center;">
+      <div style="border-top: 1px solid var(--border-subtle); padding-top: 0.75rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
         <span style="font-size: 0.78rem; color: var(--text-muted);">Ext: {{ unit.intercom_extension|default:'-' }}</span>
-        <a href="{% url 'properties:unit_detail' pk=unit.pk %}" class="btn btn-outline btn-sm">View Details →</a>
+        <div style="display: flex; gap: 0.35rem; align-items: center; flex-wrap: wrap;">
+          {% if request.user.is_society_admin or request.user.is_committee_member %}
+            <a href="{% url 'properties:edit_unit' pk=unit.pk %}" class="btn btn-secondary btn-sm" style="padding: 0.25rem 0.55rem; font-size: 0.75rem;" title="Edit Flat Details">
+              ✏️ Edit
+            </a>
+            <form method="POST" action="{% url 'properties:delete_unit' pk=unit.pk %}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete Flat {{ unit.unit_number }}?');">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-danger btn-sm" style="padding: 0.25rem 0.55rem; font-size: 0.75rem; background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3);" title="Delete Flat">
+                🗑️ Delete
+              </button>
+            </form>
+          {% endif %}
+          <a href="{% url 'properties:unit_detail' pk=unit.pk %}" class="btn btn-outline btn-sm" style="padding: 0.25rem 0.65rem; font-size: 0.78rem;">
+            View Details →
+          </a>
+        </div>
       </div>
     </div>
   {% empty %}
     <div class="glass-card" style="grid-column: 1 / -1; text-align: center; padding: 3rem;">
-      <p style="color: var(--text-muted);">No units match your filter criteria.</p>
+      <p style="color: var(--text-muted); font-size: 1.1rem; margin-bottom: 1rem;">No flats match your filter criteria.</p>
+      {% if request.user.is_society_admin or request.user.is_committee_member %}
+        <a href="{% url 'properties:add_unit' %}" class="btn btn-primary btn-sm">+ Add First Flat</a>
+      {% endif %}
     </div>
   {% endfor %}
 </div>

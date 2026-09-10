@@ -24,16 +24,22 @@ class CustomUserCreationForm(UserCreationForm):
 
 
 class CustomAuthenticationForm(AuthenticationForm):
-    username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Username or Email', 'autofocus': True}))
+    username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Username, Email, Flat #, or Name', 'autofocus': True}))
     password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Password'}))
 
     def clean(self):
         username = self.cleaned_data.get('username')
-        if username and '@' in username:
-            user = User.objects.filter(email__iexact=username).first()
-            if user:
-                self.cleaned_data['username'] = user.get_username()
-        return super().clean()
+        password = self.cleaned_data.get('password')
+
+        if username and password:
+            from django.contrib.auth import authenticate
+            self.user_cache = authenticate(self.request, username=username.strip(), password=password)
+            if self.user_cache is None:
+                raise self.get_invalid_login_error()
+            else:
+                self.confirm_login_allowed(self.user_cache)
+
+        return self.cleaned_data
 
 
 class UserProfileUpdateForm(forms.ModelForm):

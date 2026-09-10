@@ -171,15 +171,38 @@ def security_settings_view(request):
 @login_required
 def demo_switch_user(request, role):
     """Role switch helper available only to authenticated users."""
-    role = role.upper()
-    user = User.objects.filter(role=role).first()
-    if not user and role == 'ADMIN':
-        user = User.objects.filter(is_superuser=True).first()
+    role_key = role.upper()
+    user = None
+
+    if role_key == 'ADMIN':
+        user = User.objects.filter(role=User.Role.ADMIN).first() or User.objects.filter(is_superuser=True).first()
+    elif role_key == 'SECRETARY':
+        user = User.objects.filter(role=User.Role.SECRETARY).first() or User.objects.filter(username='secretary').first()
+    elif role_key == 'TREASURER':
+        user = User.objects.filter(role=User.Role.TREASURER).first() or User.objects.filter(username='treasurer').first()
+    elif role_key == 'ACCOUNTANT':
+        user = User.objects.filter(role=User.Role.ACCOUNTANT).first() or User.objects.filter(username='accountant').first()
+    elif role_key in ['FACILITY_MGR', 'FACILITY']:
+        user = User.objects.filter(role=User.Role.FACILITY_MGR).first() or User.objects.filter(username='facility_mgr').first()
+    elif role_key == 'COMMITTEE':
+        user = User.objects.filter(role=User.Role.COMMITTEE).first() or User.objects.filter(role=User.Role.SECRETARY).first()
+    elif role_key == 'OWNER':
+        user = User.objects.filter(role=User.Role.OWNER).first() or User.objects.filter(username__in=['owner', 'john_doe']).first()
+    elif role_key == 'TENANT':
+        user = User.objects.filter(role=User.Role.TENANT).first() or User.objects.filter(username__in=['tenant', 'sarah_smith']).first()
+    elif role_key == 'GUARD':
+        user = User.objects.filter(role=User.Role.GUARD).first() or User.objects.filter(username__in=['guard_raj', 'guard']).first()
+    elif role_key == 'STAFF':
+        user = User.objects.filter(role=User.Role.STAFF).first() or User.objects.filter(username__in=['mike_electrician', 'staff']).first()
+    elif role_key == 'RESIDENT':
+        user = User.objects.filter(role__in=[User.Role.RESIDENT, User.Role.OWNER]).first()
+    else:
+        user = User.objects.filter(role=role_key).first()
 
     if user:
-        login(request, user)
+        login(request, user, backend='apps.accounts.backends.UniversalAuthBackend')
         messages.success(request, f"Active Session Switched: {user.full_name} ({user.get_role_display()})")
     else:
-        messages.warning(request, f"No user account found with role {role}.")
+        messages.warning(request, f"No user account found for role persona: {role}.")
 
     return redirect('dashboard')

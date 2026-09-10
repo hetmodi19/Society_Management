@@ -70,6 +70,7 @@
           <th>Invoice #</th>
           <th>Amount</th>
           <th>Status</th>
+          <th style="text-align: right;">Action</th>
         </tr>
       </thead>
       <tbody>
@@ -93,9 +94,21 @@
                 <span class="badge badge-warning">Pending</span>
               {% endif %}
             </td>
+            <td style="text-align: right;">
+              {% if request.user.is_society_admin or request.user.is_committee_member %}
+                <form method="POST" action="{% url 'billing:delete_expense' pk=exp.pk %}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete expense record \'{{ exp.title }}\'?');">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-danger btn-sm" style="padding: 0.2rem 0.5rem; font-size: 0.75rem; background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3);" title="Delete Expense">
+                    🗑️ Delete
+                  </button>
+                </form>
+              {% else %}
+                <span style="color: var(--text-muted); font-size: 0.75rem;">-</span>
+              {% endif %}
+            </td>
           </tr>
         {% empty %}
-          <tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2rem;">No expenses recorded.</td></tr>
+          <tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 2rem;">No expenses recorded.</td></tr>
         {% endfor %}
       </tbody>
     </table>

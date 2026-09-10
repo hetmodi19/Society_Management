@@ -167,3 +167,36 @@ def rate_ticket_view(request, pk):
         messages.success(request, "Thank you for your feedback! Rating recorded.")
 
     return redirect('helpdesk:detail', pk=ticket.pk)
+
+
+@login_required
+def delete_ticket_view(request, pk):
+    """Delete a helpdesk ticket (Author Resident or Admin/Committee)."""
+    ticket = get_object_or_404(MaintenanceTicket, pk=pk)
+    if not (request.user.is_society_admin or request.user.is_committee_member or ticket.resident == request.user):
+        messages.error(request, "Permission Denied: You cannot delete this ticket.")
+        return redirect('helpdesk:tickets')
+
+    if request.method == 'POST':
+        tck_num = ticket.ticket_number
+        ticket.delete()
+        messages.success(request, f"Complaint #{tck_num} has been deleted.")
+        return redirect('helpdesk:tickets')
+    return redirect('helpdesk:detail', pk=ticket.pk)
+
+
+@login_required
+def delete_comment_view(request, pk):
+    """Delete a ticket comment."""
+    comment = get_object_or_404(TicketComment, pk=pk)
+    ticket_pk = comment.ticket.pk
+    if not (request.user.is_society_admin or request.user.is_committee_member or comment.author == request.user):
+        messages.error(request, "Permission Denied: You cannot delete this comment.")
+        return redirect('helpdesk:detail', pk=ticket_pk)
+
+    if request.method == 'POST':
+        comment.delete()
+        messages.success(request, "Comment removed.")
+        return redirect('helpdesk:detail', pk=ticket_pk)
+    return redirect('helpdesk:detail', pk=ticket_pk)
+

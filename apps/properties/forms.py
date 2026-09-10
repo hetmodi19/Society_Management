@@ -77,3 +77,31 @@ class RuleViolationReportForm(forms.ModelForm):
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Describe the infraction or dispute...'}),
             'evidence_photo': forms.FileInput(attrs={'class': 'form-control'}),
         }
+
+
+class ResidentForm(forms.Form):
+    first_name = forms.CharField(max_length=50, required=True, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. Vikram'}))
+    last_name = forms.CharField(max_length=50, required=True, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. Malhotra'}))
+    username = forms.CharField(max_length=50, required=True, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. vikram_m'}))
+    email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'e.g. vikram@example.com'}))
+    phone_number = forms.CharField(max_length=20, required=True, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. +91 98200 12345'}))
+    password = forms.CharField(max_length=50, required=False, widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Default: resident123'}), help_text='Leave blank for default: resident123')
+    resident_type = forms.ChoiceField(choices=[('OWNER', 'Property Owner (Occupied)'), ('TENANT', 'Tenant / Renter (Rented)')], widget=forms.Select(attrs={'class': 'form-control form-select'}))
+    unit = forms.ModelChoiceField(queryset=Unit.objects.all(), required=False, empty_label='-- Assign to Flat (Optional) --', widget=forms.Select(attrs={'class': 'form-control form-select'}))
+    occupation = forms.CharField(max_length=100, required=False, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. Principal Architect'}))
+    emergency_contact_name = forms.CharField(max_length=100, required=False, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. Family Member'}))
+    emergency_contact_phone = forms.CharField(max_length=20, required=False, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. +91 98200 99887'}))
+    blood_group = forms.CharField(max_length=10, required=False, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. O+'}))
+
+
+class ResidentEditForm(forms.Form):
+    first_name = forms.CharField(max_length=50, required=True, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    last_name = forms.CharField(max_length=50, required=True, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={'class': 'form-control'}))
+    phone_number = forms.CharField(max_length=20, required=True, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    resident_type = forms.ChoiceField(choices=[('OWNER', 'Property Owner (Occupied)'), ('TENANT', 'Tenant / Renter (Rented)')], widget=forms.Select(attrs={'class': 'form-control form-select'}))
+    unit = forms.ModelChoiceField(queryset=Unit.objects.all(), required=False, empty_label='-- Assign to Flat (Optional) --', widget=forms.Select(attrs={'class': 'form-control form-select'}))
+    occupation = forms.CharField(max_length=100, required=False, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    emergency_contact_name = forms.CharField(max_length=100, required=False, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    emergency_contact_phone = forms.CharField(max_length=20, required=False, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    blood_group = forms.CharField(max_length=10, required=False, widget=forms.TextInput(attrs={'class': 'form-control'}))

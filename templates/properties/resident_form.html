@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - SmartSociety 360{% endblock %}
+
+{% block content %}
+<div style="max-width: 780px; margin: 0 auto;">
+  <div style="margin-bottom: 1.25rem;">
+    <a href="{% url 'properties:directory' %}" class="btn btn-secondary btn-sm" style="display: inline-flex; align-items: center; gap: 0.5rem; font-weight: 700;">
+      <span>← Back to Resident Directory</span>
+    </a>
+  </div>
+
+  <div class="glass-card" style="border-top: 4px solid var(--accent-emerald); padding: 2.25rem; box-shadow: var(--shadow-lg);">
+    <div style="margin-bottom: 2rem;">
+      <h1 style="font-size: 1.6rem; margin-bottom: 0.35rem; color: var(--text-primary); font-weight: 800;">
+        {% if is_edit %}✏️ {{ title }}{% else %}👤 {{ title }}{% endif %}
+      </h1>
+      <p style="font-size: 0.88rem; color: var(--text-secondary);">
+        {% if is_edit %}
+          Update resident KYC information, contact details, resident type, and flat allocation.
+        {% else %}
+          Enroll a new homeowner or tenant into the Emerald Greens society directory.
+        {% endif %}
+      </p>
+    </div>
+
+    <form method="post">
+      {% csrf_token %}
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem;">
+        <!-- First Name -->
+        <div class="form-group">
+          <label class="form-label">First Name *</label>
+          {{ form.first_name }}
+          {% if form.first_name.errors %}<div style="color: var(--accent-rose); font-size: 0.8rem;">{{ form.first_name.errors.0 }}</div>{% endif %}
+        </div>
+
+        <!-- Last Name -->
+        <div class="form-group">
+          <label class="form-label">Last Name *</label>
+          {{ form.last_name }}
+          {% if form.last_name.errors %}<div style="color: var(--accent-rose); font-size: 0.8rem;">{{ form.last_name.errors.0 }}</div>{% endif %}
+        </div>
+
+        {% if not is_edit %}
+          <!-- Username -->
+          <div class="form-group">
+            <label class="form-label">Login Username *</label>
+            {{ form.username }}
+            {% if form.username.errors %}<div style="color: var(--accent-rose); font-size: 0.8rem;">{{ form.username.errors.0 }}</div>{% endif %}
+          </div>
+
+          <!-- Password -->
+          <div class="form-group">
+            <label class="form-label">Account Password</label>
+            {{ form.password }}
+            <small style="color: var(--text-muted); font-size: 0.75rem;">Default if empty: resident123</small>
+            {% if form.password.errors %}<div style="color: var(--accent-rose); font-size: 0.8rem;">{{ form.password.errors.0 }}</div>{% endif %}
+          </div>
+        {% endif %}
+
+        <!-- Email -->
+        <div class="form-group">
+          <label class="form-label">Registered Email Address *</label>
+          {{ form.email }}
+          {% if form.email.errors %}<div style="color: var(--accent-rose); font-size: 0.8rem;">{{ form.email.errors.0 }}</div>{% endif %}
+        </div>
+
+        <!-- Phone Number -->
+        <div class="form-group">
+          <label class="form-label">Primary Mobile / WhatsApp Number *</label>
+          {{ form.phone_number }}
+          {% if form.phone_number.errors %}<div style="color: var(--accent-rose); font-size: 0.8rem;">{{ form.phone_number.errors.0 }}</div>{% endif %}
+        </div>
+
+        <!-- Resident Type -->
+        <div class="form-group">
+          <label class="form-label">Resident Type *</label>
+          {{ form.resident_type }}
+          <small style="color: var(--text-muted); font-size: 0.75rem;">Owner Occupied or Rented Tenant</small>
+          {% if form.resident_type.errors %}<div style="color: var(--accent-rose); font-size: 0.8rem;">{{ form.resident_type.errors.0 }}</div>{% endif %}
+        </div>
+
+        <!-- Flat Allocation -->
+        <div class="form-group">
+          <label class="form-label">Assign to Flat / Unit</label>
+          {{ form.unit }}
+          <small style="color: var(--text-muted); font-size: 0.75rem;">Link resident to their society flat</small>
+          {% if form.unit.errors %}<div style="color: var(--accent-rose); font-size: 0.8rem;">{{ form.unit.errors.0 }}</div>{% endif %}
+        </div>
+
+        <!-- Occupation -->
+        <div class="form-group">
+          <label class="form-label">Profession / Occupation</label>
+          {{ form.occupation }}
+          {% if form.occupation.errors %}<div style="color: var(--accent-rose); font-size: 0.8rem;">{{ form.occupation.errors.0 }}</div>{% endif %}
+        </div>
+
+        <!-- Blood Group -->
+        <div class="form-group">
+          <label class="form-label">Blood Group (Medical Profile)</label>
+          {{ form.blood_group }}
+          {% if form.blood_group.errors %}<div style="color: var(--accent-rose); font-size: 0.8rem;">{{ form.blood_group.errors.0 }}</div>{% endif %}
+        </div>
+
+        <!-- Emergency Contact Name -->
+        <div class="form-group">
+          <label class="form-label">Emergency Contact Name</label>
+          {{ form.emergency_contact_name }}
+          {% if form.emergency_contact_name.errors %}<div style="color: var(--accent-rose); font-size: 0.8rem;">{{ form.emergency_contact_name.errors.0 }}</div>{% endif %}
+        </div>
+
+        <!-- Emergency Contact Phone -->
+        <div class="form-group">
+          <label class="form-label">Emergency Contact Phone</label>
+          {{ form.emergency_contact_phone }}
+          {% if form.emergency_contact_phone.errors %}<div style="color: var(--accent-rose); font-size: 0.8rem;">{{ form.emergency_contact_phone.errors.0 }}</div>{% endif %}
+        </div>
+      </div>
+
+      <div style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: flex-end; border-top: 1px solid var(--border-subtle); padding-top: 1.25rem;">
+        <a href="{% url 'properties:directory' %}" class="btn btn-secondary">
+          Cancel
+        </a>
+        <button type="submit" class="btn btn-primary" style="padding: 0.75rem 2rem;">
+          {% if is_edit %}💾 Update Resident Record{% else %}✨ Register Resident{% endif %}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

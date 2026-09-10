@@ -187,3 +187,38 @@ def ev_charging_view(request):
         'user_vehicles': user_vehicles,
         'recent_sessions': recent_sessions,
     })
+
+
+@login_required
+def delete_booking_view(request, pk):
+    """Delete an amenity booking reservation (Resident or Admin/Committee)."""
+    booking = get_object_or_404(AmenityBooking, pk=pk)
+    if not (request.user.is_society_admin or request.user.is_committee_member or booking.resident == request.user):
+        messages.error(request, "Permission Denied: You cannot delete this booking.")
+        return redirect('amenities:my_bookings')
+
+    if request.method == 'POST':
+        amenity_name = booking.amenity.name
+        booking.delete()
+        messages.success(request, f"Booking for {amenity_name} has been deleted.")
+        if request.user.is_society_admin or request.user.is_committee_member:
+            return redirect('amenities:manage')
+        return redirect('amenities:my_bookings')
+    return redirect('amenities:my_bookings')
+
+
+@login_required
+def delete_ev_session_view(request, pk):
+    """Delete or cancel an EV Charging session."""
+    session = get_object_or_404(EVChargingSession, pk=pk)
+    if not (request.user.is_society_admin or request.user.is_committee_member or session.user == request.user):
+        messages.error(request, "Permission Denied: You cannot delete this charging session.")
+        return redirect('amenities:ev_charging')
+
+    if request.method == 'POST':
+        station_name = session.station.station_name
+        session.delete()
+        messages.success(request, f"EV Charging record at {station_name} has been removed.")
+        return redirect('amenities:ev_charging')
+    return redirect('amenities:ev_charging')
+

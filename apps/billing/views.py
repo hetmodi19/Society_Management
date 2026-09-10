@@ -10,7 +10,7 @@ from django.db.models import Q
 from .models import MaintenanceBill, BillPayment, MaintenanceConfig, SocietyExpense
 from .forms import BatchBillGenerationForm, SocietyExpenseForm, MaintenanceConfigForm
 from apps.properties.models import Unit
-from apps.accounts.decorators import committee_required, admin_required
+from apps.accounts.decorators import committee_required, admin_required, financial_required
 
 @login_required
 def bill_list_view(request):
@@ -175,7 +175,7 @@ def financial_ledger_view(request):
     })
 
 
-@admin_required
+@financial_required
 def generate_batch_bills_view(request):
     """Batch monthly bill generator for Society Admin."""
     if request.method == 'POST':
@@ -191,13 +191,14 @@ def generate_batch_bills_view(request):
             for u in units:
                 existing = MaintenanceBill.objects.filter(unit=u, billing_month=billing_month).first()
                 if not existing:
-                    base = Decimal(str(u.square_feet)) * config.rate_per_sqft
-                    sinking = config.fixed_sinking_fund
-                    water = config.fixed_water_charge
-                    amenity = config.fixed_amenity_charge
+                    base_rate = config.base_rate_per_sqft or Decimal('3.50')
+                    base = Decimal(str(u.square_feet)) * base_rate
+                    sinking = (Decimal(str(u.square_feet)) * config.sinking_fund_rate) if config.sinking_fund_rate else Decimal('500.00')
+                    water = config.water_fixed_charge or Decimal('400.00')
+                    amenity = config.fixed_amenities_fee or Decimal('500.00')
                     
                     car_count = u.vehicles.filter(vehicle_type='CAR').count()
-                    parking = config.fixed_parking_charge_car * car_count
+                    parking = (config.parking_slot_fee or Decimal('300.00')) * car_count
 
                     total = base + sinking + water + amenity + parking
                     bill_no = f"INV-{billing_month.strftime('%Y%m')}-{u.unit_number.replace('-', '')}"
@@ -230,3 +231,32 @@ def generate_batch_bills_view(request):
         })
 
     return render(request, 'billing/generate_bills.html', {'form': form})
+
+
+@login_required
+def delete_bill_view(request, pk):
+    """Delete a maintenance bill invoice (Admin/Committee only)."""
+    bill = get_object_or_404(MaintenanceBill, pk=pk)
+    if not (request.user.is_society_admin or request.user.is_committee_member):
+        messages.error(request, "Permission Denied: Only Society Admins and Committee members can delete invoices.")
+        return redirect('billing:bills')
+
+    if request.method == 'POST':
+        bill_num = bill.bill_number
+        bill.delete()
+        messages.success(request, f"Maintenance Invoice {bill_num} has been deleted.")
+        return redirect('billing:bills')
+    return redirect('billing:detail', pk=bill.pk)
+
+
+@committee_required
+def delete_expense_view(request, pk):
+    """Delete a society ledger expense entry (Committee/Admin only)."""
+    expense = get_object_or_404(SocietyExpense, pk=pk)
+    if request.method == 'POST':
+        title = expense.title
+        expense.delete()
+        messages.success(request, f"Expense '{title}' has been removed from the ledger.")
+        return redirect('billing:ledger')
+    return redirect('billing:ledger')
+

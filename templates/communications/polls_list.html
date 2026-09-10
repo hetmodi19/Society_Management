@@ -22,7 +22,17 @@
           <span class="badge {% if poll.is_closed %}badge-neutral{% else %}badge-primary{% endif %}">
             {% if poll.is_closed %}Closed{% else %}Active Voting{% endif %}
           </span>
-          <small style="color: var(--text-muted);">{{ poll.total_votes }} total votes</small>
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <small style="color: var(--text-muted);">{{ poll.total_votes }} total votes</small>
+            {% if request.user.is_society_admin or request.user.is_committee_member or poll.created_by == request.user %}
+              <form method="post" action="{% url 'communications:delete_poll' pk=poll.pk %}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this poll?');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger btn-sm" style="padding: 0.15rem 0.45rem; font-size: 0.72rem; background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3);" title="Delete Poll">
+                  🗑️
+                </button>
+              </form>
+            {% endif %}
+          </div>
         </div>
 
         <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem; line-height: 1.35;">{{ poll.question }}</h3>

@@ -141,10 +141,16 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Auth URLs
+# Auth Configuration & Universal Multi-Identifier Login
+AUTH_USER_MODEL = 'accounts.User'
 LOGIN_URL = 'accounts:login'
 LOGIN_REDIRECT_URL = 'dashboard'
 LOGOUT_REDIRECT_URL = 'accounts:login'
+
+AUTHENTICATION_BACKENDS = [
+    'apps.accounts.backends.UniversalAuthBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
 
 # Society branding info (Indian Co-operative Housing Society & RERA Enclave)
 SOCIETY_NAME = "Emerald Greens Co-operative Housing Society Ltd."

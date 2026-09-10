@@ -250,3 +250,100 @@ def documents_vault_view(request):
         'form': form,
         'selected_category': category_filter,
     })
+
+
+@login_required
+def delete_notice_view(request, pk):
+    """Delete a notice / circular (Author or Admin/Committee)."""
+    notice = get_object_or_404(Notice, pk=pk)
+    if not (request.user.is_society_admin or request.user.is_committee_member or notice.author == request.user):
+        messages.error(request, "Permission Denied: Only Admin/Committee can delete notices.")
+        return redirect('communications:notices')
+
+    if request.method == 'POST':
+        title = notice.title
+        notice.delete()
+        messages.success(request, f"Notice '{title}' has been deleted.")
+        return redirect('communications:notices')
+    return redirect('communications:notice_detail', pk=notice.pk)
+
+
+@login_required
+def delete_poll_view(request, pk):
+    """Delete a society poll (Creator or Admin/Committee)."""
+    poll = get_object_or_404(SocietyPoll, pk=pk)
+    if not (request.user.is_society_admin or request.user.is_committee_member or poll.created_by == request.user):
+        messages.error(request, "Permission Denied: You cannot delete this poll.")
+        return redirect('communications:polls')
+
+    if request.method == 'POST':
+        q = poll.question
+        poll.delete()
+        messages.success(request, f"Poll '{q}' has been removed.")
+        return redirect('communications:polls')
+    return redirect('communications:polls')
+
+
+@login_required
+def delete_post_view(request, pk):
+    """Delete a community forum discussion post (Author or Admin/Committee)."""
+    post = get_object_or_404(DiscussionPost, pk=pk)
+    if not (request.user.is_society_admin or request.user.is_committee_member or post.author == request.user):
+        messages.error(request, "Permission Denied: You cannot delete this post.")
+        return redirect('communications:forum')
+
+    if request.method == 'POST':
+        title = post.title
+        post.delete()
+        messages.success(request, f"Discussion post '{title}' has been deleted.")
+        return redirect('communications:forum')
+    return redirect('communications:post_detail', pk=post.pk)
+
+
+@login_required
+def delete_reply_view(request, pk):
+    """Delete a discussion reply."""
+    reply = get_object_or_404(DiscussionReply, pk=pk)
+    post_pk = reply.post.pk
+    if not (request.user.is_society_admin or request.user.is_committee_member or reply.author == request.user):
+        messages.error(request, "Permission Denied: You cannot delete this reply.")
+        return redirect('communications:post_detail', pk=post_pk)
+
+    if request.method == 'POST':
+        reply.delete()
+        messages.success(request, "Reply deleted.")
+        return redirect('communications:post_detail', pk=post_pk)
+    return redirect('communications:post_detail', pk=post_pk)
+
+
+@login_required
+def delete_lost_found_view(request, pk):
+    """Delete a lost and found listing."""
+    item = get_object_or_404(LostAndFoundItem, pk=pk)
+    if not (request.user.is_society_admin or request.user.is_committee_member or item.reported_by == request.user):
+        messages.error(request, "Permission Denied: You cannot delete this item.")
+        return redirect('communications:lost_found')
+
+    if request.method == 'POST':
+        name = item.item_name
+        item.delete()
+        messages.success(request, f"Lost & Found item '{name}' has been deleted.")
+        return redirect('communications:lost_found')
+    return redirect('communications:lost_found')
+
+
+@login_required
+def delete_document_view(request, pk):
+    """Delete a document from society vault (Admin/Committee only)."""
+    doc = get_object_or_404(SocietyDocument, pk=pk)
+    if not (request.user.is_society_admin or request.user.is_committee_member):
+        messages.error(request, "Permission Denied: Only Admin/Committee can delete documents.")
+        return redirect('communications:documents')
+
+    if request.method == 'POST':
+        title = doc.title
+        doc.delete()
+        messages.success(request, f"Document '{title}' has been deleted from the vault.")
+        return redirect('communications:documents')
+    return redirect('communications:documents')
+
