@@ -124,6 +124,8 @@ def dashboard_view(request):
 
         recent_tickets = MaintenanceTicket.objects.select_related('unit', 'resident').order_by('-created_at')[:5]
         recent_visitors = VisitorLog.objects.select_related('unit').order_by('-entry_time')[:5]
+        owner_occupied_units = Unit.objects.filter(occupancy_status=Unit.OccupancyStatus.OWNER).count()
+        tenant_occupied_units = Unit.objects.filter(occupancy_status=Unit.OccupancyStatus.TENANT).count()
 
         # 8. Dynamic 6-Month Fiscal Cashflow Trend (Revenue vs Expenses)
         cashflow_labels = []
@@ -196,8 +198,20 @@ def dashboard_view(request):
             'monthly_pending': monthly_pending,
             'collection_percentage': collection_percentage,
             'net_reserve': net_reserve,
-            
+            'monthly_pending': monthly_pending,
+            'collection_percentage': collection_percentage,
+            'net_reserve': net_reserve,
+            'total_revenue': monthly_collected,
+            'outstanding_dues': monthly_pending,
+            'unpaid_bills_count': month_bills.filter(status__in=[MaintenanceBill.Status.UNPAID, MaintenanceBill.Status.OVERDUE, MaintenanceBill.Status.PARTIAL]).count(),
             'pending_tickets': pending_tickets,
+            'owner_occupied_units': owner_occupied_units,
+            'tenant_occupied_units': tenant_occupied_units,
+            'inside_visitors_count': active_visitors_count,
+            'active_visitors_count': active_visitors_count,
+            'open_tickets': open_tickets,
+            'in_progress_tickets': in_progress_tickets,
+
             'open_tickets': open_tickets,
             'in_progress_tickets': in_progress_tickets,
             
@@ -339,6 +353,7 @@ def dashboard_view(request):
         all_my_tickets = MaintenanceTicket.objects.filter(resident=user).order_by('-created_at')
         my_tickets = all_my_tickets[:5]
         open_tickets = all_my_tickets.filter(status__in=[MaintenanceTicket.Status.OPEN, MaintenanceTicket.Status.IN_PROGRESS])
+
         my_parcels = ParcelLog.objects.filter(unit__in=resident_flats, is_collected=False)
         my_amenity_bookings = AmenityBooking.objects.filter(resident=user, booking_date__gte=today, status=AmenityBooking.Status.CONFIRMED)[:5]
         my_vehicles = user.vehicles.filter(is_active=True)
@@ -353,9 +368,18 @@ def dashboard_view(request):
             'total_due_amount': total_due_amount,
             'total_unpaid_amount': total_due_amount,
             'latest_bill': latest_bill,
+            'my_bills': bills,
+            'my_unpaid_bills': unpaid_bills,
+            'active_passes': active_passes,
+            'my_tickets': my_tickets,
+            'my_unpaid_bills': unpaid_bills,
             'active_passes': active_passes,
             'my_tickets': my_tickets,
             'open_tickets': open_tickets,
+            'my_parcels': my_parcels,
+            'uncollected_parcels': my_parcels,
+            'my_amenity_bookings': my_amenity_bookings,
+
             'my_parcels': my_parcels,
             'uncollected_parcels': my_parcels,
             'my_amenity_bookings': my_amenity_bookings,

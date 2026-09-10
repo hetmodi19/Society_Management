@@ -31,6 +31,7 @@ class Command(BaseCommand):
                 'late_fee_percentage': Decimal('2.00'),
                 'payment_grace_days': 15,
                 'is_active': True,
+
             }
         )
         if not created:
@@ -51,11 +52,13 @@ class Command(BaseCommand):
             defaults={
                 'email': 'admin@emeraldgreens.residence',
                 'first_name': 'Rajesh',
+
                 'last_name': 'Sharma',
                 'role': User.Role.ADMIN,
                 'is_staff': True,
                 'is_superuser': True,
                 'phone_number': '+91 98201 12345',
+
                 'two_factor_enabled': True,
                 'security_pin': '8899',
             }
@@ -79,6 +82,7 @@ class Command(BaseCommand):
                 'last_name': 'Deshmukh',
                 'role': User.Role.SECRETARY,
                 'phone_number': '+91 98202 23456',
+
                 'security_pin': '4455',
             }
         )
@@ -159,6 +163,7 @@ class Command(BaseCommand):
                 'last_name': 'Malhotra',
                 'role': User.Role.OWNER,
                 'phone_number': '+91 98203 34567',
+
                 'security_pin': '1234',
             }
         )
@@ -196,6 +201,7 @@ class Command(BaseCommand):
                 'emergency_contact_phone': '+91 98203 99887',
                 'blood_group': 'O+',
                 'occupation': 'Principal Cloud Architect',
+
                 'intercom_number': '1402',
             }
         )
@@ -216,6 +222,7 @@ class Command(BaseCommand):
                 'last_name': 'Patel',
                 'role': User.Role.TENANT,
                 'phone_number': '+91 98204 45678',
+
                 'security_pin': '5678',
             }
         )
@@ -253,6 +260,7 @@ class Command(BaseCommand):
                 'emergency_contact_phone': '+91 98204 88776',
                 'blood_group': 'A+',
                 'occupation': 'Senior Product Specialist',
+
                 'intercom_number': '1201',
             }
         )
@@ -273,6 +281,7 @@ class Command(BaseCommand):
                 'last_name': 'Gurjar',
                 'role': User.Role.GUARD,
                 'phone_number': '+91 98205 56789',
+
             }
         )
         guard_user.first_name = 'Rajesh'
@@ -309,6 +318,7 @@ class Command(BaseCommand):
                 'last_name': 'Sharma',
                 'role': User.Role.STAFF,
                 'phone_number': '+91 98206 67890',
+
             }
         )
         staff_electrician.first_name = 'Mukesh'
@@ -363,6 +373,24 @@ class Command(BaseCommand):
                 'rating': Decimal('4.9'),
             }
         )
+
+        # Migrate records from older seed versions before creating renamed Indian records.
+        User.objects.filter(username='admin').update(first_name='Amit', last_name='Sharma', email='admin@emeraldgreens.residence')
+        User.objects.filter(username='secretary').update(first_name='Neha', last_name='Deshmukh', email='secretary@emeraldgreens.residence')
+        User.objects.filter(username='john_doe').update(first_name='Vikram', last_name='Joshi', email='amit.sharma@example.in')
+        User.objects.filter(username='sarah_smith').update(first_name='Pooja', last_name='Verma', email='pooja.verma@example.in')
+        User.objects.filter(username='mike_electrician').update(first_name='Sanjay', last_name='Pawar', email='sanjay.pawar@emeraldgreens.residence')
+        ResidentProfile.objects.filter(user=resident_owner).update(emergency_contact_name='Kavita Joshi', occupation='Software Engineer')
+        ResidentProfile.objects.filter(user=resident_tenant).update(emergency_contact_name='Rakesh Verma', occupation='Chartered Accountant')
+        Vehicle.objects.filter(license_plate='NY-8492-EG').update(license_plate='MH-02-EQ-8492', make_model='Tata Nexon EV (Glacier White)')
+        Vehicle.objects.filter(license_plate='NY-3109-AB').update(license_plate='MH-01-AB-3109', make_model='Maruti Suzuki Grand Vitara (Pearl White)')
+        DomesticStaff.objects.filter(name='Maria Santos').update(name='Sunita Jadhav')
+        Amenity.objects.filter(slug='olympic-infinity-pool').update(name='Emerald Greens Swimming Pool', description="Temperature-controlled pool with a separate children's area for residents.")
+        Amenity.objects.filter(slug='grand-banquet-hall').update(name='Sahyadri Community Hall', description='Air-conditioned community hall for birthdays, festivals and society meetings.')
+        LostAndFoundItem.objects.filter(item_name='BMW Car Smart Key FOB with Blue Lanyard').update(item_name='Maruti Suzuki Car Key with Red Lanyard', contact_phone='+91 98765 43212')
+        LostAndFoundItem.objects.filter(item_name='Apple AirPods Pro (2nd Gen) in White Case').update(item_name='Boat Wireless Earbuds in Black Case', contact_phone='+91 98765 43213')
+        resident_owner.refresh_from_db()
+        resident_tenant.refresh_from_db()
 
         # Login records
         LoginHistory.objects.get_or_create(
@@ -474,73 +502,6 @@ class Command(BaseCommand):
                         u_obj.parking_slot_number = f"P-{u_num}"
                         u_obj.intercom_extension = f"{flr}0{num}"
 
-                        # Systematic pattern: Occupied (Owner), Rented (Tenant), Vacant
-                        mod = unit_counter % 3
-                        if mod == 1:
-                            # Owner Occupied
-                            uname, fname, lname, em, ph, occ = owner_personas[owner_idx % len(owner_personas)]
-                            owner_idx += 1
-                            res_u, _ = User.objects.get_or_create(
-                                username=f"{uname}_{u_num.lower().replace('-', '_')}",
-                                defaults={
-                                    'first_name': fname,
-                                    'last_name': lname,
-                                    'email': em,
-                                    'phone_number': ph,
-                                    'role': User.Role.RESIDENT,
-                                }
-                            )
-                            res_u.first_name = fname
-                            res_u.last_name = lname
-                            res_u.phone_number = ph
-                            res_u.set_password('resident123')
-                            res_u.save()
-                            rp, _ = ResidentProfile.objects.get_or_create(user=res_u)
-                            rp.resident_type = ResidentProfile.ResidentType.OWNER
-                            rp.occupation = occ
-                            rp.save()
-
-                            u_obj.occupancy_status = Unit.OccupancyStatus.OWNER
-                            u_obj.owner = res_u
-                            u_obj.primary_resident = res_u
-                            u_obj.save()
-
-                        elif mod == 2:
-                            # Rented (Tenant Occupied)
-                            t_uname, t_fname, t_lname, t_em, t_ph, t_occ = tenant_personas[tenant_idx % len(tenant_personas)]
-                            tenant_idx += 1
-                            ten_u, _ = User.objects.get_or_create(
-                                username=f"{t_uname}_{u_num.lower().replace('-', '_')}",
-                                defaults={
-                                    'first_name': t_fname,
-                                    'last_name': t_lname,
-                                    'email': t_em,
-                                    'phone_number': t_ph,
-                                    'role': User.Role.RESIDENT,
-                                }
-                            )
-                            ten_u.first_name = t_fname
-                            ten_u.last_name = t_lname
-                            ten_u.phone_number = t_ph
-                            ten_u.set_password('resident123')
-                            ten_u.save()
-                            rp, _ = ResidentProfile.objects.get_or_create(user=ten_u)
-                            rp.resident_type = ResidentProfile.ResidentType.TENANT
-                            rp.occupation = t_occ
-                            rp.save()
-
-                            u_obj.occupancy_status = Unit.OccupancyStatus.TENANT
-                            u_obj.owner = secretary_user if (tenant_idx % 2 == 0) else admin_user
-                            u_obj.primary_resident = ten_u
-                            u_obj.save()
-
-                        else:
-                            # Vacant Flat (No owner/tenant display)
-                            u_obj.occupancy_status = Unit.OccupancyStatus.VACANT
-                            u_obj.owner = None
-                            u_obj.primary_resident = None
-                            u_obj.save()
-
         # 4. Vehicles with Indian Registration Plates
         Vehicle.objects.all().delete()
         veh_tata = Vehicle.objects.create(
@@ -570,6 +531,9 @@ class Command(BaseCommand):
             phone_number='+91 98207 78901',
             passcode='4412',
             working_hours='07:30 AM - 03:00 PM',
+        )
+        maid.assigned_units.add(unit_a402, unit_b201)
+
         )
         maid.assigned_units.add(unit_a402, unit_b201)
 
@@ -644,6 +608,46 @@ class Command(BaseCommand):
         )
 
         # 7. Amenities & Bookings
+        MaintenanceBill.objects.get_or_create(
+            unit=unit_b201,
+            billing_month=current_month,
+            defaults={
+                'bill_number': f"INV-{current_month.strftime('%Y%m')}-B201",
+                'resident': resident_tenant,
+                'due_date': current_month + timedelta(days=15),
+                'base_charge': Decimal('4200.00'),
+                'sinking_fund': Decimal('600.00'),
+                'parking_charge': Decimal('300.00'),
+                'water_charge': Decimal('400.00'),
+                'amenity_charge': Decimal('500.00'),
+                'total_amount': Decimal('6000.00'),
+                'paid_amount': Decimal('3000.00'),
+                'status': MaintenanceBill.Status.PARTIAL,
+            }
+        )
+
+        for title, category, amount, vendor, invoice in [
+            ('Monthly common-area electricity', SocietyExpense.Category.ELECTRICITY, Decimal('48500.00'), 'MSEDCL', 'MSEDCL-SEP-2601'),
+            ('Security guards and CCTV monitoring', SocietyExpense.Category.SECURITY, Decimal('72000.00'), 'ShieldGuard Facility Services', 'SGFS-2026-091'),
+            ('Lift annual maintenance contract', SocietyExpense.Category.LIFT_AMC, Decimal('18500.00'), 'Otis India', 'OTIS-AMC-8842'),
+            ('Monsoon plumbing repairs', SocietyExpense.Category.REPAIRS, Decimal('12750.00'), 'Patil Plumbing Works', 'PPW-1198'),
+        ]:
+            SocietyExpense.objects.get_or_create(
+                invoice_number=invoice,
+                defaults={
+                    'title': title,
+                    'category': category,
+                    'amount': amount,
+                    'expense_date': today - timedelta(days=3),
+                    'vendor_name': vendor,
+                    'approved_by': secretary_user,
+                    'recorded_by': secretary_user,
+                    'description': f'Indian society operations expense for Emerald Greens CHS Ltd. ({invoice}).',
+                }
+            )
+
+        # 7. Amenities
+
         pool, _ = Amenity.objects.get_or_create(
             slug='olympic-infinity-pool',
             defaults={
@@ -676,6 +680,29 @@ class Command(BaseCommand):
                 'requires_approval': False,
             }
         )
+        gym, _ = Amenity.objects.get_or_create(
+            slug='fitness-studio',
+            defaults={
+                'name': 'Clubhouse Fitness Studio',
+                'category': 'Wellness & Sports',
+                'description': 'Residents-only gym with cardio, strength and yoga areas.',
+                'capacity': 25,
+                'hourly_rate': Decimal('0.00'),
+                'location': 'Clubhouse First Floor',
+            }
+        )
+        tennis, _ = Amenity.objects.get_or_create(
+            slug='tennis-court',
+            defaults={
+                'name': 'Rooftop Tennis Court',
+                'category': 'Sports',
+                'description': 'Floodlit synthetic court for resident practice and coaching.',
+                'capacity': 4,
+                'hourly_rate': Decimal('250.00'),
+                'location': 'Sports Arena Rooftop',
+                'requires_approval': True,
+            }
+        )
         AmenityBooking.objects.all().delete()
         AmenityBooking.objects.create(
             amenity=banquet,
@@ -700,6 +727,18 @@ class Command(BaseCommand):
             purpose='Weekend Box Cricket League',
             total_fee=Decimal('1000.00'),
             status=AmenityBooking.Status.CONFIRMED,
+        )
+        AmenityBooking.objects.get_or_create(
+            amenity=tennis, resident=resident_tenant, unit=unit_b201,
+            booking_date=today + timedelta(days=2), start_time=time(7, 0),
+            defaults={'end_time': time(8, 0), 'guest_count': 2, 'purpose': 'Weekend tennis practice', 'total_fee': Decimal('250.00'), 'status': AmenityBooking.Status.CONFIRMED}
+        )
+        AmenityBooking.objects.get_or_create(
+            amenity=pool, resident=resident_owner, unit=unit_a402,
+            booking_date=today, start_time=time(17, 0),
+            defaults={'end_time': time(18, 0), 'guest_count': 3, 'purpose': 'Family swim', 'total_fee': Decimal('0.00'), 'status': AmenityBooking.Status.CONFIRMED}
+        )
+
         )
 
         # 7.1 Society Operating Expenses (Past 6 Months & Current Month)
@@ -802,12 +841,18 @@ class Command(BaseCommand):
             unit=unit_b201,
             resident=resident_tenant,
             move_date=today + timedelta(days=4),
+        MoveInOutRequest.objects.create(
+            unit=unit_b201,
+            resident=resident_tenant,
+            move_date=today + timedelta(days=4),
             move_type=MoveInOutRequest.MoveType.RENOVATION,
             time_slot='Morning (08:00 AM - 12:00 PM)',
             service_lift_required=True,
             moving_company_name='Agarwal Packers & Movers (Powai)',
             vehicle_count=1,
             status=MoveInOutRequest.Status.APPROVED,
+        )
+
         )
 
         # 10. Rule Violations
@@ -842,6 +887,8 @@ class Command(BaseCommand):
             contact_phone='+91 98204 45678',
         )
 
+        )
+
         # 12. Society Documents (MahaRERA & MCS Act Compliance)
         SocietyDocument.objects.all().delete()
         SocietyDocument.objects.create(
@@ -863,6 +910,9 @@ class Command(BaseCommand):
         PreApprovedPass.objects.all().delete()
         PreApprovedPass.objects.create(
             pass_code='841920',
+        PreApprovedPass.objects.all().delete()
+        PreApprovedPass.objects.create(
+            pass_code='841920',
             visitor_name='Rohan Mehta (Architect & Interior Designer)',
             visitor_phone='+91 98208 89012',
             unit=unit_a402,
@@ -872,6 +922,35 @@ class Command(BaseCommand):
             purpose='Interior Renovation & Vastu Consultation',
             is_used=False,
         )
+
+        )
+        for name, phone, visitor_type, unit, purpose, status in [
+            ('Rohan Mehta', '+91 98111 22334', VisitorLog.VisitorType.GUEST, unit_a402, 'Family dinner', VisitorLog.Status.INSIDE),
+            ('Priya Nair', '+91 98222 33445', VisitorLog.VisitorType.DELIVERY, unit_b201, 'Grocery delivery', VisitorLog.Status.CHECKED_OUT),
+            ('Suresh Patil', '+91 98333 44556', VisitorLog.VisitorType.SERVICE, unit_a402, 'AC servicing', VisitorLog.Status.INSIDE),
+        ]:
+            VisitorLog.objects.get_or_create(
+                visitor_name=name, unit=unit, entry_time__date=today,
+                defaults={'phone_number': phone, 'visitor_type': visitor_type, 'host_resident': unit.primary_resident, 'purpose': purpose, 'status': status, 'entry_guard': guard_user, 'is_pre_approved': status == VisitorLog.Status.INSIDE}
+            )
+        ParcelLog.objects.get_or_create(
+            tracking_number='AMZ-MH-260901402',
+            defaults={'unit': unit_a402, 'recipient_name': resident_owner.full_name, 'courier_company': ParcelLog.DeliveryCompany.AMAZON, 'guard': guard_user}
+        )
+        ParcelLog.objects.get_or_create(
+            tracking_number='FKT-MH-260901201',
+            defaults={'unit': unit_b201, 'recipient_name': resident_tenant.full_name, 'courier_company': ParcelLog.DeliveryCompany.FLIPKART, 'guard': guard_user}
+        )
+
+        for ticket_number, title, category, priority, status, unit, resident, assigned_staff in [
+            ('TCK-2026-PLUMB1', 'Water seepage near kitchen sink', MaintenanceTicket.Category.PLUMBING, MaintenanceTicket.Priority.HIGH, MaintenanceTicket.Status.IN_PROGRESS, unit_a402, resident_owner, staff_electrician),
+            ('TCK-2026-LIFT01', 'Lift B vibration on second floor', MaintenanceTicket.Category.ELEVATOR, MaintenanceTicket.Priority.URGENT, MaintenanceTicket.Status.OPEN, unit_b201, resident_tenant, None),
+            ('TCK-2026-CCTV01', 'Intercom not connecting to main gate', MaintenanceTicket.Category.SECURITY, MaintenanceTicket.Priority.MEDIUM, MaintenanceTicket.Status.OPEN, unit_a402, resident_owner, staff_electrician),
+        ]:
+            MaintenanceTicket.objects.get_or_create(
+                ticket_number=ticket_number,
+                defaults={'title': title, 'category': category, 'priority': priority, 'status': status, 'unit': unit, 'resident': resident, 'assigned_staff': assigned_staff, 'description': f'Demo service request for Flat {unit.unit_number} at Emerald Greens CHS.'}
+            )
 
         # 14. Gatekeeper Visitor Logs & Parcels
         VisitorLog.objects.all().delete()
@@ -905,6 +984,28 @@ class Command(BaseCommand):
             tracking_number='BLK-MUM-8821',
             guard=guard_user,
             is_collected=False,
+        )
+
+        # 14. Notices & Polls
+        Notice.objects.get_or_create(
+            title='Ganesh Chaturthi General Body Meeting (2026) & Financial Audit Review',
+            defaults={
+                'notice_type': Notice.NoticeType.AGM,
+                'author': admin_user,
+                'is_pinned': True,
+                'content': 'All members are requested to attend the society meeting at the clubhouse hall on Sunday at 10:30 AM.',
+            }
+        )
+
+        poll, _ = SocietyPoll.objects.get_or_create(
+            question='Should the society install 50kW rooftop solar panels with MSEDCL net metering?',
+            defaults={
+                'description': 'The project is expected to reduce the common-area electricity bill by approximately 68%.',
+                'created_by': admin_user,
+                'end_date': today + timedelta(days=10),
+            }
+        )
+
         )
 
         # 15. Helpdesk Service Tickets with SLA
@@ -1013,5 +1114,6 @@ Pre-configured Demo Accounts (Authentic Indian Personas):
   * Resident Tenant   : Priya Patel     (User: sarah_smith      | Pass: resident123)
   * Security Guard    : Rajesh Gurjar   (User: guard_raj        | Pass: guard123)
   * Chief Technician  : Mukesh Sharma   (User: mike_electrician | Pass: staff123)
+
 ========================================================================
         '''))
