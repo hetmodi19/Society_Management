@@ -16,8 +16,8 @@
   </div>
   <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
     <a href="{% url 'billing:generate_bills' %}" class="btn btn-primary btn-sm">⚡ Run Batch Monthly Invoicing</a>
-    <a href="{% url 'billing:financial_ledger' %}" class="btn btn-secondary btn-sm">📑 Financial Ledger</a>
-    <a href="{% url 'billing:bills_list' %}" class="btn btn-outline btn-sm">💳 All Invoices</a>
+    <a href="{% url 'billing:ledger' %}" class="btn btn-secondary btn-sm">📑 Financial Ledger</a>
+    <a href="{% url 'billing:bills' %}" class="btn btn-outline btn-sm">💳 All Invoices</a>
   </div>
 </div>
 
@@ -66,7 +66,7 @@
 
 <!-- Financial Quick Operations -->
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
-  <a href="{% url 'billing:bills_list' %}" class="glass-card interactive" style="padding: 1rem; display: flex; align-items: center; gap: 0.75rem; text-decoration: none; color: var(--text-main);">
+  <a href="{% url 'billing:bills' %}" class="glass-card interactive" style="padding: 1rem; display: flex; align-items: center; gap: 0.75rem; text-decoration: none; color: var(--text-main);">
     <div style="font-size: 1.5rem; background: rgba(59, 130, 246, 0.15); width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center;">💳</div>
     <div>
       <div style="font-weight: 700; font-size: 0.95rem;">Maintenance Bills</div>
@@ -74,7 +74,7 @@
     </div>
   </a>
 
-  <a href="{% url 'billing:financial_ledger' %}" class="glass-card interactive" style="padding: 1rem; display: flex; align-items: center; gap: 0.75rem; text-decoration: none; color: var(--text-main);">
+  <a href="{% url 'billing:ledger' %}" class="glass-card interactive" style="padding: 1rem; display: flex; align-items: center; gap: 0.75rem; text-decoration: none; color: var(--text-main);">
     <div style="font-size: 1.5rem; background: rgba(16, 185, 129, 0.15); width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center;">📑</div>
     <div>
       <div style="font-weight: 700; font-size: 0.95rem;">Audited Ledger</div>
@@ -135,7 +135,7 @@
         </h2>
         <p style="font-size: 0.75rem; color: var(--text-muted); margin: 0.2rem 0 0 0;">Pending payment past statutory grace period</p>
       </div>
-      <a href="{% url 'billing:bills_list' %}?status=OVERDUE" style="font-size: 0.8rem; color: var(--brand-primary); font-weight: 600;">View All &rarr;</a>
+      <a href="{% url 'billing:bills' %}?status=OVERDUE" style="font-size: 0.8rem; color: var(--brand-primary); font-weight: 600;">View All &rarr;</a>
     </div>
 
     <div class="table-responsive">
@@ -179,7 +179,7 @@
         <h2 style="font-size: 1.1rem; font-weight: 700; margin: 0;">💳 Real-Time Collections Stream</h2>
         <p style="font-size: 0.75rem; color: var(--text-muted); margin: 0.2rem 0 0 0;">Verified bank, UPI, and gateway receipts</p>
       </div>
-      <a href="{% url 'billing:bills_list' %}" style="font-size: 0.8rem; color: var(--brand-primary); font-weight: 600;">Full Records &rarr;</a>
+      <a href="{% url 'billing:bills' %}" style="font-size: 0.8rem; color: var(--brand-primary); font-weight: 600;">Full Records &rarr;</a>
     </div>
 
     <div class="table-responsive">

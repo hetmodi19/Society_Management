@@ -201,8 +201,6 @@ def dashboard_view(request):
             'monthly_pending': monthly_pending,
             'collection_percentage': collection_percentage,
             'net_reserve': net_reserve,
-            'total_revenue': monthly_collected,
-            'outstanding_dues': monthly_pending,
             'unpaid_bills_count': month_bills.filter(status__in=[MaintenanceBill.Status.UNPAID, MaintenanceBill.Status.OVERDUE, MaintenanceBill.Status.PARTIAL]).count(),
             'pending_tickets': pending_tickets,
             'owner_occupied_units': owner_occupied_units,
@@ -238,9 +236,9 @@ def dashboard_view(request):
         if user.role == 'SECRETARY':
             total_residents = ResidentUnitMapping.objects.filter(is_active=True).count()
             pending_move_requests = MoveInOutRequest.objects.filter(status=MoveInOutRequest.Status.PENDING).select_related('unit', 'resident')
-            active_violations = RuleViolationReport.objects.filter(is_resolved=False).select_related('unit')[:5]
+            active_violations = RuleViolationReport.objects.exclude(status=RuleViolationReport.Status.RESOLVED).select_related('unit')[:5]
             recent_units = Unit.objects.select_related('wing', 'owner', 'primary_resident').order_by('wing__code', 'unit_number')[:10]
-            recent_notices = Notice.objects.all().order_by('-published_date')[:5]
+            recent_notices = Notice.objects.all().order_by('-created_at')[:5]
 
             sec_context = dict(mgmt_context)
             sec_context.update({
@@ -369,10 +367,10 @@ def dashboard_view(request):
             'total_unpaid_amount': total_due_amount,
             'latest_bill': latest_bill,
             'my_bills': bills,
-            'my_unpaid_bills': unpaid_bills,
+            'my_unpaid_bills': my_unpaid_bills,
             'active_passes': active_passes,
             'my_tickets': my_tickets,
-            'my_unpaid_bills': unpaid_bills,
+            'my_unpaid_bills': my_unpaid_bills,
             'active_passes': active_passes,
             'my_tickets': my_tickets,
             'open_tickets': open_tickets,

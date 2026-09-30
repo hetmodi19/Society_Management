@@ -103,7 +103,7 @@
           <h2 style="font-size: 1.15rem; font-weight: 700; margin: 0;">💳 Flat Maintenance & Utility Invoices</h2>
           <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0.2rem 0 0 0;">Recent monthly statements for Flat {{ primary_unit.unit_number|default:"" }}</p>
         </div>
-        <a href="{% url 'billing:bills_list' %}" style="font-size: 0.85rem; color: var(--brand-primary); font-weight: 600;">View Invoices &rarr;</a>
+        <a href="{% url 'billing:bills' %}" style="font-size: 0.85rem; color: var(--brand-primary); font-weight: 600;">View Invoices &rarr;</a>
       </div>
 
       <div class="table-responsive">
@@ -142,9 +142,9 @@
               </td>
               <td>
                 {% if b.remaining_due > 0 %}
-                  <a href="{% url 'billing:pay_bill' b.pk %}" class="btn btn-primary btn-xs">Pay Now</a>
+                  <a href="{% url 'billing:pay' pk=b.pk %}" class="btn btn-primary btn-xs">Pay Now</a>
                 {% else %}
-                  <a href="{% url 'billing:bill_detail' b.pk %}" class="btn btn-outline btn-xs">Receipt</a>
+                  <a href="{% url 'billing:detail' pk=b.pk %}" class="btn btn-outline btn-xs">Receipt</a>
                 {% endif %}
               </td>
             </tr>
@@ -259,7 +259,7 @@
         <div style="padding-bottom: 0.75rem; border-bottom: 1px solid var(--glass-border);">
           <a href="{% url 'communications:notice_detail' n.pk %}" style="font-weight: 600; font-size: 0.9rem; color: var(--text-main); text-decoration: none;">{{ n.title }}</a>
           <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">
-            {{ n.published_date|date:"d M Y" }}
+            {{ n.created_at|date:"d M Y" }}
           </div>
         </div>
         {% empty %}
